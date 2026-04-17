@@ -318,6 +318,55 @@
             font-size: .7rem; display: flex; align-items: center; justify-content: center;
         }
 
+        /* Photo gallery */
+        .detail-photo-grid { display: flex; gap: 4px; margin-bottom: 16px; border-radius: var(--radius-sm); overflow: hidden; cursor: pointer; max-height: 200px; }
+        .detail-photo-grid img { height: 200px; object-fit: cover; flex: 1; min-width: 0; }
+        .detail-photo-grid .photo-more {
+            position: relative; flex: 1; min-width: 80px;
+        }
+        .detail-photo-grid .photo-more img { width: 100%; filter: brightness(.4); }
+        .detail-photo-grid .photo-more span {
+            position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
+            color: #fff; font-weight: 700; font-size: 1.1rem;
+        }
+        .lightbox-overlay {
+            display: none; position: fixed; inset: 0; background: rgba(0,0,0,.92); z-index: 500;
+            align-items: center; justify-content: center; flex-direction: column;
+        }
+        .lightbox-overlay.active { display: flex; }
+        .lightbox-overlay img { max-width: 90vw; max-height: 80vh; object-fit: contain; border-radius: 8px; }
+        .lightbox-nav { position: absolute; top: 50%; transform: translateY(-50%); background: rgba(255,255,255,.2); border: none; color: #fff; font-size: 2rem; padding: 8px 16px; cursor: pointer; border-radius: 8px; }
+        .lightbox-nav:hover { background: rgba(255,255,255,.3); }
+        .lightbox-prev { left: 20px; }
+        .lightbox-next { right: 20px; }
+        .lightbox-close { position: absolute; top: 16px; right: 24px; background: none; border: none; color: #fff; font-size: 2rem; cursor: pointer; }
+        .lightbox-counter { color: rgba(255,255,255,.7); font-size: .875rem; margin-top: 12px; }
+        .lightbox-delete { position: absolute; top: 16px; left: 24px; background: rgba(220,50,50,.8); border: none; color: #fff; font-size: .8rem; padding: 6px 14px; cursor: pointer; border-radius: 6px; }
+        .lightbox-delete:hover { background: rgba(220,50,50,1); }
+
+        /* Detail tags (reserva, delivery) */
+        .detail-tags { display: flex; gap: 8px; margin-top: 8px; flex-wrap: wrap; }
+        .detail-tag { display: inline-flex; align-items: center; gap: 4px; padding: 3px 10px; border-radius: 50px; font-size: .75rem; font-weight: 600; }
+        .detail-tag-green { background: #e8f5e9; color: #2e7d32; }
+        .detail-tag-blue { background: #e3f2fd; color: #1565c0; }
+        .detail-tag-gray { background: var(--surface-alt); color: var(--metadata); }
+
+        /* Favorite button */
+        .fav-btn { background: none; border: none; font-size: 1.4rem; cursor: pointer; padding: 4px; transition: transform .2s; }
+        .fav-btn:hover { transform: scale(1.2); }
+        .fav-btn.active { color: #e53935; }
+
+        /* Profile page */
+        .profile-header { display: flex; align-items: center; gap: 20px; margin-bottom: 24px; padding: 20px; background: var(--surface); border-radius: var(--radius-lg); }
+        .profile-avatar { width: 64px; height: 64px; border-radius: 50%; background: var(--accent); display: flex; align-items: center; justify-content: center; color: #fff; font-size: 1.5rem; font-weight: 700; flex-shrink: 0; }
+        .profile-stats { display: flex; gap: 24px; margin-top: 8px; }
+        .profile-stat { text-align: center; cursor: pointer; }
+        .profile-stat strong { display: block; font-size: 1.1rem; color: var(--heading); }
+        .profile-stat span { font-size: .75rem; color: var(--metadata); }
+        .follow-btn { padding: 6px 20px; border-radius: 50px; font-size: .8125rem; font-weight: 600; cursor: pointer; border: 1.5px solid var(--accent); transition: all .2s; }
+        .follow-btn-follow { background: var(--accent); color: #fff; }
+        .follow-btn-following { background: transparent; color: var(--accent); }
+
         /* Account modal */
         .tabs-toggle { display: flex; border-bottom: 2px solid var(--divider); margin-bottom: 20px; }
         .tabs-toggle button {
@@ -360,6 +409,7 @@
                 <li><a href="#" class="active" data-tab="restaurantes" onclick="switchTab('restaurantes')">Restaurantes</a></li>
                 <li><a href="#" data-tab="bares" onclick="switchTab('bares')">Bares</a></li>
                 <li><a href="#" data-tab="popular" onclick="switchTab('popular')">Populares</a></li>
+                <li><a href="#" data-tab="favoritos" onclick="switchTab('favoritos')">Favoritos</a></li>
             </ul>
             <div class="header-right" id="header-right">
                 <button class="btn btn-ghost btn-sm" onclick="openModal('account')">Criar conta</button>
@@ -402,7 +452,24 @@
             <p style="color:var(--metadata);margin-bottom:24px;font-size:.9375rem">Restaurantes e bares com mais avaliações.</p>
             <div class="restaurant-grid" id="popular-grid"></div>
         </div>
+        <div class="tab-content" id="tab-favoritos">
+            <div class="section-header"><h2>Meus Favoritos</h2></div>
+            <div class="restaurant-grid" id="fav-grid"></div>
+        </div>
+        <div class="tab-content" id="tab-profile">
+            <div id="profile-content"></div>
+        </div>
     </main>
+
+    <!-- Lightbox -->
+    <div class="lightbox-overlay" id="lightbox" onclick="if(event.target===this)closeLightbox()">
+        <button class="lightbox-close" onclick="closeLightbox()">&times;</button>
+        <button class="lightbox-nav lightbox-prev" onclick="lightboxNav(-1)">&#8249;</button>
+        <img id="lightbox-img" src="" alt="">
+        <button class="lightbox-nav lightbox-next" onclick="lightboxNav(1)">&#8250;</button>
+        <div class="lightbox-counter" id="lightbox-counter"></div>
+        <button class="lightbox-delete" id="lightbox-delete" style="display:none" onclick="lightboxDelete()">Remover foto</button>
+    </div>
 
     <footer class="site-footer">FoodView — Seu diário gastronômico pessoal.</footer>
 
@@ -507,6 +574,13 @@
                 <div class="form-group"><label>Culinária</label><input type="text" id="ep-cuisine"></div>
                 <div class="form-group"><label>Endereço</label><input type="text" id="ep-address"></div>
                 <div class="form-group"><label>Badge / Prêmio</label><input type="text" id="ep-badge" placeholder="Ex: ★ Michelin"></div>
+                <div class="form-group" style="display:flex;align-items:center;gap:12px">
+                    <label style="margin:0"><input type="checkbox" id="ep-reservation"> Aceita reserva</label>
+                </div>
+                <div class="form-group"><label>Site/Link de reserva</label><input type="text" id="ep-reservation-url" placeholder="Ex: https://restaurante.com/reserva"></div>
+                <div class="form-group" style="display:flex;align-items:center;gap:12px">
+                    <label style="margin:0"><input type="checkbox" id="ep-delivery"> Tem delivery</label>
+                </div>
                 <div style="display:flex;gap:8px;margin-top:12px">
                     <button type="submit" class="btn btn-primary" style="flex:1">Salvar</button>
                     <button type="button" class="btn btn-ghost" onclick="closeModal('editplace')">Cancelar</button>
@@ -546,6 +620,9 @@
         // In-memory cache
         let placesCache = [];
         let reviewsCache = [];
+        let favoritesCache = [];
+        let followsCache = [];
+        let profilesCache = [];
         let currentUser = null;
         let searchQuery = '';
         let categoryFilter = { restaurante: 'Todas', bar: 'Todas' };
@@ -564,15 +641,55 @@
 
         // Load data from Supabase
         async function loadData() {
-            const [{ data: places }, { data: reviews }] = await Promise.all([
+            const [{ data: places }, { data: reviews }, { data: favs }, { data: follows }, { data: profiles }] = await Promise.all([
                 sb.from('places').select('*').order('created_at', { ascending: true }),
-                sb.from('reviews').select('*').order('created_at', { ascending: false })
+                sb.from('reviews').select('*').order('created_at', { ascending: false }),
+                sb.from('favorites').select('*'),
+                sb.from('follows').select('*'),
+                sb.from('profiles').select('*')
             ]);
             placesCache = places || [];
             reviewsCache = reviews || [];
+            favoritesCache = favs || [];
+            followsCache = follows || [];
+            profilesCache = profiles || [];
             render();
             buildHeroSlides();
         }
+        function isFavorited(placeId) {
+            return currentUser && favoritesCache.some(f => f.user_id === currentUser.id && f.place_id === placeId);
+        }
+        function getFavCount(placeId) { return favoritesCache.filter(f => f.place_id === placeId).length; }
+        async function toggleFavorite(placeId, e) {
+            if (e) e.stopPropagation();
+            if (!currentUser) { openModal('account'); return; }
+            if (isFavorited(placeId)) {
+                await sb.from('favorites').delete().eq('user_id', currentUser.id).eq('place_id', placeId);
+            } else {
+                await sb.from('favorites').insert({ user_id: currentUser.id, place_id: placeId });
+            }
+            const { data: favs } = await sb.from('favorites').select('*');
+            favoritesCache = favs || [];
+            render();
+        }
+        function isFollowing(userId) {
+            return currentUser && followsCache.some(f => f.follower_id === currentUser.id && f.following_id === userId);
+        }
+        async function toggleFollow(userId) {
+            if (!currentUser) { openModal('account'); return; }
+            if (currentUser.id === userId) return;
+            if (isFollowing(userId)) {
+                await sb.from('follows').delete().eq('follower_id', currentUser.id).eq('following_id', userId);
+            } else {
+                await sb.from('follows').insert({ follower_id: currentUser.id, following_id: userId });
+            }
+            const { data: follows } = await sb.from('follows').select('*');
+            followsCache = follows || [];
+            if (document.getElementById('tab-profile').classList.contains('active')) {
+                openProfile(userId);
+            }
+        }
+        function getProfile(userId) { return profilesCache.find(p => p.id === userId); }
 
         // Upload file to Supabase Storage, return public URL
         async function uploadPhoto(file) {
@@ -594,6 +711,9 @@
             document.getElementById('ep-cuisine').value = p.cuisine || '';
             document.getElementById('ep-address').value = p.address || '';
             document.getElementById('ep-badge').value = p.badge || '';
+            document.getElementById('ep-reservation').checked = !!p.has_reservation;
+            document.getElementById('ep-reservation-url').value = p.reservation_url || '';
+            document.getElementById('ep-delivery').checked = !!p.has_delivery;
             closeModal('detail');
             document.getElementById('modal-editplace').classList.add('active');
         }
@@ -606,7 +726,10 @@
                 type: document.getElementById('ep-type').value,
                 cuisine: document.getElementById('ep-cuisine').value,
                 address: document.getElementById('ep-address').value,
-                badge: document.getElementById('ep-badge').value
+                badge: document.getElementById('ep-badge').value,
+                has_reservation: document.getElementById('ep-reservation').checked,
+                reservation_url: document.getElementById('ep-reservation-url').value,
+                has_delivery: document.getElementById('ep-delivery').checked
             }).eq('id', id);
             closeModal('editplace');
             await loadData();
@@ -700,8 +823,9 @@
             });
             if (error) { alert(error.message); return; }
             currentUser = { id: data.user.id, name, email };
+            await sb.from('profiles').upsert({ id: data.user.id, name, email });
             document.getElementById('form-register').reset();
-            closeModal('account'); updateHeader();
+            closeModal('account'); updateHeader(); await loadData();
         }
         async function loginAccount(e) {
             e.preventDefault();
@@ -738,6 +862,7 @@
                         <div class="user-dropdown" id="user-dropdown">
                             <div class="ud-name">${user.name}</div>
                             <span class="ud-email">${user.email}</span>
+                            <button class="btn btn-outline btn-sm" onclick="openProfile('${user.id}')" style="width:100%;margin-bottom:8px">Meu perfil</button>
                             <button class="btn btn-ghost btn-sm" onclick="logout()" style="width:100%">Sair</button>
                         </div>
                     </div>`;
@@ -964,18 +1089,27 @@
             const canEdit = admin || isOwner;
             const icon = r.type === 'bar' ? '🍺' : '🍽️';
 
-            const photosHTML = (r.photos && r.photos.length > 1)
-                ? `<div class="detail-photos">${r.photos.map((p, i) => `<div class="detail-photo-wrap">
-                    <img class="detail-photo" src="${p}">
-                    ${canEdit ? `<button class="detail-photo-remove" onclick="deletePhoto(${r.id},${i})" title="Remover foto">✕</button>` : ''}
-                </div>`).join('')}</div>` : '';
+            const photos = r.photos || [];
+            let photosHTML = '';
+            if (photos.length > 0) {
+                const show = photos.slice(0, 3);
+                const remaining = photos.length - 3;
+                photosHTML = `<div class="detail-photo-grid" onclick="openLightbox(${r.id}, 0)">
+                    ${show.map((p, i) => {
+                        if (i === 2 && remaining > 0) {
+                            return `<div class="photo-more"><img src="${p}"><span>+${remaining}</span></div>`;
+                        }
+                        return `<img src="${p}">`;
+                    }).join('')}
+                </div>`;
+            }
 
             const reviewsHTML = rvs.length ? rvs.map(rv => {
                 const ini = rv.author_name.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase();
                 const canDel = user && (rv.user_id === user.id || admin);
                 return `<div class="detail-review">
                     <div class="detail-review-top"><div class="detail-review-avatar">${ini}</div>
-                        <div><span class="detail-review-author">${rv.author_name}</span><span class="detail-review-date"> · ${formatDate(rv.created_at)}</span></div>
+                        <div><span class="detail-review-author" style="cursor:pointer" onclick="event.stopPropagation();closeModal('detail');openProfile('${rv.user_id}')">${rv.author_name}</span><span class="detail-review-date"> · ${formatDate(rv.created_at)}</span></div>
                     </div>
                     <div class="detail-review-stars">${starsHTML(rv.rating)}</div>
                     <div class="detail-review-text">${rv.text || ''}</div>
@@ -994,7 +1128,13 @@
                         <h2>${r.name}</h2>
                         ${r.cuisine ? `<div class="detail-cuisine">${r.cuisine}${r.address ? ' · ' + r.address : ''}</div>` : ''}
                         ${count > 0 ? `<div class="detail-rating-row"><span class="detail-avg">${avg}</span><span class="detail-stars">${starsHTML(parseFloat(avg))}</span><span class="detail-count">(${count} ${count === 1 ? 'avaliação' : 'avaliações'})</span></div>` : `<div class="detail-count" style="margin-top:4px">Sem avaliações ainda</div>`}
+                        <div class="detail-tags">
+                            ${r.has_reservation ? `<span class="detail-tag detail-tag-green">📅 Reserva${r.reservation_url ? ` · <a href="${r.reservation_url}" target="_blank" style="color:inherit">Reservar</a>` : ''}</span>` : ''}
+                            ${r.has_delivery ? `<span class="detail-tag detail-tag-blue">🛵 Delivery</span>` : ''}
+                            <span class="detail-tag detail-tag-gray">❤️ ${getFavCount(r.id)} curtida${getFavCount(r.id) !== 1 ? 's' : ''}</span>
+                        </div>
                         <div class="detail-actions">
+                            <button class="fav-btn ${isFavorited(r.id) ? 'active' : ''}" onclick="toggleFavorite(${r.id})" title="Curtir">${isFavorited(r.id) ? '❤️' : '🤍'}</button>
                             <button class="btn btn-primary btn-sm" onclick="openReviewModal(${r.id})" style="margin-top:10px">Avaliar</button>
                             <button class="btn btn-outline btn-sm" onclick="openAddPhotoModal(${r.id})" style="margin-top:10px">Adicionar fotos</button>
                             ${canEdit ? `<button class="btn btn-ghost btn-sm" onclick="editPlaceImage(${r.id})" style="margin-top:10px">Editar capa</button>` : ''}
@@ -1009,6 +1149,95 @@
                 <div class="detail-reviews-header"><span class="detail-reviews-title">Avaliações (${count})</span></div>
                 ${reviewsHTML}`;
             document.getElementById('modal-detail').classList.add('active');
+        }
+
+        // Lightbox
+        let lbPhotos = [], lbIndex = 0, lbPlaceId = null;
+        function openLightbox(placeId, index) {
+            const p = getPlaceById(placeId);
+            if (!p || !p.photos || !p.photos.length) return;
+            lbPhotos = p.photos; lbIndex = index || 0; lbPlaceId = placeId;
+            updateLightbox();
+            document.getElementById('lightbox').classList.add('active');
+        }
+        function closeLightbox() { document.getElementById('lightbox').classList.remove('active'); }
+        function lightboxNav(dir) {
+            lbIndex = (lbIndex + dir + lbPhotos.length) % lbPhotos.length;
+            updateLightbox();
+        }
+        function updateLightbox() {
+            document.getElementById('lightbox-img').src = lbPhotos[lbIndex];
+            document.getElementById('lightbox-counter').textContent = `${lbIndex + 1} / ${lbPhotos.length}`;
+            const canDel = isAdmin() || (currentUser && getPlaceById(lbPlaceId)?.user_id === currentUser.id);
+            document.getElementById('lightbox-delete').style.display = canDel ? 'block' : 'none';
+        }
+        async function lightboxDelete() {
+            if (!confirm('Remover esta foto?')) return;
+            await deletePhoto(lbPlaceId, lbIndex);
+            const p = getPlaceById(lbPlaceId);
+            if (!p || !p.photos || !p.photos.length) { closeLightbox(); return; }
+            lbPhotos = p.photos;
+            lbIndex = Math.min(lbIndex, lbPhotos.length - 1);
+            updateLightbox();
+        }
+        document.addEventListener('keydown', e => {
+            if (!document.getElementById('lightbox').classList.contains('active')) return;
+            if (e.key === 'Escape') closeLightbox();
+            if (e.key === 'ArrowLeft') lightboxNav(-1);
+            if (e.key === 'ArrowRight') lightboxNav(1);
+        });
+
+        // Profile
+        function openProfile(userId) {
+            const profile = getProfile(userId);
+            if (!profile) return;
+            const userReviews = reviewsCache.filter(rv => rv.user_id === userId);
+            const userFavs = favoritesCache.filter(f => f.user_id === userId);
+            const followers = followsCache.filter(f => f.following_id === userId);
+            const following = followsCache.filter(f => f.follower_id === userId);
+            const initials = profile.name.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase();
+            const isMe = currentUser && currentUser.id === userId;
+
+            const reviewsHTML = userReviews.length ? userReviews.map(rv => {
+                const place = getPlaceById(rv.place_id);
+                return `<div class="detail-review" style="cursor:pointer" onclick="openDetail(${rv.place_id})">
+                    <div style="display:flex;justify-content:space-between;align-items:center">
+                        <strong style="color:var(--heading)">${place ? place.name : 'Desconhecido'}</strong>
+                        <span class="detail-review-date">${formatDate(rv.created_at)}</span>
+                    </div>
+                    <div class="detail-review-stars">${starsHTML(rv.rating)}</div>
+                    <div class="detail-review-text">${rv.text || ''}</div>
+                </div>`;
+            }).join('') : '<div class="detail-empty">Nenhuma avaliação ainda.</div>';
+
+            const favsHTML = userFavs.length ? `<div class="restaurant-grid" style="margin-top:16px">${userFavs.map(f => {
+                const p = getPlaceById(f.place_id);
+                return p ? renderCard(p) : '';
+            }).join('')}</div>` : '<div class="detail-empty">Nenhum favorito ainda.</div>';
+
+            document.getElementById('profile-content').innerHTML = `
+                <div class="profile-header">
+                    <div class="profile-avatar">${initials}</div>
+                    <div style="flex:1">
+                        <h2 style="margin:0">${profile.name}</h2>
+                        <div style="color:var(--metadata);font-size:.8125rem">${profile.email}</div>
+                        <div class="profile-stats">
+                            <div class="profile-stat"><strong>${userReviews.length}</strong><span>avaliações</span></div>
+                            <div class="profile-stat"><strong>${userFavs.length}</strong><span>favoritos</span></div>
+                            <div class="profile-stat"><strong>${followers.length}</strong><span>seguidores</span></div>
+                            <div class="profile-stat"><strong>${following.length}</strong><span>seguindo</span></div>
+                        </div>
+                    </div>
+                    ${!isMe && currentUser ? `<button class="follow-btn ${isFollowing(userId) ? 'follow-btn-following' : 'follow-btn-follow'}" onclick="toggleFollow('${userId}')">${isFollowing(userId) ? 'Seguindo' : 'Seguir'}</button>` : ''}
+                </div>
+                <h3 style="margin-bottom:12px">Avaliações</h3>
+                ${reviewsHTML}
+                <h3 style="margin:24px 0 12px">Favoritos</h3>
+                ${favsHTML}
+            `;
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+            document.getElementById('tab-profile').classList.add('active');
+            document.querySelectorAll('.nav-links a').forEach(a => a.classList.remove('active'));
         }
 
         // Render
@@ -1028,6 +1257,10 @@
                         ${count > 0 ? `<span class="card-stars">${starsHTML(parseFloat(avg))}</span><span class="card-rating-num">${avg}</span><span class="card-reviews-count">(${count})</span>` : `<span class="card-reviews-count">Sem avaliações</span>`}
                     </div>
                     ${rank ? `<div class="popular-stats"><span class="popular-stat">📝 ${count} avaliações</span><span class="popular-stat">⭐ ${avg} média</span></div>` : ''}
+                    <div style="display:flex;justify-content:space-between;align-items:center;margin-top:4px">
+                        <button class="fav-btn ${isFavorited(r.id) ? 'active' : ''}" onclick="event.stopPropagation();toggleFavorite(${r.id})" title="Curtir">${isFavorited(r.id) ? '❤️' : '🤍'}</button>
+                        <span style="font-size:.75rem;color:var(--metadata)">${getFavCount(r.id)} ❤️</span>
+                    </div>
                 </div>
             </div>`;
         }
@@ -1049,6 +1282,14 @@
             let all = searchQuery ? placesCache.filter(p => p.name.toLowerCase().includes(searchQuery) || (p.cuisine && p.cuisine.toLowerCase().includes(searchQuery))) : placesCache;
             const ranked = all.map(r => ({ ...r, ...getPlaceRating(r.id) })).filter(r => r.count > 0).sort((a, b) => b.count - a.count || parseFloat(b.avg) - parseFloat(a.avg));
             document.getElementById('popular-grid').innerHTML = ranked.length ? ranked.map((r, i) => renderCard(r, { rank: i + 1 })).join('') : `<div class="empty-state" style="grid-column:1/-1"><p>Ainda não há lugares com avaliações.</p></div>`;
+            // Favoritos
+            if (currentUser) {
+                const myFavs = favoritesCache.filter(f => f.user_id === currentUser.id);
+                const favPlaces = myFavs.map(f => getPlaceById(f.place_id)).filter(Boolean);
+                document.getElementById('fav-grid').innerHTML = favPlaces.length ? favPlaces.map(r => renderCard(r)).join('') : `<div class="empty-state" style="grid-column:1/-1"><p>Você ainda não curtiu nenhum lugar.</p><p style="font-size:.8125rem">Clique no 🤍 em qualquer restaurante ou bar para salvar.</p></div>`;
+            } else {
+                document.getElementById('fav-grid').innerHTML = `<div class="empty-state" style="grid-column:1/-1"><p>Faça login para ver seus favoritos.</p><button class="btn btn-primary" onclick="openModal('account')">Entrar</button></div>`;
+            }
         }
 
         // Init
