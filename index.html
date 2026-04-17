@@ -565,6 +565,16 @@
             return data.publicUrl;
         }
 
+        // Toggle featured (admin only)
+        async function toggleFeatured(id) {
+            const p = getPlaceById(id);
+            if (!p || !isAdmin()) return;
+            const newVal = !p.featured;
+            await sb.from('places').update({ featured: newVal }).eq('id', id);
+            await loadData();
+            openDetail(id);
+        }
+
         // Hero slideshow
         let heroInterval, heroIndex = 0;
         function buildHeroSlides() {
@@ -575,7 +585,8 @@
                 container.innerHTML = '<div class="hero-slide active"><div class="hero-slide-placeholder"></div></div>';
                 featured.textContent = ''; return;
             }
-            const slides = withImages.slice(0, 8);
+            const featuredPlaces = withImages.filter(p => p.featured);
+            const slides = featuredPlaces.length ? featuredPlaces.slice(0, 8) : withImages.slice(0, 8);
             container.innerHTML = slides.map((p, i) => {
                 const src = p.image_url || (p.photos && p.photos[0]) || '';
                 return `<div class="hero-slide ${i === 0 ? 'active' : ''}">
@@ -937,6 +948,7 @@
                             <button class="btn btn-primary btn-sm" onclick="openReviewModal(${r.id})" style="margin-top:10px">Avaliar</button>
                             <button class="btn btn-outline btn-sm" onclick="openAddPhotoModal(${r.id})" style="margin-top:10px">Adicionar fotos</button>
                             ${canEdit ? `<button class="btn btn-ghost btn-sm" onclick="editPlaceImage(${r.id})" style="margin-top:10px">Editar capa</button>` : ''}
+                            ${admin ? `<button class="btn ${r.featured ? 'btn-primary' : 'btn-outline'} btn-sm" onclick="toggleFeatured(${r.id})" style="margin-top:10px">${r.featured ? '★ No Hero' : '☆ Destacar no Hero'}</button>` : ''}
                             ${canEdit ? `<button class="btn btn-ghost btn-sm" onclick="deletePlace(${r.id})" style="margin-top:10px">Remover</button>` : ''}
                         </div>
                     </div>
