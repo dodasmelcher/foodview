@@ -276,7 +276,7 @@
         .empty-state p { font-size: 1rem; margin-bottom: 16px; }
 
         /* Detail Modal */
-        .modal-wide { max-width: 620px; }
+        .modal-wide { max-width: 620px; position: relative; }
         .detail-header { display: flex; gap: 20px; margin-bottom: 24px; }
         .detail-image { width: 160px; min-width: 160px; aspect-ratio: 4/3; border-radius: var(--radius-md); object-fit: cover; background: var(--surface-alt); }
         .detail-image-placeholder {
@@ -440,7 +440,7 @@
     </div>
 
     <!-- Modal: Add Review -->
-    <div class="modal-overlay" id="modal-review">
+    <div class="modal-overlay" id="modal-review" style="z-index:210">
         <div class="modal">
             <h2>Nova avaliação</h2>
             <form id="form-review" onsubmit="addReview(event)">
@@ -869,6 +869,7 @@
         function openReviewModal(placeId) {
             if (!getUser()) { openModal('account'); return; }
             document.getElementById('rv-place-id').value = placeId;
+            closeModal('detail');
             openModal('review');
         }
         function previewReviewImages(input) {
@@ -984,6 +985,7 @@
             }).join('') : `<div class="detail-empty">Nenhuma avaliação ainda.</div>`;
 
             document.getElementById('detail-content').innerHTML = `
+                <button onclick="closeModal('detail')" style="position:absolute;top:12px;right:12px;background:none;border:none;font-size:1.5rem;cursor:pointer;color:#666;z-index:1">&times;</button>
                 <div class="detail-header">
                     ${r.image_url ? `<img class="detail-image" src="${r.image_url}" alt="${r.name}">` : `<div class="detail-image-placeholder">${icon}</div>`}
                     <div class="detail-info">
