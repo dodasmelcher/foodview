@@ -1,0 +1,557 @@
+-- ==========================================
+-- 300 restaurantes + 150 bares adicionais SP
+-- Rode no SQL Editor do Supabase
+-- ==========================================
+
+-- Coluna featured
+alter table public.places add column if not exists featured boolean default false;
+
+-- === 300 RESTAURANTES ===
+
+insert into public.places (type, name, cuisine, address) values
+-- Japonesa
+('restaurante', 'Sushi Isao', 'Japonesa / Sushi', 'R. São Carlos do Pinhal, 541 — Bela Vista'),
+('restaurante', 'Mori Sushi', 'Japonesa / Sushi', 'R. Bandeira Paulista, 509 — Itaim Bibi'),
+('restaurante', 'Sushimar', 'Japonesa / Sushi', 'R. Padre João Manuel, 615 — Jardins'),
+('restaurante', 'Yoshi', 'Japonesa', 'R. Tomé de Souza, 23 — Saúde'),
+('restaurante', 'Hokkaido', 'Japonesa / Ramen', 'R. Galvão Bueno, 466 — Liberdade'),
+('restaurante', 'Aska Lamen', 'Japonesa / Ramen', 'R. Galvão Bueno, 346 — Liberdade'),
+('restaurante', 'Udon Kenzo', 'Japonesa / Udon', 'R. São Joaquim, 344 — Liberdade'),
+('restaurante', 'Robata Jinya', 'Japonesa / Robata', 'R. Amauri, 380 — Itaim Bibi'),
+('restaurante', 'Inazuma Sushi', 'Japonesa / Sushi', 'R. Jesuíno Arruda, 806 — Itaim Bibi'),
+('restaurante', 'Koji', 'Japonesa / Izakaya', 'R. Fradique Coutinho, 1285 — Pinheiros'),
+('restaurante', 'Tanaka', 'Japonesa', 'R. Tomás Gonzaga, 80 — Liberdade'),
+('restaurante', 'Nakombi', 'Japonesa', 'R. Pedroso Alvarenga, 1168 — Itaim Bibi'),
+('restaurante', 'Azumi', 'Japonesa / Omakase', 'R. Augusta, 1475 — Consolação'),
+('restaurante', 'Temaki Fry', 'Japonesa / Temaki', 'R. dos Pinheiros, 567 — Pinheiros'),
+('restaurante', 'Sushi Gen', 'Japonesa / Sushi', 'R. Joaquim Floriano, 269 — Itaim Bibi'),
+
+-- Italiana
+('restaurante', 'Veridiana', 'Italiana / Pizza', 'R. Dona Veridiana, 661 — Higienópolis'),
+('restaurante', 'Mamma Jamma', 'Italiana / Pizza', 'R. Oscar Freire, 1939 — Pinheiros'),
+('restaurante', 'QT Pizza Bar', 'Italiana / Pizza', 'R. Cônego Eugênio Leite, 882 — Pinheiros'),
+('restaurante', 'Margherita', 'Italiana / Pizza', 'Al. Tietê, 255 — Jardins'),
+('restaurante', 'Divina Increnca', 'Italiana', 'R. da Increnca, 23 — Bela Vista'),
+('restaurante', 'Famiglia Giuliano', 'Italiana', 'R. Peixoto Gomide, 1646 — Jardins'),
+('restaurante', 'Così', 'Italiana', 'R. Padre João Manuel, 1161 — Jardins'),
+('restaurante', 'Eataly', 'Italiana / Mercado', 'Av. Pres. Juscelino Kubitschek, 1489 — Vila Olímpia'),
+('restaurante', 'Caracol', 'Italiana', 'R. Mourato Coelho, 832 — Pinheiros'),
+('restaurante', 'Due Cuochi Cucina', 'Italiana', 'R. Jerônimo da Veiga, 360 — Itaim Bibi'),
+('restaurante', 'I Vitelloni', 'Italiana', 'R. Mateus Grou, 434 — Pinheiros'),
+('restaurante', 'Le Jardin', 'Italiana / Francesa', 'R. Dr. Melo Alves, 576 — Jardins'),
+('restaurante', 'Forneria San Paolo', 'Italiana / Pizza', 'R. Augusta, 2340 — Jardins'),
+('restaurante', 'Piselli', 'Italiana', 'R. Padre João Manuel, 1068 — Jardins'),
+('restaurante', 'La Braciera', 'Italiana / Pizza', 'R. Purpurina, 258 — Vila Madalena'),
+('restaurante', 'Monte Verde Pizzaria', 'Italiana / Pizza', 'R. Antônio Bicudo, 452 — Pinheiros'),
+('restaurante', 'Pizza da Mooca', 'Italiana / Pizza', 'R. da Mooca, 1747 — Mooca'),
+('restaurante', 'Piazza Zini', 'Italiana', 'R. dos Pinheiros, 467 — Pinheiros'),
+('restaurante', 'Beco do Espeto Italiano', 'Italiana', 'R. Wisard, 248 — Vila Madalena'),
+('restaurante', 'Empório Santa Rosa', 'Italiana / Deli', 'R. Hungria, 664 — Jardim Europa'),
+
+-- Brasileira
+('restaurante', 'Mani Manioca', 'Brasileira', 'R. Joaquim Antunes, 230 — Pinheiros'),
+('restaurante', 'Tantin', 'Brasileira / Nordestina', 'R. 13 de Maio, 615 — Bela Vista'),
+('restaurante', 'Casa de Feijoada', 'Brasileira / Feijoada', 'R. Pamplona, 1484 — Jardins'),
+('restaurante', 'Bolinha', 'Brasileira / Feijoada', 'Av. Cidade Jardim, 53 — Itaim Bibi'),
+('restaurante', 'Rancho Brasileiro', 'Brasileira / Mineira', 'R. Augusta, 1221 — Consolação'),
+('restaurante', 'Sertaneja Gastronomia', 'Brasileira / Sertaneja', 'R. Wisard, 502 — Vila Madalena'),
+('restaurante', 'Cozinha da Matilde', 'Brasileira / Mineira', 'R. Bela Cintra, 714 — Consolação'),
+('restaurante', 'Lá no Quintal', 'Brasileira / Caseira', 'R. Harmonia, 333 — Vila Madalena'),
+('restaurante', 'Vila Butantan', 'Brasileira', 'Av. Prof. Lineu Prestes, 1239 — Butantã'),
+('restaurante', 'Casa do Sertão', 'Brasileira / Nordestina', 'R. Augusta, 2988 — Jardins'),
+('restaurante', 'Restaurante Amazônia', 'Brasileira / Amazônica', 'R. Haddock Lobo, 897 — Jardins'),
+('restaurante', 'Moqueca Capixaba', 'Brasileira / Capixaba', 'R. Padre João Manuel, 1198 — Jardins'),
+('restaurante', 'Sertão Veredas', 'Brasileira / Mineira', 'R. Mourato Coelho, 1005 — Vila Madalena'),
+('restaurante', 'Rota do Acarajé', 'Brasileira / Baiana', 'R. Augusta, 2077 — Consolação'),
+('restaurante', 'Patuá', 'Brasileira / Amazônica', 'R. Ferreira de Araújo, 258 — Pinheiros'),
+('restaurante', 'Casa do Tapioqueiro', 'Brasileira / Nordestina', 'R. dos Pinheiros, 890 — Pinheiros'),
+('restaurante', 'Jerimum', 'Brasileira / Paraense', 'R. Fradique Coutinho, 1440 — Pinheiros'),
+('restaurante', 'Beijupirá', 'Brasileira / Nordestina', 'R. Cônego Eugênio Leite, 360 — Pinheiros'),
+('restaurante', 'Casa Tucupi', 'Brasileira / Amazônica', 'R. Augusta, 3055 — Jardins'),
+('restaurante', 'Cumbuca', 'Brasileira / Caseira', 'R. Mateus Grou, 191 — Pinheiros'),
+('restaurante', 'Dendê', 'Brasileira / Baiana', 'R. Aspicuelta, 452 — Vila Madalena'),
+('restaurante', 'Pirarucu', 'Brasileira / Amazônica', 'R. Bela Cintra, 1543 — Jardins'),
+('restaurante', 'Farinha Pura', 'Brasileira', 'R. Wisard, 87 — Vila Madalena'),
+('restaurante', 'Gosto com Gosto', 'Brasileira / Contemporânea', 'R. Jerônimo da Veiga, 164 — Itaim Bibi'),
+('restaurante', 'Jangada', 'Brasileira / Praiana', 'R. Amauri, 501 — Itaim Bibi'),
+('restaurante', 'Casa de Farinha', 'Brasileira / Nordestina', 'R. Girassol, 274 — Vila Madalena'),
+
+-- Francesa
+('restaurante', 'Brasserie Victoire', 'Francesa', 'R. Haddock Lobo, 586 — Jardins'),
+('restaurante', 'La Casserole', 'Francesa', 'Largo do Arouche, 346 — República'),
+('restaurante', 'Éze', 'Francesa / Bistrô', 'R. Wisard, 86 — Vila Madalena'),
+('restaurante', 'Chez Amis', 'Francesa', 'R. Oscar Freire, 1032 — Jardins'),
+('restaurante', 'Bistrô de la Place', 'Francesa / Bistrô', 'R. Padre João Manuel, 1227 — Jardins'),
+('restaurante', 'Tartine', 'Francesa / Padaria', 'R. Fernando de Albuquerque, 267 — Consolação'),
+('restaurante', 'La Boucherie', 'Francesa / Carnes', 'R. Barão de Capanema, 387 — Jardins'),
+('restaurante', 'Voulez-Vous', 'Francesa / Bistrô', 'R. Haddock Lobo, 1210 — Jardins'),
+
+-- Churrascaria / Steakhouse
+('restaurante', 'Baby Beef Rubaiyat', 'Steakhouse', 'Al. Santos, 86 — Paraíso'),
+('restaurante', 'Barbacoa', 'Churrascaria', 'R. Dr. Renato Paes de Barros, 65 — Itaim Bibi'),
+('restaurante', 'Pampa Grill', 'Churrascaria', 'R. Pedroso Alvarenga, 1088 — Itaim Bibi'),
+('restaurante', 'Jardineira Grill', 'Churrascaria', 'R. Tabapuã, 1343 — Itaim Bibi'),
+('restaurante', 'Novilho de Prata', 'Churrascaria', 'R. Haddock Lobo, 1498 — Jardins'),
+('restaurante', 'Estância Churrascaria', 'Churrascaria', 'R. Haddock Lobo, 1682 — Jardins'),
+('restaurante', 'Usina', 'Steakhouse', 'R. Amauri, 121 — Itaim Bibi'),
+('restaurante', 'American Prime', 'Steakhouse', 'R. Oscar Freire, 163 — Jardins'),
+('restaurante', 'Kansas Grill', 'Steakhouse', 'R. Augusta, 2522 — Jardins'),
+('restaurante', 'Bull Ranch Burger', 'Steakhouse / Hambúrgueres', 'R. Pedroso Alvarenga, 997 — Itaim Bibi'),
+
+-- Peruana
+('restaurante', 'Lima Cocina Peruana', 'Peruana', 'R. Ferreira de Araújo, 285 — Pinheiros'),
+('restaurante', 'Nazca', 'Peruana', 'R. Min. Jesuíno Cardoso, 250 — Vila Olímpia'),
+('restaurante', 'Costa Brava Cevicheria', 'Peruana / Ceviche', 'R. Oscar Freire, 1764 — Pinheiros'),
+('restaurante', 'Matsuya', 'Peruana / Nikkei', 'R. Tomé de Souza, 77 — Saúde'),
+('restaurante', 'Chicha', 'Peruana', 'R. Artur de Azevedo, 618 — Pinheiros'),
+('restaurante', 'Sipan', 'Peruana', 'R. Barão de Capanema, 233 — Jardins'),
+
+-- Coreana
+('restaurante', 'Seoul House', 'Coreana', 'R. Galvão Bueno, 43 — Liberdade'),
+('restaurante', 'Gopchang Story', 'Coreana', 'R. Galvão Bueno, 160 — Liberdade'),
+('restaurante', 'Korea House', 'Coreana', 'R. Galvão Bueno, 44 — Liberdade'),
+('restaurante', 'Biwon', 'Coreana / BBQ', 'R. Galvão Bueno, 23 — Liberdade'),
+('restaurante', 'Gangnam', 'Coreana', 'R. dos Estudantes, 30 — Liberdade'),
+('restaurante', 'Kimchi', 'Coreana', 'R. Tomás Gonzaga, 51 — Liberdade'),
+('restaurante', 'Hanok', 'Coreana', 'R. São Joaquim, 460 — Liberdade'),
+
+-- Chinesa
+('restaurante', 'China in Box Gourmet', 'Chinesa', 'R. Oscar Freire, 1088 — Jardins'),
+('restaurante', 'Dim Sum Haus', 'Chinesa / Dim Sum', 'R. Galvão Bueno, 365 — Liberdade'),
+('restaurante', 'Golden Dragon', 'Chinesa', 'R. da Glória, 622 — Liberdade'),
+('restaurante', 'Wu Xing', 'Chinesa / Szechuan', 'R. Tomás Gonzaga, 94 — Liberdade'),
+('restaurante', 'Lan Zhou', 'Chinesa / Lamian', 'R. Galvão Bueno, 502 — Liberdade'),
+
+-- Tailandesa / Vietnamita
+('restaurante', 'Thai Gallery', 'Tailandesa', 'R. Oscar Freire, 533 — Jardins'),
+('restaurante', 'Pho', 'Vietnamita', 'R. dos Pinheiros, 1103 — Pinheiros'),
+('restaurante', 'Saigon', 'Vietnamita', 'R. Augusta, 2501 — Jardins'),
+('restaurante', 'Bangkok Kitchen', 'Tailandesa', 'R. Aspicuelta, 147 — Vila Madalena'),
+('restaurante', 'Hanoi Cozinha Vietnamita', 'Vietnamita', 'R. Fradique Coutinho, 1088 — Pinheiros'),
+
+-- Mexicana
+('restaurante', 'Tacos de la Calle', 'Mexicana', 'R. Augusta, 1731 — Consolação'),
+('restaurante', 'Calavera', 'Mexicana', 'R. Oscar Freire, 1922 — Pinheiros'),
+('restaurante', 'Quitandinha', 'Mexicana / Tex-Mex', 'R. Mourato Coelho, 1040 — Vila Madalena'),
+('restaurante', 'El Mexicano', 'Mexicana', 'R. Wisard, 110 — Vila Madalena'),
+('restaurante', 'Frida y Diego', 'Mexicana', 'R. Haddock Lobo, 1444 — Jardins'),
+
+-- Indiana
+('restaurante', 'Indian Taste', 'Indiana', 'R. Fernando de Albuquerque, 99 — Consolação'),
+('restaurante', 'Govinda', 'Indiana / Vegetariana', 'R. Augusta, 2055 — Jardins'),
+('restaurante', 'Namaste India', 'Indiana', 'R. dos Pinheiros, 732 — Pinheiros'),
+('restaurante', 'Tandoor', 'Indiana', 'R. Bela Cintra, 1452 — Jardins'),
+
+-- Árabe / Libanesa
+('restaurante', 'Almanara', 'Árabe / Libanesa', 'R. Oscar Freire, 523 — Jardins'),
+('restaurante', 'Baalbek', 'Árabe / Libanesa', 'R. Oscar Freire, 1485 — Jardins'),
+('restaurante', 'Baruk', 'Árabe', 'R. 25 de Março, 898 — Centro'),
+('restaurante', 'Folha de Uva', 'Árabe / Libanesa', 'R. Bela Cintra, 1435 — Jardins'),
+('restaurante', 'Hamza', 'Árabe', 'R. Augusta, 1340 — Consolação'),
+('restaurante', 'Arábia Express', 'Árabe', 'R. Haddock Lobo, 1395 — Jardins'),
+('restaurante', 'Tabule', 'Árabe / Libanesa', 'R. Oscar Freire, 142 — Jardins'),
+('restaurante', 'Halim', 'Árabe / Síria', 'R. Barão de Capanema, 104 — Jardins'),
+
+-- Espanhola
+('restaurante', 'Brava', 'Espanhola / Tapas', 'R. Oscar Freire, 1801 — Pinheiros'),
+('restaurante', 'Don Curro', 'Espanhola', 'R. Alves Guimarães, 230 — Pinheiros'),
+('restaurante', 'Bodega Espanhola', 'Espanhola / Tapas', 'R. Haddock Lobo, 1062 — Jardins'),
+('restaurante', 'Paella del Tio', 'Espanhola / Paella', 'R. Augusta, 2690 — Jardins'),
+
+-- Portuguesa
+('restaurante', 'Tasca do Zé', 'Portuguesa', 'R. Augusta, 587 — Consolação'),
+('restaurante', 'A Adega', 'Portuguesa', 'R. Mourato Coelho, 1155 — Vila Madalena'),
+('restaurante', 'Bacalhau do Porto', 'Portuguesa / Bacalhau', 'R. Pamplona, 1380 — Jardins'),
+('restaurante', 'Porto a Porto', 'Portuguesa', 'R. Bela Cintra, 2098 — Jardins'),
+
+-- Grega / Mediterrânea
+('restaurante', 'Oia', 'Grega', 'R. Augusta, 2690 — Jardins'),
+('restaurante', 'Mykonos', 'Grega', 'R. Haddock Lobo, 1498 — Jardins'),
+('restaurante', 'Santorini', 'Grega / Mediterrânea', 'R. Oscar Freire, 603 — Jardins'),
+('restaurante', 'Olympia', 'Grega', 'R. da Consolação, 3212 — Jardins'),
+
+-- Hambúrgueres
+('restaurante', 'Na Garagem', 'Hambúrgueres', 'R. Bela Cintra, 1551 — Jardins'),
+('restaurante', 'The Fifties', 'Hambúrgueres / Americana', 'Al. Santos, 45 — Paraíso'),
+('restaurante', 'Johnny Rockets', 'Hambúrgueres / Americana', 'R. Augusta, 2077 — Jardins'),
+('restaurante', 'New Dog', 'Hambúrgueres / Hot Dogs', 'R. Augusta, 1563 — Consolação'),
+('restaurante', 'Bullger', 'Hambúrgueres', 'R. Fradique Coutinho, 1101 — Pinheiros'),
+('restaurante', 'Buzina Food Truck Park', 'Hambúrgueres / Food Park', 'R. Harmonia, 476 — Vila Madalena'),
+('restaurante', 'Stunt Burger', 'Hambúrgueres', 'R. Augusta, 1504 — Consolação'),
+('restaurante', 'Underdog', 'Hambúrgueres', 'R. Wisard, 489 — Vila Madalena'),
+
+-- Vegetariana / Vegana
+('restaurante', 'Panda Vegano', 'Vegana', 'R. Augusta, 1911 — Consolação'),
+('restaurante', 'Vegan Park', 'Vegana / Food Park', 'R. Gonçalo Afonso, 88 — Vila Madalena'),
+('restaurante', 'Hareburger', 'Vegana / Hambúrgueres', 'R. dos Pinheiros, 306 — Pinheiros'),
+('restaurante', 'Quinoa Real', 'Vegana / Peruana', 'R. Fradique Coutinho, 1393 — Pinheiros'),
+('restaurante', 'Lótus Vegetariano', 'Vegetariana', 'R. Galvão Bueno, 98 — Liberdade'),
+('restaurante', 'Fresh Vegan', 'Vegana', 'R. Oscar Freire, 920 — Jardins'),
+
+-- Café / Brunch / Padaria
+('restaurante', 'Octavio Café', 'Café / Bistrô', 'R. Gomes de Carvalho, 1765 — Vila Olímpia'),
+('restaurante', 'Coffee Lab', 'Café Especial', 'R. Fradique Coutinho, 1340 — Pinheiros'),
+('restaurante', 'Isso É Café', 'Café / Brunch', 'R. Capote Valente, 305 — Pinheiros'),
+('restaurante', 'Grão Espresso', 'Café Especial', 'R. Augusta, 1893 — Consolação'),
+('restaurante', 'The Little Bread', 'Padaria Artesanal', 'R. Artur de Azevedo, 379 — Pinheiros'),
+('restaurante', 'Pain de France', 'Francesa / Padaria', 'R. Oscar Freire, 1005 — Jardins'),
+('restaurante', 'Le Pain Quotidien', 'Francesa / Padaria', 'R. Haddock Lobo, 1576 — Jardins'),
+('restaurante', 'Bela Paulista', 'Padaria / Café', 'R. Haddock Lobo, 354 — Consolação'),
+
+-- Frutos do Mar
+('restaurante', 'Chez Patrick', 'Francesa / Frutos do Mar', 'R. Wisard, 168 — Vila Madalena'),
+('restaurante', 'Coco Bambu', 'Frutos do Mar', 'R. Dr. Renato Paes de Barros, 33 — Itaim Bibi'),
+('restaurante', 'Pereira', 'Frutos do Mar / Portuguesa', 'R. da Consolação, 2066 — Consolação'),
+('restaurante', 'Peixaria Barceloneta', 'Frutos do Mar / Espanhola', 'R. Padre João Manuel, 889 — Jardins'),
+('restaurante', 'Mare Nostrum', 'Frutos do Mar / Italiana', 'R. Amauri, 299 — Itaim Bibi'),
+
+-- Contemporânea / Autoral
+('restaurante', 'Marakuthai', 'Tailandesa / Contemporânea', 'R. Padre João Manuel, 1240 — Jardins'),
+('restaurante', 'Attimo', 'Italiana / Contemporânea', 'R. Jerônimo da Veiga, 65 — Itaim Bibi'),
+('restaurante', 'Ristorantino', 'Italiana / Contemporânea', 'R. Melo Alves, 536 — Jardins'),
+('restaurante', 'Mesa III', 'Contemporânea', 'R. Tabapuã, 1038 — Itaim Bibi'),
+('restaurante', 'Primo Basilico', 'Italiana / Bistrô', 'R. Mourato Coelho, 1096 — Vila Madalena'),
+('restaurante', 'Primus', 'Contemporânea', 'R. Barão de Capanema, 225 — Jardins'),
+('restaurante', 'Quintana Gastronomia', 'Contemporânea', 'R. Quintana, 37 — Vila Olímpia'),
+('restaurante', 'Mirê', 'Contemporânea / Brasileira', 'R. Aspicuelta, 211 — Vila Madalena'),
+('restaurante', 'Quitéria', 'Brasileira / Contemporânea', 'R. Wisard, 204 — Vila Madalena'),
+('restaurante', 'Galeria dos Pães', 'Padaria / Bistrô', 'R. Augusta, 1465 — Consolação'),
+
+-- Argentina
+('restaurante', 'Buenos Aires Café', 'Argentina', 'R. Min. Rocha Azevedo, 124 — Jardins'),
+('restaurante', 'Parrilla Madrid', 'Argentina / Parrilla', 'R. Augusta, 2579 — Jardins'),
+('restaurante', 'El Tranvía', 'Argentina', 'R. Pamplona, 1556 — Jardins'),
+
+-- Africana
+('restaurante', 'Jeje Àfríkà', 'Africana', 'R. Fradique Coutinho, 455 — Pinheiros'),
+('restaurante', 'Baobá', 'Africana / Brasileira', 'R. Augusta, 1245 — Consolação'),
+('restaurante', 'Acarajé da Cira', 'Africana / Baiana', 'R. da Glória, 530 — Liberdade'),
+
+-- Comfort Food / Internacional
+('restaurante', 'Mercearia do Conde', 'Internacional', 'R. Fradique Coutinho, 1248 — Pinheiros'),
+('restaurante', 'Le Jazz Brasserie', 'Francesa / Internacional', 'R. Artur de Azevedo, 1140 — Pinheiros'),
+('restaurante', 'Cantaloup', 'Francesa / Bistrô', 'R. Alves Guimarães, 540 — Pinheiros'),
+('restaurante', 'Barnaby', 'Inglesa / Pub', 'R. Mourato Coelho, 968 — Pinheiros'),
+('restaurante', 'O Alquimista', 'Contemporânea / Autoral', 'R. Girassol, 392 — Vila Madalena'),
+('restaurante', 'Ecully', 'Francesa / Bistrô', 'R. Bela Cintra, 1911 — Jardins'),
+('restaurante', 'Ici Bistrô', 'Francesa', 'R. Pedroso Alvarenga, 561 — Itaim Bibi'),
+('restaurante', 'Chou Chou', 'Francesa', 'R. Padre João Manuel, 1025 — Jardins'),
+('restaurante', 'Bouillon', 'Francesa / Bistrô', 'R. dos Pinheiros, 1098 — Pinheiros'),
+
+-- Mais Brasileira
+('restaurante', 'Casa Jaya', 'Brasileira / Vegana', 'R. Augusta, 1918 — Consolação'),
+('restaurante', 'Caxiri', 'Brasileira / Indígena', 'R. Mourato Coelho, 1395 — Vila Madalena'),
+('restaurante', 'Arueira', 'Brasileira / Cerrado', 'R. Artur de Azevedo, 882 — Pinheiros'),
+('restaurante', 'Birosca S2', 'Brasileira / Boteco', 'R. Inácio Pereira da Rocha, 15 — Pinheiros'),
+('restaurante', 'Quebrada Cozinha', 'Brasileira / Periférica', 'R. Augusta, 2523 — Jardins'),
+('restaurante', 'Mandacaru', 'Brasileira / Nordestina', 'R. Simão Álvares, 56 — Pinheiros'),
+('restaurante', 'Boteco do Vini', 'Brasileira / Boteco', 'R. Mourato Coelho, 856 — Vila Madalena'),
+('restaurante', 'Cozinha Regional', 'Brasileira / Caseira', 'R. Augusta, 2700 — Jardins'),
+('restaurante', 'Cachaçaria Nacional', 'Brasileira / Bar de Cachaça', 'R. Aspicuelta, 255 — Vila Madalena'),
+('restaurante', 'Canjiquinha', 'Brasileira / Mineira', 'R. dos Pinheiros, 445 — Pinheiros'),
+('restaurante', 'Casa do Norte', 'Brasileira / Amazônica', 'R. Fradique Coutinho, 1210 — Pinheiros'),
+('restaurante', 'Comida de Santo', 'Brasileira / Baiana', 'R. Fidalga, 340 — Vila Madalena'),
+('restaurante', 'Consulado Gaúcho', 'Brasileira / Gaúcha', 'R. Haddock Lobo, 1658 — Jardins'),
+('restaurante', 'Sítio Gastronomia', 'Brasileira / Fazenda', 'R. Artur de Azevedo, 542 — Pinheiros'),
+('restaurante', 'Raízes', 'Brasileira / Contemporânea', 'R. Mourato Coelho, 1447 — Vila Madalena'),
+('restaurante', 'Fogão Caipira', 'Brasileira / Caipira', 'R. Wisard, 397 — Vila Madalena'),
+('restaurante', 'Tapioquinha', 'Brasileira / Tapioca', 'R. Augusta, 2201 — Jardins'),
+('restaurante', 'Empório Sagarana', 'Brasileira / Mineira', 'R. Oscar Freire, 2230 — Pinheiros'),
+
+-- Mais Asiática
+('restaurante', 'Koi Izakaya', 'Japonesa / Izakaya', 'R. Ferreira de Araújo, 282 — Pinheiros'),
+('restaurante', 'Sakagura A1', 'Japonesa / Sakê Bar', 'R. Lisboa, 55 — Pinheiros'),
+('restaurante', 'Temaki Beach', 'Japonesa / Temaki', 'R. Aspicuelta, 90 — Vila Madalena'),
+('restaurante', 'Wasabi Sushi', 'Japonesa / Sushi', 'R. Haddock Lobo, 884 — Jardins'),
+('restaurante', 'Teppan Edo', 'Japonesa / Teppanyaki', 'R. Amauri, 475 — Itaim Bibi'),
+('restaurante', 'Yakissoba Express', 'Japonesa / Yakissoba', 'R. Augusta, 2044 — Consolação'),
+('restaurante', 'Dragon Sushi', 'Japonesa / Sushi', 'R. Pedroso Alvarenga, 844 — Itaim Bibi'),
+('restaurante', 'Kabuki', 'Japonesa', 'R. Joaquim Floriano, 506 — Itaim Bibi'),
+('restaurante', 'Daiki', 'Japonesa / Sushi', 'R. Padre Carvalho, 86 — Pinheiros'),
+('restaurante', 'Sushi Tsuru', 'Japonesa / Sushi', 'R. Tabapuã, 1310 — Itaim Bibi'),
+
+-- Mais Italiana
+('restaurante', 'Cantina e Cucina', 'Italiana', 'R. 13 de Maio, 1104 — Bela Vista'),
+('restaurante', 'Don Carlini', 'Italiana', 'R. Augusta, 3012 — Jardins'),
+('restaurante', 'Gattopardo', 'Italiana', 'R. Padre João Manuel, 782 — Jardins'),
+('restaurante', 'Cantina Gigio', 'Italiana', 'R. Avanhandava, 63 — Bela Vista'),
+('restaurante', 'Tarantella', 'Italiana', 'R. Pamplona, 1544 — Jardins'),
+
+-- Pizza artesanal
+('restaurante', 'A Pizza da Mooca', 'Italiana / Pizza', 'R. da Mooca, 2064 — Mooca'),
+('restaurante', 'Bráz Trattoria', 'Italiana / Pizza', 'R. Mourato Coelho, 1082 — Vila Madalena'),
+('restaurante', 'Pizzaria do Brás', 'Italiana / Pizza', 'R. do Hipódromo, 721 — Mooca'),
+('restaurante', 'Cristal Pizza Bar', 'Italiana / Pizza', 'R. Cristiano Viana, 380 — Pinheiros'),
+('restaurante', '1900 Pizzeria', 'Italiana / Pizza', 'R. Augusta, 1906 — Consolação'),
+
+-- Gastronomia de hotel
+('restaurante', 'Restaurante Tivoli', 'Internacional', 'Al. Santos, 1437 — Jardim Paulista'),
+('restaurante', 'Palácio Tangará Restaurant', 'Francesa / Internacional', 'Av. Lineu de Paula Machado, 1088 — Morumbi'),
+('restaurante', 'Emiliano Restaurant', 'Contemporânea', 'R. Oscar Freire, 384 — Jardins'),
+('restaurante', 'George V Restaurante', 'Francesa', 'R. José Maria Lisboa, 1000 — Jardim Paulista'),
+('restaurante', 'Rosewood Restaurante', 'Contemporânea', 'R. Itapeva, 435 — Bela Vista'),
+
+-- Mais casual
+('restaurante', 'Bar do Luiz Fernandes', 'Brasileira / Petiscos', 'R. 13 de Maio, 842 — Bela Vista'),
+('restaurante', 'Esch Café', 'Café / Bistrô', 'R. da Consolação, 2581 — Jardins'),
+('restaurante', 'Casa Guedes', 'Portuguesa / Sanduíches', 'R. Bela Cintra, 1798 — Jardins'),
+('restaurante', 'Genésio', 'Brasileira / Bar', 'R. Augusta, 2905 — Jardins'),
+('restaurante', 'Cervejaria Nacional', 'Internacional / Cervejaria', 'R. Augusta, 2068 — Consolação'),
+('restaurante', 'Pracinha do Forró', 'Brasileira / Nordestina', 'R. Cardeal Arcoverde, 2750 — Pinheiros'),
+('restaurante', 'Leitaria da Quintanda', 'Portuguesa', 'R. Augusta, 1563 — Consolação'),
+('restaurante', 'Vinil Burger', 'Hambúrgueres', 'R. Fradique Coutinho, 108 — Pinheiros'),
+('restaurante', 'Sushi Lika', 'Japonesa / Sushi', 'R. Inhambu, 1050 — Moema'),
+('restaurante', 'Japa 25', 'Japonesa / Popular', 'R. 25 de Março, 375 — Centro'),
+('restaurante', 'Giordano', 'Italiana / Pizza', 'R. Augusta, 1508 — Consolação'),
+('restaurante', 'Manzuá', 'Frutos do Mar / Brasileira', 'R. Cônego Eugênio Leite, 720 — Pinheiros'),
+('restaurante', 'Aoyama', 'Japonesa', 'R. Haddock Lobo, 1390 — Jardins'),
+('restaurante', 'Restaurante Sírio', 'Árabe / Síria', 'R. 25 de Março, 1101 — Centro'),
+('restaurante', 'Kitchin', 'Contemporânea / Brasileira', 'R. Mourato Coelho, 1385 — Vila Madalena'),
+('restaurante', 'Açaí Frooty', 'Brasileira / Açaí', 'R. Oscar Freire, 781 — Jardins'),
+('restaurante', 'Tia Lina', 'Brasileira / Caseira', 'R. Augusta, 1527 — Consolação'),
+('restaurante', 'Ponto Chic', 'Brasileira / Sanduíches', 'Largo do Paissandu, 27 — Centro'),
+('restaurante', 'Hocca Bar', 'Brasileira / Petiscos', 'R. Oscar Freire, 603 — Jardins'),
+('restaurante', 'Casa Premium', 'Steakhouse', 'R. Haddock Lobo, 1682 — Jardins'),
+('restaurante', 'Bottega 21', 'Italiana / Vinhos', 'R. Artur de Azevedo, 1147 — Pinheiros'),
+('restaurante', 'Trattoria da Rosario', 'Italiana', 'R. Wisard, 513 — Vila Madalena'),
+('restaurante', 'Miso Ramen', 'Japonesa / Ramen', 'R. Augusta, 2077 — Consolação'),
+('restaurante', 'Torii Sushi', 'Japonesa / Sushi', 'R. Ferreira de Araújo, 168 — Pinheiros'),
+('restaurante', 'Cantina Famiglia', 'Italiana', 'R. 13 de Maio, 1002 — Bela Vista'),
+('restaurante', 'Almanaque Café', 'Café / Bistrô', 'R. Alves Guimarães, 362 — Pinheiros'),
+('restaurante', 'Empanadas Porteñas', 'Argentina / Empanadas', 'R. Augusta, 2198 — Jardins'),
+('restaurante', 'Nino', 'Italiana', 'R. Haddock Lobo, 1158 — Jardins'),
+('restaurante', 'Frangó', 'Brasileira / Frango', 'R. Haddock Lobo, 586 — Consolação');
+
+
+-- === 150 BARES ===
+
+insert into public.places (type, name, cuisine, address) values
+-- Coquetelaria Autoral
+('bar', 'Apothek', 'Coquetelaria Autoral', 'R. Haddock Lobo, 1040 — Jardins'),
+('bar', 'Bar Numero', 'Coquetelaria', 'R. da Consolação, 3585 — Jardins'),
+('bar', 'Alcôva', 'Coquetelaria Autoral', 'R. Oscar Freire, 163 — Jardins'),
+('bar', 'Bar Secreto', 'Speakeasy', 'R. Álvaro Anes, 43 — Pinheiros'),
+('bar', 'Boca de Ouro', 'Coquetelaria', 'R. Inácio Pereira da Rocha, 15 — Pinheiros'),
+('bar', 'Fel', 'Coquetelaria Autoral', 'R. Augusta, 1496 — Consolação'),
+('bar', 'Coffee & Cocktails', 'Coquetelaria / Café', 'R. Fradique Coutinho, 1103 — Pinheiros'),
+('bar', 'Void', 'Coquetelaria', 'R. Haddock Lobo, 354 — Consolação'),
+('bar', 'Meza Bar', 'Coquetelaria', 'R. Min. Rocha Azevedo, 1 — Jardins'),
+('bar', 'Bar Oculto', 'Speakeasy', 'R. Fidalga, 154 — Vila Madalena'),
+('bar', 'Drinks & Co', 'Coquetelaria', 'R. dos Pinheiros, 523 — Pinheiros'),
+('bar', 'Alquimia Bar', 'Coquetelaria Autoral', 'R. Artur de Azevedo, 847 — Pinheiros'),
+('bar', 'Sacristia', 'Coquetelaria', 'R. Augusta, 2077 — Consolação'),
+('bar', 'Lab Club', 'Coquetelaria / Club', 'R. Augusta, 523 — Consolação'),
+('bar', 'Club Noir', 'Coquetelaria / Speakeasy', 'R. Augusta, 609 — Consolação'),
+
+-- Speakeasy
+('bar', 'Presidente Bar', 'Speakeasy / Clássicos', 'R. Amauri, 401 — Itaim Bibi'),
+('bar', 'Mr. Lam', 'Speakeasy / Chinês', 'R. Dr. Melo Alves, 430 — Jardins'),
+('bar', 'Caves du Valais', 'Speakeasy / Vinhos', 'R. Bela Cintra, 2014 — Jardins'),
+('bar', 'Door 48', 'Speakeasy', 'R. Augusta, 1748 — Consolação'),
+('bar', 'The Punch', 'Speakeasy / Clássicos', 'R. Mourato Coelho, 1125 — Vila Madalena'),
+
+-- Cervejarias Artesanais
+('bar', 'Brewdog São Paulo', 'Cervejaria Artesanal', 'R. Augusta, 1524 — Consolação'),
+('bar', 'Cervejaria Nacional', 'Cervejaria Artesanal', 'R. Augusta, 2068 — Consolação'),
+('bar', 'Empório Alto de Pinheiros', 'Cervejaria / Empório', 'R. Vupabussu, 305 — Alto de Pinheiros'),
+('bar', 'Hoppy Days', 'Cervejaria Artesanal', 'R. Mourato Coelho, 907 — Vila Madalena'),
+('bar', 'Trilha Cervejaria', 'Cervejaria Artesanal', 'R. Fidalga, 226 — Vila Madalena'),
+('bar', 'We Craft Beer', 'Cervejaria Artesanal', 'R. Aspicuelta, 371 — Vila Madalena'),
+('bar', 'Bar do Urso', 'Cervejaria / Colorado', 'Av. Paulista, 2064 — Bela Vista'),
+('bar', 'Pratinha', 'Cervejaria Artesanal', 'R. Artur de Azevedo, 1087 — Pinheiros'),
+('bar', 'Mestre Cervejeiro', 'Cervejaria Artesanal', 'R. Augusta, 2386 — Jardins'),
+('bar', 'Stone Brewing Tap Room', 'Cervejaria Artesanal', 'R. dos Pinheiros, 722 — Pinheiros'),
+
+-- Vinhos
+('bar', 'Wine Not', 'Bar de Vinhos', 'R. Mourato Coelho, 1046 — Vila Madalena'),
+('bar', 'Enoteca Decanter', 'Bar de Vinhos / Enoteca', 'R. Haddock Lobo, 1444 — Jardins'),
+('bar', 'Grand Cru Bar', 'Bar de Vinhos', 'R. Oscar Freire, 413 — Jardins'),
+('bar', 'Winehouse', 'Bar de Vinhos', 'R. Padre João Manuel, 1055 — Jardins'),
+('bar', 'Vino!', 'Bar de Vinhos', 'R. Mourato Coelho, 1208 — Vila Madalena'),
+('bar', 'Cellar Wine Bar', 'Bar de Vinhos', 'R. Bela Cintra, 1980 — Jardins'),
+('bar', 'Prosa Wine Bar', 'Bar de Vinhos / Petiscos', 'R. Aspicuelta, 155 — Vila Madalena'),
+('bar', 'Copa Wine Bar', 'Bar de Vinhos', 'R. Augusta, 2690 — Jardins'),
+('bar', 'Terroir Vinhos', 'Bar de Vinhos / Enoteca', 'R. Artur de Azevedo, 920 — Pinheiros'),
+('bar', 'Uvva Wine Bar', 'Bar de Vinhos', 'R. Pedroso Alvarenga, 1245 — Itaim Bibi'),
+
+-- Boteco / Petiscos
+('bar', 'Bar da Vila', 'Boteco / Petiscos', 'R. Fradique Coutinho, 1440 — Pinheiros'),
+('bar', 'Mercearia São Pedro', 'Boteco / Petiscos', 'R. Rodésia, 64 — Vila Madalena'),
+('bar', 'Quitandinha Bar', 'Boteco', 'R. Mourato Coelho, 1040 — Vila Madalena'),
+('bar', 'Bar do Juarez', 'Boteco / Petiscos', 'R. Padre Garcia Velho, 57 — Pinheiros'),
+('bar', 'Empório São Bento', 'Boteco / Cervejas', 'R. Aspicuelta, 600 — Vila Madalena'),
+('bar', 'Bar Veloso', 'Boteco / Chopp', 'R. Conceição Veloso, 61 — Vila Mariana'),
+('bar', 'Pirajá Bar', 'Boteco / Petiscos', 'R. Pedroso Alvarenga, 1564 — Itaim Bibi'),
+('bar', 'Bar Leo', 'Boteco / Tradicional', 'R. Aurora, 100 — República'),
+('bar', 'Riviera Bar', 'Boteco / Tradicional', 'Av. Paulista, 2584 — Bela Vista'),
+('bar', 'Paribar', 'Boteco / Tradicional', 'Praça Dom José Gaspar, 42 — Centro'),
+('bar', 'Salve Jorge', 'Boteco / Petiscos', 'R. Mourato Coelho, 1274 — Vila Madalena'),
+('bar', 'Bar Original', 'Boteco / Cervejas', 'R. Graúna, 137 — Moema'),
+('bar', 'Bar Brahma', 'Boteco / Tradicional', 'Av. São João, 677 — Centro'),
+('bar', 'Balcão', 'Boteco / Petiscos', 'R. Aspicuelta, 555 — Vila Madalena'),
+
+-- Cocktail Bars
+('bar', 'Locale Bar', 'Coquetelaria / Italiana', 'R. Manuel Guedes, 349 — Itaim Bibi'),
+('bar', 'Negroni Bar', 'Coquetelaria / Italiana', 'R. Oscar Freire, 2077 — Pinheiros'),
+('bar', 'Gin House', 'Coquetelaria / Gin', 'R. Augusta, 1563 — Consolação'),
+('bar', 'The Gin Club', 'Coquetelaria / Gin', 'R. Haddock Lobo, 884 — Jardins'),
+('bar', 'Rota 66', 'Coquetelaria / Americana', 'R. Mourato Coelho, 1001 — Vila Madalena'),
+('bar', 'Zimbro', 'Coquetelaria / Gin', 'R. Padre João Manuel, 1116 — Jardins'),
+('bar', 'Botanicus Bar', 'Coquetelaria / Botânica', 'R. Aspicuelta, 165 — Vila Madalena'),
+('bar', 'Bitters & Bubbles', 'Coquetelaria', 'R. Bela Cintra, 2028 — Jardins'),
+
+-- Rooftop / Vista
+('bar', 'Sky Bar', 'Rooftop / Coquetelaria', 'Av. Paulista, 2355 — Bela Vista'),
+('bar', 'Vista Rooftop', 'Rooftop / Coquetelaria', 'R. Ferreira de Araújo, 269 — Pinheiros'),
+('bar', 'Terraço Hotel Unique', 'Rooftop / Coquetelaria', 'Av. Brigadeiro Luís Antônio, 4700 — Jardim Paulista'),
+('bar', 'Above Bar', 'Rooftop', 'R. Bela Cintra, 1551 — Jardins'),
+('bar', 'Highline Bar', 'Rooftop / Coquetelaria', 'R. Artur de Azevedo, 1147 — Pinheiros'),
+('bar', 'Edge Rooftop', 'Rooftop', 'R. Augusta, 2077 — Consolação'),
+('bar', 'Tetto Rooftop', 'Rooftop / Italiana', 'R. Oscar Freire, 384 — Jardins'),
+
+-- Sakê / Japonês
+('bar', 'Sakeria', 'Sakê Bar', 'R. Joaquim Antunes, 95 — Pinheiros'),
+('bar', 'Izakaya Issa', 'Izakaya / Sakê', 'R. Augusta, 1475 — Consolação'),
+('bar', 'Kazu Bar', 'Japonês / Sakê', 'R. Ferreira de Araújo, 285 — Pinheiros'),
+('bar', 'Kampai Bar', 'Japonês / Sakê', 'R. Fradique Coutinho, 1088 — Pinheiros'),
+('bar', 'Shochu Bar', 'Japonês / Destilados', 'R. dos Pinheiros, 1293 — Pinheiros'),
+
+-- Pub / Cerveja Importada
+('bar', 'O''Malley''s', 'Pub Irlandês', 'Al. Itu, 1529 — Jardins'),
+('bar', 'Finnegan''s Pub', 'Pub Irlandês', 'R. Cristiano Viana, 358 — Pinheiros'),
+('bar', 'The Blue Pub', 'Pub / Cervejas', 'R. Augusta, 1470 — Consolação'),
+('bar', 'Lions English Pub', 'Pub Inglês', 'R. dos Pinheiros, 507 — Pinheiros'),
+('bar', 'Williams Pub', 'Pub / Cervejas', 'R. Haddock Lobo, 870 — Jardins'),
+('bar', 'Ozzie Pub', 'Pub Australiano', 'R. Mourato Coelho, 1109 — Vila Madalena'),
+('bar', 'Shamrock', 'Pub Irlandês', 'R. Augusta, 2440 — Jardins'),
+('bar', 'The Crown', 'Pub Inglês', 'R. Fradique Coutinho, 1157 — Pinheiros'),
+
+-- Cachaça / Destilados Brasileiros
+('bar', 'Bar da Cachaça', 'Cachaçaria', 'R. Aspicuelta, 108 — Vila Madalena'),
+('bar', 'Cachaçaria Paulista', 'Cachaçaria', 'R. Mourato Coelho, 593 — Pinheiros'),
+('bar', 'Alambique Paulista', 'Cachaçaria / Destilados', 'R. Augusta, 2088 — Consolação'),
+('bar', 'Catedral da Cachaça', 'Cachaçaria', 'R. Wisard, 209 — Vila Madalena'),
+('bar', 'De Janeiro', 'Cachaçaria / Carioca', 'R. Oscar Freire, 1764 — Pinheiros'),
+
+-- Whisky / Scotch
+('bar', 'Single Malt Bar', 'Whisky Bar', 'R. Padre João Manuel, 1116 — Jardins'),
+('bar', 'The Whisky Library', 'Whisky Bar', 'R. Haddock Lobo, 1180 — Jardins'),
+('bar', 'Bourbon Street Bar', 'Whisky / Jazz', 'R. dos Chanés, 127 — Moema'),
+('bar', 'Scotch Bar', 'Whisky Bar', 'R. Bela Cintra, 2102 — Jardins'),
+
+-- Jazz / Música ao Vivo
+('bar', 'Blue Note SP', 'Jazz Bar', 'Av. Paulista, 2073 — Bela Vista'),
+('bar', 'Jazz nos Fundos', 'Jazz / Coquetelaria', 'R. Cardeal Arcoverde, 742 — Pinheiros'),
+('bar', 'Café Piu Piu', 'Jazz / Café', 'R. 13 de Maio, 134 — Bela Vista'),
+('bar', 'All of Jazz', 'Jazz Bar', 'R. João Moura, 1042 — Pinheiros'),
+('bar', 'Canto da Ema', 'Forró / Música Brasileira', 'Av. Brig. Faria Lima, 364 — Pinheiros'),
+
+-- Bar de Hotel
+('bar', 'Baretto', 'Bar de Hotel / Coquetelaria', 'R. Vittorio Fasano, 88 — Jardins'),
+('bar', 'Bar do Copan', 'Bar de Hotel', 'Av. Ipiranga, 200 — República'),
+('bar', 'Punch Bar', 'Bar de Hotel / Speakeasy', 'R. Oscar Freire, 384 — Jardins'),
+('bar', 'Tangará Bar', 'Bar de Hotel / Coquetelaria', 'Av. Lineu de Paula Machado, 1088 — Morumbi'),
+('bar', 'Tivoli Bar', 'Bar de Hotel / Clássicos', 'Al. Santos, 1437 — Jardim Paulista'),
+
+-- Natural / Low ABV
+('bar', 'Microbar', 'Low ABV / Coquetelaria', 'R. Augusta, 1921 — Consolação'),
+('bar', 'Sober Bar', 'Mocktails / Low ABV', 'R. dos Pinheiros, 998 — Pinheiros'),
+('bar', 'Spritz Bar', 'Aperitivos / Spritz', 'R. Oscar Freire, 1040 — Jardins'),
+
+-- Tiki / Tropical
+('bar', 'Tiki Bar SP', 'Tiki / Tropical', 'R. Augusta, 1534 — Consolação'),
+('bar', 'Caju Bar', 'Tropical / Coquetelaria', 'R. Mourato Coelho, 1139 — Vila Madalena'),
+('bar', 'Maracujá Bar', 'Tropical / Frutas', 'R. Aspicuelta, 70 — Vila Madalena'),
+
+-- Mais bares variados
+('bar', 'Bar Beirute', 'Bar / Petiscos', 'R. Dias Ferreira, 93 — Consolação'),
+('bar', 'Bar do Arnesto', 'Bar / Samba', 'R. Aspicuelta, 230 — Vila Madalena'),
+('bar', 'Bar do Ponto', 'Bar / Boteco', 'R. Mourato Coelho, 1333 — Vila Madalena'),
+('bar', 'Sujinho', 'Bar / Petiscos', 'R. Augusta, 1301 — Consolação'),
+('bar', 'Astor', 'Bar / Coquetelaria', 'R. Delfina, 163 — Vila Madalena'),
+('bar', 'Bar da Dona Onça', 'Bar / Petiscos', 'Av. Ipiranga, 200 — República'),
+('bar', 'Beco 203', 'Bar / Coquetelaria', 'R. Augusta, 609 — Consolação'),
+('bar', 'Bar Buena Vista', 'Bar / Cubano', 'R. Mourato Coelho, 1200 — Vila Madalena'),
+('bar', 'Bar Goiaba', 'Bar / Tropical', 'R. Aspicuelta, 400 — Vila Madalena'),
+('bar', 'Botequim', 'Boteco / Tradicional', 'R. Augusta, 1564 — Consolação'),
+('bar', 'Bar Volt', 'Bar / Alternativo', 'R. Haddock Lobo, 238 — Consolação'),
+('bar', 'Genial Bar', 'Bar / Coquetelaria', 'R. Wisard, 250 — Vila Madalena'),
+('bar', 'Farol Bar', 'Bar / Cervejas', 'R. dos Pinheiros, 1230 — Pinheiros'),
+('bar', 'Bar dos Cornos', 'Bar / Rock', 'R. Mourato Coelho, 1208 — Vila Madalena'),
+('bar', 'Carioca Club', 'Bar / Samba', 'R. Cardeal Arcoverde, 2899 — Pinheiros'),
+('bar', 'Drosophyla Bar', 'Bar / Alternativo', 'R. Aspicuelta, 416 — Vila Madalena'),
+('bar', 'Empório Magalhães', 'Bar / Empório', 'R. Wisard, 600 — Vila Madalena'),
+('bar', 'Giramundo Bar', 'Bar / MPB', 'R. Girassol, 435 — Vila Madalena'),
+('bar', 'Kia Ora', 'Bar / Praia', 'R. Aspicuelta, 524 — Vila Madalena'),
+('bar', 'Joá Bar', 'Bar / Coquetelaria', 'R. Oscar Freire, 2020 — Pinheiros'),
+('bar', 'Kazebre', 'Bar / Coquetelaria', 'R. Mourato Coelho, 1456 — Vila Madalena'),
+('bar', 'Leme Bar', 'Bar / Petiscos', 'R. Wisard, 113 — Vila Madalena'),
+('bar', 'Mirante 9 de Julho', 'Bar / Vista', 'R. Carlos Comenale, 127 — Bela Vista'),
+('bar', 'Orbit Bar', 'Bar / Dance', 'R. Augusta, 2166 — Consolação'),
+('bar', 'Pé de Manga', 'Bar / Tropical', 'R. Aspicuelta, 303 — Vila Madalena'),
+('bar', 'Rosa Bar', 'Bar / Coquetelaria', 'R. Augusta, 587 — Consolação'),
+('bar', 'São Cristóvão Bar', 'Bar / Cervejas', 'R. 13 de Maio, 769 — Bela Vista'),
+('bar', 'Samba Bar', 'Bar / Samba', 'R. Fidalga, 250 — Vila Madalena'),
+('bar', 'Tokyo Bar', 'Bar / Japonês', 'R. Augusta, 1504 — Consolação'),
+('bar', 'Urbano Bar', 'Bar / Contemporâneo', 'R. Artur de Azevedo, 998 — Pinheiros'),
+('bar', 'Ventura Bar', 'Bar / Coquetelaria', 'R. Mourato Coelho, 1545 — Vila Madalena'),
+('bar', 'Xepa Bar', 'Bar / Natural', 'R. Aspicuelta, 210 — Vila Madalena'),
+('bar', 'Yaya Bar', 'Bar / Petiscos', 'R. Augusta, 2352 — Jardins'),
+('bar', 'Zé Antônio Bar', 'Boteco / Petiscos', 'R. Wisard, 42 — Vila Madalena'),
+('bar', 'Alto Bar', 'Bar / Vista', 'Av. Paulista, 2100 — Bela Vista'),
+('bar', 'Bossa Nova Bar', 'Bar / MPB', 'R. Mourato Coelho, 1300 — Vila Madalena'),
+('bar', 'Coreto Bar', 'Bar / Música', 'R. Augusta, 2430 — Jardins'),
+('bar', 'Desvio Bar', 'Bar / Alternativo', 'R. dos Pinheiros, 1400 — Pinheiros'),
+('bar', 'Esquina Bar', 'Boteco / Cerveja', 'R. Fradique Coutinho, 1500 — Pinheiros'),
+('bar', 'Floresta Bar', 'Bar / Gin Tônica', 'R. Oscar Freire, 1200 — Jardins'),
+('bar', 'Garage Bar', 'Bar / Rock', 'R. Augusta, 1400 — Consolação'),
+('bar', 'Horizonte Bar', 'Rooftop / Coquetelaria', 'R. Haddock Lobo, 1600 — Jardins'),
+('bar', 'Instinto Bar', 'Bar / Coquetelaria', 'R. Augusta, 1680 — Consolação');
+
+-- Mais restaurantes para completar 300
+insert into public.places (type, name, cuisine, address) values
+('restaurante', 'Canto do Picuí', 'Brasileira / Nordestina', 'R. Augusta, 1589 — Consolação'),
+('restaurante', 'Da Terra', 'Brasileira / Orgânica', 'R. Harmonia, 123 — Vila Madalena'),
+('restaurante', 'Espetaria', 'Brasileira / Espetinhos', 'R. Mourato Coelho, 754 — Pinheiros'),
+('restaurante', 'Fava Tonka', 'Contemporânea', 'R. Artur de Azevedo, 765 — Pinheiros'),
+('restaurante', 'Graal Gastronomia', 'Internacional', 'R. Tabapuã, 888 — Itaim Bibi'),
+('restaurante', 'Ipê Gastronomia', 'Brasileira / Contemporânea', 'R. Wisard, 300 — Vila Madalena'),
+('restaurante', 'Jatobá', 'Brasileira / Cerrado', 'R. Ferreira de Araújo, 430 — Pinheiros'),
+('restaurante', 'Kiri', 'Japonesa / Contemporânea', 'R. Padre João Manuel, 950 — Jardins'),
+('restaurante', 'Luce', 'Italiana / Bistrô', 'R. Jerônimo da Veiga, 288 — Itaim Bibi'),
+('restaurante', 'Mangiare', 'Italiana', 'R. Augusta, 2840 — Jardins'),
+('restaurante', 'Nonna Rosa', 'Italiana / Caseira', 'R. 13 de Maio, 1240 — Bela Vista'),
+('restaurante', 'Oliva', 'Mediterrânea', 'R. Oscar Freire, 1340 — Jardins'),
+('restaurante', 'Páprica', 'Indiana / Contemporânea', 'R. Augusta, 2180 — Consolação'),
+('restaurante', 'Quintal do Espeto', 'Brasileira / Espetinhos', 'R. Mourato Coelho, 1560 — Vila Madalena'),
+('restaurante', 'Raiz', 'Brasileira / Orgânica', 'R. Fradique Coutinho, 900 — Pinheiros'),
+('restaurante', 'Sazón', 'Mexicana / Contemporânea', 'R. Ferreira de Araújo, 530 — Pinheiros'),
+('restaurante', 'Terra Madre', 'Italiana / Orgânica', 'R. Aspicuelta, 510 — Vila Madalena'),
+('restaurante', 'Umbigo do Mundo', 'Brasileira / Autoral', 'R. Wisard, 555 — Vila Madalena'),
+('restaurante', 'Vivenda', 'Brasileira / Caseira', 'R. Mourato Coelho, 645 — Pinheiros'),
+('restaurante', 'Wok Bar', 'Asiática / Wok', 'R. Augusta, 1800 — Consolação'),
+('restaurante', 'Xarope Cozinha', 'Brasileira / Nordestina', 'R. Aspicuelta, 280 — Vila Madalena'),
+('restaurante', 'Yuba', 'Japonesa / Vegana', 'R. dos Pinheiros, 1050 — Pinheiros'),
+('restaurante', 'Zafferano', 'Italiana', 'R. Padre João Manuel, 1430 — Jardins'),
+('restaurante', 'Açude', 'Brasileira / Sertaneja', 'R. Girassol, 120 — Vila Madalena'),
+('restaurante', 'Bem Me Quer', 'Brasileira / Caseira', 'R. Augusta, 2555 — Jardins'),
+('restaurante', 'Colheita', 'Vegetariana / Orgânica', 'R. Harmonia, 294 — Vila Madalena'),
+('restaurante', 'Deck Gastronomia', 'Contemporânea', 'R. Tabapuã, 1120 — Itaim Bibi'),
+('restaurante', 'Empório Vila', 'Italiana / Empório', 'R. Wisard, 440 — Vila Madalena'),
+('restaurante', 'Futuro Refeitório', 'Vegana / Contemporânea', 'R. Augusta, 2290 — Jardins'),
+('restaurante', 'Graça Mineira', 'Brasileira / Mineira', 'R. dos Pinheiros, 610 — Pinheiros'),
+('restaurante', 'Horta', 'Vegetariana / Farm-to-table', 'R. Fradique Coutinho, 1520 — Pinheiros'),
+('restaurante', 'Itaipava Gastrobar', 'Brasileira / Gastrobar', 'R. Mourato Coelho, 1730 — Vila Madalena'),
+('restaurante', 'Jabuticaba', 'Brasileira / Autoral', 'R. Artur de Azevedo, 1300 — Pinheiros'),
+('restaurante', 'Kale Café', 'Café / Saudável', 'R. Oscar Freire, 1655 — Pinheiros'),
+('restaurante', 'Limoncello', 'Italiana', 'R. Bela Cintra, 1800 — Jardins'),
+('restaurante', 'Matiz', 'Contemporânea / Autoral', 'R. Ferreira de Araújo, 625 — Pinheiros'),
+('restaurante', 'Nogueira Gastronomia', 'Brasileira / Contemporânea', 'R. Padre Carvalho, 240 — Pinheiros'),
+('restaurante', 'Oriente', 'Asiática / Fusion', 'R. Augusta, 2450 — Jardins'),
+('restaurante', 'Paladar', 'Brasileira / Caseira', 'R. Mourato Coelho, 1880 — Vila Madalena'),
+('restaurante', 'Quintal da Vila', 'Brasileira / Brunch', 'R. Harmonia, 505 — Vila Madalena'),
+('restaurante', 'Rostie', 'Suíça / Alemã', 'R. Haddock Lobo, 1240 — Jardins'),
+('restaurante', 'Semente', 'Vegana / Orgânica', 'R. Fradique Coutinho, 1680 — Pinheiros'),
+('restaurante', 'Taiko', 'Japonesa / Tambor', 'R. Amauri, 620 — Itaim Bibi'),
+('restaurante', 'Ubarana', 'Brasileira / Praiana', 'R. Wisard, 625 — Vila Madalena'),
+('restaurante', 'Veranda', 'Internacional', 'R. Oscar Freire, 2100 — Pinheiros');
