@@ -352,9 +352,10 @@
         .detail-tag-gray { background: var(--surface-alt); color: var(--metadata); }
 
         /* Favorite button */
-        .fav-btn { background: none; border: none; font-size: 1.4rem; cursor: pointer; padding: 4px; transition: transform .2s; }
-        .fav-btn:hover { transform: scale(1.2); }
-        .fav-btn.active { color: #e53935; }
+        .fav-btn { background: none; border: none; cursor: pointer; padding: 4px; transition: transform .15s; line-height: 1; }
+        .fav-btn:hover { transform: scale(1.15); }
+        .fav-btn svg { width: 18px; height: 18px; stroke: #999; stroke-width: 2; fill: none; transition: all .15s; }
+        .fav-btn.active svg { stroke: #e53935; fill: #e53935; }
 
         /* Profile page */
         .profile-header { display: flex; align-items: center; gap: 20px; margin-bottom: 24px; padding: 20px; background: var(--surface); border-radius: var(--radius-lg); }
@@ -410,6 +411,7 @@
                 <li><a href="#" data-tab="bares" onclick="switchTab('bares')">Bares</a></li>
                 <li><a href="#" data-tab="popular" onclick="switchTab('popular')">Populares</a></li>
                 <li><a href="#" data-tab="favoritos" onclick="switchTab('favoritos')">Favoritos</a></li>
+                <li><a href="#" data-tab="amigos" onclick="switchTab('amigos')">Amigos</a></li>
             </ul>
             <div class="header-right" id="header-right">
                 <button class="btn btn-ghost btn-sm" onclick="openModal('account')">Criar conta</button>
@@ -455,6 +457,11 @@
         <div class="tab-content" id="tab-favoritos">
             <div class="section-header"><h2>Meus Favoritos</h2></div>
             <div class="restaurant-grid" id="fav-grid"></div>
+        </div>
+        <div class="tab-content" id="tab-amigos">
+            <div class="section-header"><h2>Atividade dos Amigos</h2></div>
+            <p style="color:var(--metadata);margin-bottom:24px;font-size:.9375rem">Veja o que as pessoas que você segue avaliaram.</p>
+            <div id="amigos-feed"></div>
         </div>
         <div class="tab-content" id="tab-profile">
             <div id="profile-content"></div>
@@ -578,8 +585,12 @@
                     <label style="margin:0"><input type="checkbox" id="ep-reservation"> Aceita reserva</label>
                 </div>
                 <div class="form-group"><label>Site/Link de reserva</label><input type="text" id="ep-reservation-url" placeholder="Ex: https://restaurante.com/reserva"></div>
-                <div class="form-group" style="display:flex;align-items:center;gap:12px">
-                    <label style="margin:0"><input type="checkbox" id="ep-delivery"> Tem delivery</label>
+                <div class="form-group">
+                    <label>Delivery</label>
+                    <div style="display:flex;gap:12px;flex-wrap:wrap">
+                        <label style="margin:0;font-weight:400;font-size:.875rem"><input type="checkbox" id="ep-delivery-rappi"> Rappi</label>
+                        <label style="margin:0;font-weight:400;font-size:.875rem"><input type="checkbox" id="ep-delivery-ifood"> iFood</label>
+                    </div>
                 </div>
                 <div style="display:flex;gap:8px;margin-top:12px">
                     <button type="submit" class="btn btn-primary" style="flex:1">Salvar</button>
@@ -626,6 +637,7 @@
         let currentUser = null;
         let searchQuery = '';
         let categoryFilter = { restaurante: 'Todas', bar: 'Todas' };
+        let extraFilter = { delivery: false, reservation: false };
 
         // Data helpers (work on cache, same interface as before)
         function getUser() { return currentUser; }
@@ -637,6 +649,7 @@
             return { avg: (rvs.reduce((a, r) => a + r.rating, 0) / rvs.length).toFixed(1), count: rvs.length };
         }
         function starsHTML(n) { return '★'.repeat(Math.floor(n)) + (n % 1 >= 0.5 ? '½' : '') + '☆'.repeat(5 - Math.ceil(n)); }
+        const heartSVG = `<svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>`;
         function formatDate(iso) { return new Date(iso).toLocaleDateString('pt-BR', { day: 'numeric', month: 'short', year: 'numeric' }); }
 
         // Load data from Supabase
@@ -713,7 +726,9 @@
             document.getElementById('ep-badge').value = p.badge || '';
             document.getElementById('ep-reservation').checked = !!p.has_reservation;
             document.getElementById('ep-reservation-url').value = p.reservation_url || '';
-            document.getElementById('ep-delivery').checked = !!p.has_delivery;
+            const del = (p.delivery_apps || '').toLowerCase();
+            document.getElementById('ep-delivery-rappi').checked = del.includes('rappi');
+            document.getElementById('ep-delivery-ifood').checked = del.includes('ifood');
             closeModal('detail');
             document.getElementById('modal-editplace').classList.add('active');
         }
@@ -729,7 +744,7 @@
                 badge: document.getElementById('ep-badge').value,
                 has_reservation: document.getElementById('ep-reservation').checked,
                 reservation_url: document.getElementById('ep-reservation-url').value,
-                has_delivery: document.getElementById('ep-delivery').checked
+                delivery_apps: [document.getElementById('ep-delivery-rappi').checked ? 'Rappi' : '', document.getElementById('ep-delivery-ifood').checked ? 'iFood' : ''].filter(Boolean).join(',')
             }).eq('id', id);
             closeModal('editplace');
             await loadData();
@@ -1053,6 +1068,7 @@
             return ['Todas', ...Array.from(cats).sort()];
         }
         function setCategory(type, cat) { categoryFilter[type] = cat; closeCatDrawer(); render(); }
+        function toggleExtraFilter(key) { extraFilter[key] = !extraFilter[key]; render(); }
         function openCatDrawer(type) {
             drawerType = type;
             const cats = getCategories(type);
@@ -1075,7 +1091,10 @@
             const hasMore = cats.length > 7;
             el.innerHTML = top.map(c =>
                 `<button class="filter-btn ${categoryFilter[type] === c ? 'active' : ''}" onclick="setCategory('${type}','${c.replace(/'/g,"\\'")}')">${c}</button>`
-            ).join('') + (hasMore ? `<button class="filter-btn" onclick="openCatDrawer('${type}')">Mais...</button>` : '');
+            ).join('') + (hasMore ? `<button class="filter-btn" onclick="openCatDrawer('${type}')">Mais...</button>` : '')
+            + `<span style="width:1px;height:20px;background:var(--divider);margin:0 4px"></span>`
+            + `<button class="filter-btn ${extraFilter.reservation ? 'active' : ''}" onclick="toggleExtraFilter('reservation')">📅 Reserva</button>`
+            + `<button class="filter-btn ${extraFilter.delivery ? 'active' : ''}" onclick="toggleExtraFilter('delivery')">🛵 Delivery</button>`;
         }
 
         // Detail
@@ -1130,11 +1149,11 @@
                         ${count > 0 ? `<div class="detail-rating-row"><span class="detail-avg">${avg}</span><span class="detail-stars">${starsHTML(parseFloat(avg))}</span><span class="detail-count">(${count} ${count === 1 ? 'avaliação' : 'avaliações'})</span></div>` : `<div class="detail-count" style="margin-top:4px">Sem avaliações ainda</div>`}
                         <div class="detail-tags">
                             ${r.has_reservation ? `<span class="detail-tag detail-tag-green">📅 Reserva${r.reservation_url ? ` · <a href="${r.reservation_url}" target="_blank" style="color:inherit">Reservar</a>` : ''}</span>` : ''}
-                            ${r.has_delivery ? `<span class="detail-tag detail-tag-blue">🛵 Delivery</span>` : ''}
-                            <span class="detail-tag detail-tag-gray">❤️ ${getFavCount(r.id)} curtida${getFavCount(r.id) !== 1 ? 's' : ''}</span>
+                            ${r.delivery_apps ? r.delivery_apps.split(',').map(a => `<span class="card-badge" style="background:#f3e5f5;color:#7b1fa2">${a.trim()}</span>`).join('') : ''}
+                            <span class="detail-tag detail-tag-gray">${getFavCount(r.id)} curtida${getFavCount(r.id) !== 1 ? 's' : ''}</span>
                         </div>
                         <div class="detail-actions">
-                            <button class="fav-btn ${isFavorited(r.id) ? 'active' : ''}" onclick="toggleFavorite(${r.id})" title="Curtir">${isFavorited(r.id) ? '❤️' : '🤍'}</button>
+                            <button class="fav-btn ${isFavorited(r.id) ? 'active' : ''}" onclick="toggleFavorite(${r.id})" title="Curtir">${heartSVG}</button>
                             <button class="btn btn-primary btn-sm" onclick="openReviewModal(${r.id})" style="margin-top:10px">Avaliar</button>
                             <button class="btn btn-outline btn-sm" onclick="openAddPhotoModal(${r.id})" style="margin-top:10px">Adicionar fotos</button>
                             ${canEdit ? `<button class="btn btn-ghost btn-sm" onclick="editPlaceImage(${r.id})" style="margin-top:10px">Editar capa</button>` : ''}
@@ -1251,6 +1270,7 @@
                 <div class="card-body">
                     <span class="card-type-tag ${r.type === 'bar' ? 'tag-bar' : 'tag-restaurante'}">${r.type}</span>
                     ${r.badge ? `<span class="card-badge">${r.badge}</span>` : ''}
+                    ${r.delivery_apps ? r.delivery_apps.split(',').map(a => `<span class="card-badge" style="background:#f3e5f5;color:#7b1fa2">${a.trim()}</span>`).join('') : ''}
                     <h3>${r.name}</h3>
                     ${r.cuisine ? `<div class="card-cuisine">${r.cuisine}${r.address ? ' · ' + r.address : ''}</div>` : ''}
                     <div class="card-rating">
@@ -1258,8 +1278,8 @@
                     </div>
                     ${rank ? `<div class="popular-stats"><span class="popular-stat">📝 ${count} avaliações</span><span class="popular-stat">⭐ ${avg} média</span></div>` : ''}
                     <div style="display:flex;justify-content:space-between;align-items:center;margin-top:4px">
-                        <button class="fav-btn ${isFavorited(r.id) ? 'active' : ''}" onclick="event.stopPropagation();toggleFavorite(${r.id})" title="Curtir">${isFavorited(r.id) ? '❤️' : '🤍'}</button>
-                        <span style="font-size:.75rem;color:var(--metadata)">${getFavCount(r.id)} ❤️</span>
+                        <button class="fav-btn ${isFavorited(r.id) ? 'active' : ''}" onclick="event.stopPropagation();toggleFavorite(${r.id})" title="Curtir">${heartSVG}</button>
+                        <span style="font-size:.75rem;color:var(--metadata)">${getFavCount(r.id)}</span>
                     </div>
                 </div>
             </div>`;
@@ -1271,6 +1291,8 @@
                 if (searchQuery) list = list.filter(p => p.name.toLowerCase().includes(searchQuery) || (p.cuisine && p.cuisine.toLowerCase().includes(searchQuery)) || (p.address && p.address.toLowerCase().includes(searchQuery)));
                 const cat = categoryFilter[type];
                 if (cat && cat !== 'Todas') list = list.filter(p => p.cuisine && p.cuisine.split('/')[0].split(',')[0].trim() === cat);
+                if (extraFilter.delivery) list = list.filter(p => p.delivery_apps);
+                if (extraFilter.reservation) list = list.filter(p => p.has_reservation);
                 return list;
             };
             buildFilterBar('restaurante');
@@ -1286,9 +1308,41 @@
             if (currentUser) {
                 const myFavs = favoritesCache.filter(f => f.user_id === currentUser.id);
                 const favPlaces = myFavs.map(f => getPlaceById(f.place_id)).filter(Boolean);
-                document.getElementById('fav-grid').innerHTML = favPlaces.length ? favPlaces.map(r => renderCard(r)).join('') : `<div class="empty-state" style="grid-column:1/-1"><p>Você ainda não curtiu nenhum lugar.</p><p style="font-size:.8125rem">Clique no 🤍 em qualquer restaurante ou bar para salvar.</p></div>`;
+                document.getElementById('fav-grid').innerHTML = favPlaces.length ? favPlaces.map(r => renderCard(r)).join('') : `<div class="empty-state" style="grid-column:1/-1"><p>Você ainda não curtiu nenhum lugar.</p><p style="font-size:.8125rem">Clique no coração em qualquer restaurante ou bar para salvar.</p></div>`;
             } else {
                 document.getElementById('fav-grid').innerHTML = `<div class="empty-state" style="grid-column:1/-1"><p>Faça login para ver seus favoritos.</p><button class="btn btn-primary" onclick="openModal('account')">Entrar</button></div>`;
+            }
+            // Amigos feed
+            const amigosEl = document.getElementById('amigos-feed');
+            if (currentUser) {
+                const followingIds = followsCache.filter(f => f.follower_id === currentUser.id).map(f => f.following_id);
+                const friendReviews = reviewsCache.filter(rv => followingIds.includes(rv.user_id)).slice(0, 50);
+                if (friendReviews.length) {
+                    amigosEl.innerHTML = friendReviews.map(rv => {
+                        const place = getPlaceById(rv.place_id);
+                        const profile = getProfile(rv.user_id);
+                        const ini = (profile?.name || rv.author_name).split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase();
+                        return `<div style="display:flex;gap:12px;padding:16px;background:var(--surface);border-radius:var(--radius-md);margin-bottom:12px;cursor:pointer" onclick="openDetail(${rv.place_id})">
+                            <div class="detail-review-avatar" onclick="event.stopPropagation();openProfile('${rv.user_id}')" style="cursor:pointer;flex-shrink:0">${ini}</div>
+                            <div style="flex:1;min-width:0">
+                                <div style="display:flex;justify-content:space-between;align-items:center">
+                                    <span style="font-weight:600;color:var(--heading);cursor:pointer" onclick="event.stopPropagation();openProfile('${rv.user_id}')">${profile?.name || rv.author_name}</span>
+                                    <span style="font-size:.75rem;color:var(--metadata)">${formatDate(rv.created_at)}</span>
+                                </div>
+                                <div style="font-size:.8125rem;color:var(--metadata);margin:2px 0">avaliou <strong style="color:var(--heading)">${place ? place.name : '?'}</strong></div>
+                                <div class="detail-review-stars">${starsHTML(rv.rating)}</div>
+                                ${rv.text ? `<div style="font-size:.875rem;color:var(--body);margin-top:4px">${rv.text.length > 120 ? rv.text.slice(0,120) + '...' : rv.text}</div>` : ''}
+                            </div>
+                            ${place?.image_url ? `<img src="${place.image_url}" style="width:60px;height:60px;object-fit:cover;border-radius:var(--radius-sm);flex-shrink:0">` : ''}
+                        </div>`;
+                    }).join('');
+                } else {
+                    amigosEl.innerHTML = followingIds.length
+                        ? `<div class="empty-state"><p>As pessoas que você segue ainda não avaliaram nada.</p></div>`
+                        : `<div class="empty-state"><p>Você ainda não segue ninguém.</p><p style="font-size:.8125rem">Clique no nome de quem avaliou um restaurante para ver o perfil e seguir.</p></div>`;
+                }
+            } else {
+                amigosEl.innerHTML = `<div class="empty-state"><p>Faça login para ver a atividade dos amigos.</p><button class="btn btn-primary" onclick="openModal('account')">Entrar</button></div>`;
             }
         }
 
