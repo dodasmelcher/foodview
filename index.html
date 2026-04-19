@@ -637,7 +637,7 @@
         let currentUser = null;
         let searchQuery = '';
         let categoryFilter = { restaurante: 'Todas', bar: 'Todas' };
-        let extraFilter = { delivery: false, reservation: false };
+        let extraFilter = { michelin: false, delivery: false, reservation: false };
 
         // Data helpers (work on cache, same interface as before)
         function getUser() { return currentUser; }
@@ -1069,6 +1069,7 @@
         }
         function setCategory(type, cat) { categoryFilter[type] = cat; closeCatDrawer(); render(); }
         function toggleExtraFilter(key) { extraFilter[key] = !extraFilter[key]; render(); }
+        function michelinStars(p) { if (!p.badge) return 0; const m = p.badge.match(/★/g); return m ? m.length : 0; }
         function openCatDrawer(type) {
             drawerType = type;
             const cats = getCategories(type);
@@ -1093,6 +1094,7 @@
                 `<button class="filter-btn ${categoryFilter[type] === c ? 'active' : ''}" onclick="setCategory('${type}','${c.replace(/'/g,"\\'")}')">${c}</button>`
             ).join('') + (hasMore ? `<button class="filter-btn" onclick="openCatDrawer('${type}')">Mais...</button>` : '')
             + `<span style="width:1px;height:20px;background:var(--divider);margin:0 4px"></span>`
+            + `<button class="filter-btn ${extraFilter.michelin ? 'active' : ''}" onclick="toggleExtraFilter('michelin')">⭐ Michelin</button>`
             + `<button class="filter-btn ${extraFilter.reservation ? 'active' : ''}" onclick="toggleExtraFilter('reservation')">📅 Reserva</button>`
             + `<button class="filter-btn ${extraFilter.delivery ? 'active' : ''}" onclick="toggleExtraFilter('delivery')">🛵 Delivery</button>`;
         }
@@ -1291,8 +1293,10 @@
                 if (searchQuery) list = list.filter(p => p.name.toLowerCase().includes(searchQuery) || (p.cuisine && p.cuisine.toLowerCase().includes(searchQuery)) || (p.address && p.address.toLowerCase().includes(searchQuery)));
                 const cat = categoryFilter[type];
                 if (cat && cat !== 'Todas') list = list.filter(p => p.cuisine && p.cuisine.split('/')[0].split(',')[0].trim() === cat);
+                if (extraFilter.michelin) list = list.filter(p => michelinStars(p) > 0);
                 if (extraFilter.delivery) list = list.filter(p => p.delivery_apps);
                 if (extraFilter.reservation) list = list.filter(p => p.has_reservation);
+                list.sort((a, b) => michelinStars(b) - michelinStars(a) || a.name.localeCompare(b.name, 'pt-BR'));
                 return list;
             };
             buildFilterBar('restaurante');
