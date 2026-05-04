@@ -97,7 +97,7 @@ function editPlaceImage(placeId) {
         const url = await uploadPhoto(file);
         if (!url) return;
         const p = placesCache.find(r => r.id === placeId);
-        const newPhotos = [url, ...(p.photos || [])];
+        const newPhotos = [...new Set([url, ...(p.photos || [])])];
         await sb.from('places').update({ image_url: url, photos: newPhotos }).eq('id', placeId);
         await loadData();
         openDetail(placeId);

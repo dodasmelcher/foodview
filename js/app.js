@@ -1,17 +1,3 @@
-// Paste a Sentry DSN here to enable error tracking in production. Sign up at
-// https://sentry.io (free up to 5k events/month), create a JavaScript project,
-// and copy the DSN string from "Settings → Projects → Client Keys (DSN)".
-const SENTRY_DSN = '';
-if (SENTRY_DSN && window.Sentry) {
-    Sentry.init({
-        dsn: SENTRY_DSN,
-        environment: location.hostname === 'localhost' ? 'dev' : 'prod',
-        tracesSampleRate: 0.1,
-        // Don't spam Sentry with extension/CSP noise
-        ignoreErrors: ['ResizeObserver loop limit exceeded', 'Non-Error promise rejection captured']
-    });
-}
-
 // Supabase client + caches (placesCache, currentUser, sb, etc.) live in js/data.js
 let searchQuery = '';
 let categoryFilter = { restaurante: 'Todas', bar: 'Todas' };
@@ -1235,7 +1221,7 @@ async function init() {
     withTimeout(loadData(), 10000, 'loadData')
         .catch(err => {
             console.error('loadData failed:', err);
-            if (window.Sentry) Sentry.captureException(err);
+            showToast('Não foi possível carregar os dados. Verifique sua conexão.', 'error', 6000);
         });
     // Auth state in parallel — never blocks render
     withTimeout(sb.auth.getSession(), 5000, 'getSession')
@@ -1245,7 +1231,6 @@ async function init() {
         })
         .catch(err => {
             console.error('getSession failed:', err);
-            if (window.Sentry) Sentry.captureException(err);
         });
     applyRoute();
 
