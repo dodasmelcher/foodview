@@ -46,12 +46,20 @@ function isFavorited(placeId) {
 function getFavCount(placeId) { return favoritesCache.filter(f => f.place_id === placeId).length; }
 function michelinStars(p) { if (!p.badge) return 0; const m = p.badge.match(/★/g); return m ? m.length : 0; }
 
-// Upload file to Supabase Storage, return public URL
+// Upload file to Supabase Storage, return public URL.
+// Rejects files over 5MB up-front to avoid hung uploads from full-res phone
+// photos. showToast lives in utils.js (loaded earlier).
+const MAX_PHOTO_BYTES = 5 * 1024 * 1024;
 async function uploadPhoto(file) {
+    if (file.size > MAX_PHOTO_BYTES) {
+        const mb = (file.size / 1024 / 1024).toFixed(1);
+        showToast(`"${file.name}" tem ${mb}MB — limite é 5MB`, 'error', 6000);
+        return null;
+    }
     const ext = file.name.split('.').pop();
     const path = `${Date.now()}_${Math.random().toString(36).slice(2)}.${ext}`;
     const { error } = await sb.storage.from('photos').upload(path, file);
-    if (error) { console.error(error); return null; }
+    if (error) { console.error(error); showToast('Falha no upload da foto', 'error'); return null; }
     const { data } = sb.storage.from('photos').getPublicUrl(path);
     return data.publicUrl;
 }

@@ -320,18 +320,32 @@ function switchTab(tab) {
     else if (tab === 'amigos') renderAmigos();
 }
 
+// Cheap parts run immediately (X button toggle); expensive re-render of three
+// grids is debounced so big lists don't lag while the user types.
+let _searchDebounce = null;
 function handleSearch() {
-    searchQuery = document.getElementById('search-input').value.toLowerCase().trim();
-    document.getElementById('search-clear')?.classList.toggle('visible', searchQuery.length > 0);
-    resetPage('restaurantes', 'bares', 'popular');
-    renderRestaurantes();
-    renderBares();
-    renderPopular();
+    const q = document.getElementById('search-input').value.toLowerCase().trim();
+    document.getElementById('search-clear')?.classList.toggle('visible', q.length > 0);
+    clearTimeout(_searchDebounce);
+    _searchDebounce = setTimeout(() => {
+        searchQuery = q;
+        resetPage('restaurantes', 'bares', 'popular');
+        renderRestaurantes();
+        renderBares();
+        renderPopular();
+    }, 200);
 }
 function clearSearch() {
     const el = document.getElementById('search-input');
     el.value = '';
-    handleSearch();
+    // Skip debounce on explicit clear — user expects instant reset.
+    clearTimeout(_searchDebounce);
+    searchQuery = '';
+    document.getElementById('search-clear')?.classList.remove('visible');
+    resetPage('restaurantes', 'bares', 'popular');
+    renderRestaurantes();
+    renderBares();
+    renderPopular();
     el.focus();
 }
 
