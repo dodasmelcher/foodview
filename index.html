@@ -4,411 +4,28 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>FoodView — Seu diário gastronômico</title>
-    <link rel="manifest" href="/manifest.json">
+    <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#1A1A2E">
+    <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="FoodView">
-    <link rel="apple-touch-icon" href="/icon-192.png">
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap');
-
-        :root {
-            --bg: #F4F1EC;
-            --surface: #FFFFFF;
-            --surface-alt: #EDE9E3;
-            --panel: #FAF9F7;
-            --divider: #E0DBD3;
-            --heading: #1A1A1A;
-            --body: #4A4A4A;
-            --body-light: #7A7A7A;
-            --metadata: #9A9490;
-            --accent: #D4593A;
-            --accent-hover: #E06842;
-            --star: #D4A94A;
-            --shadow-sm: 0 1px 3px rgba(0,0,0,.06);
-            --shadow-lg: 0 8px 30px rgba(0,0,0,.1);
-            --radius-sm: 6px;
-            --radius-md: 10px;
-            --radius-lg: 16px;
-            --font: 'DM Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-        }
-
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: var(--font); background: var(--bg); color: var(--body); line-height: 1.5; min-height: 100vh; }
-        a { color: var(--accent); text-decoration: none; transition: color .2s; }
-        a:hover { color: var(--accent-hover); }
-
-        .site-header { background: var(--surface); border-bottom: 1px solid var(--divider); position: sticky; top: 0; z-index: 100; }
-        .header-inner {
-            max-width: 100%; margin: 0 auto; padding: 0 40px;
-            height: 60px; display: flex; align-items: center; justify-content: space-between;
-            position: relative;
-        }
-        .logo {
-            display: flex; align-items: center; gap: 0;
-            cursor: pointer; flex-shrink: 0;
-        }
-        .logo span.food {
-            font-size: 1.5rem; font-weight: 700; color: var(--accent);
-            letter-spacing: -.03em; text-transform: uppercase;
-        }
-        .logo span.view {
-            font-size: 1.5rem; font-weight: 400; color: var(--heading);
-            letter-spacing: -.01em; text-transform: uppercase; margin-left: 6px;
-        }
-        .nav-links {
-            display: flex; gap: 0; list-style: none;
-            margin-left: auto; margin-right: 32px;
-        }
-        .nav-links a {
-            color: var(--body); font-size: .875rem; font-weight: 500;
-            padding: 18px 20px; transition: color .2s; border-bottom: 2px solid transparent;
-            margin-bottom: -1px;
-        }
-        .nav-links a:hover { color: var(--heading); background: none; }
-        .nav-links a.active { color: var(--heading); font-weight: 600; border-bottom-color: var(--heading); background: none; }
-        .header-right { display: flex; align-items: center; gap: 10px; }
-        .header-right .btn-ghost, .header-right .btn-outline { border-radius: 50px; }
-        .btn {
-            border: none; border-radius: var(--radius-sm); padding: 8px 20px;
-            font-size: .875rem; font-weight: 600; font-family: inherit; cursor: pointer; transition: all .2s;
-        }
-        .btn-primary { background: var(--accent); color: #fff; }
-        .btn-primary:hover { background: var(--accent-hover); }
-        .btn-outline { background: transparent; color: var(--accent); border: 1.5px solid var(--accent); }
-        .btn-outline:hover { background: var(--accent); color: #fff; }
-        .btn-ghost { background: transparent; color: var(--body-light); border: 1.5px solid var(--divider); }
-        .btn-ghost:hover { color: var(--heading); border-color: var(--body-light); }
-        .btn-sm { padding: 6px 14px; font-size: .8125rem; }
-
-        /* User dropdown */
-        .user-dropdown-wrap { position: relative; }
-        .user-badge {
-            display: flex; align-items: center; gap: 8px; padding: 6px 12px;
-            background: var(--surface-alt); border-radius: 50px; cursor: pointer;
-            font-size: .8125rem; font-weight: 600; color: var(--heading); transition: background .2s;
-        }
-        .user-badge:hover { background: var(--divider); }
-        .user-badge-avatar {
-            width: 26px; height: 26px; border-radius: 50%; background: var(--accent);
-            display: flex; align-items: center; justify-content: center;
-            color: #fff; font-size: .7rem; font-weight: 700;
-        }
-        .user-dropdown {
-            display: none; position: absolute; right: 0; top: calc(100% + 8px);
-            background: var(--surface); border: 1px solid var(--divider); border-radius: var(--radius-md);
-            box-shadow: var(--shadow-lg); padding: 16px; min-width: 240px; z-index: 300;
-        }
-        .user-dropdown.open { display: block; }
-        .ud-name { font-weight: 700; color: var(--heading); font-size: .9375rem; }
-        .ud-email { color: var(--metadata); font-size: .8125rem; margin-bottom: 12px; display: block; }
-
-        /* Hero */
-        .hero {
-            position: relative; height: 360px; background: #0a0a0a; overflow: hidden;
-        }
-        .hero-slide {
-            position: absolute; inset: 0; opacity: 0; transition: opacity 1.2s ease;
-        }
-        .hero-slide.active { opacity: 1; }
-        .hero-slide img {
-            width: 100%; height: 100%; object-fit: cover; filter: brightness(.45);
-        }
-        .hero-slide-placeholder {
-            width: 100%; height: 100%;
-            background: linear-gradient(135deg, #1a1a1a 0%, #2a2020 50%, #1a1a1a 100%);
-        }
-        .hero-content {
-            position: absolute; inset: 0; display: flex; flex-direction: column;
-            justify-content: center; padding: 0 10%; z-index: 2;
-        }
-        .hero-content h1 {
-            color: #fff; font-size: 2rem; font-weight: 700; margin-bottom: 4px;
-            letter-spacing: -.02em; line-height: 1.2;
-        }
-        .hero-content p { color: rgba(255,255,255,.6); font-size: .9375rem; margin-bottom: 24px; }
-        .search-wrapper { max-width: 420px; position: relative; }
-        .search-input {
-            width: 100%; padding: 14px 18px 14px 44px;
-            border: none; border-radius: 50px; font-family: inherit; font-size: .9375rem;
-            color: var(--heading); background: rgba(255,255,255,.95); box-shadow: 0 4px 20px rgba(0,0,0,.2);
-            outline: none;
-        }
-        .search-input::placeholder { color: var(--metadata); }
-        .search-icon {
-            position: absolute; left: 16px; top: 50%; transform: translateY(-50%);
-            color: var(--metadata); font-size: 1rem; pointer-events: none;
-        }
-
-        /* Main */
-        .main-container { max-width: 100%; margin: 0 auto; padding: 36px 40px; }
-        .tab-content { display: none; }
-        .tab-content.active { display: block; }
-        /* Filter bar */
-        .filter-bar { display: flex; align-items: center; gap: 10px; margin-bottom: 20px; flex-wrap: wrap; }
-        .filter-btn {
-            padding: 6px 16px; border-radius: 50px; border: 1.5px solid var(--divider);
-            background: var(--surface); font-family: inherit; font-size: .8125rem; font-weight: 600;
-            color: var(--body-light); cursor: pointer; transition: all .15s; white-space: nowrap;
-        }
-        .filter-btn:hover { border-color: var(--accent); color: var(--accent); }
-        .filter-btn.active { background: var(--accent); color: #fff; border-color: var(--accent); }
-        /* Category drawer */
-        .cat-drawer-overlay {
-            display: none; position: fixed; inset: 0; background: rgba(0,0,0,.3); z-index: 250;
-        }
-        .cat-drawer-overlay.open { display: block; }
-        .cat-drawer {
-            position: fixed; top: 0; right: -280px; width: 280px; height: 100%;
-            background: var(--surface); box-shadow: -4px 0 20px rgba(0,0,0,.1);
-            z-index: 260; transition: right .25s ease; padding: 24px; overflow-y: auto;
-        }
-        .cat-drawer.open { right: 0; }
-        .cat-drawer h4 { color: var(--heading); font-size: .875rem; font-weight: 700; margin-bottom: 16px; }
-        .cat-drawer-close {
-            position: absolute; top: 16px; right: 16px; background: none; border: none;
-            font-size: 1.2rem; cursor: pointer; color: var(--body-light);
-        }
-        .cat-drawer ul { list-style: none; }
-        .cat-drawer ul li a {
-            display: block; padding: 8px 12px; border-radius: var(--radius-sm); font-size: .875rem;
-            color: var(--body-light); font-weight: 500; cursor: pointer; transition: all .15s;
-        }
-        .cat-drawer ul li a:hover, .cat-drawer ul li a.active { color: var(--heading); background: var(--surface-alt); font-weight: 600; }
-        .section-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; }
-        .section-header h2 { color: var(--heading); font-size: 1.25rem; font-weight: 700; }
-        .section-actions { display: flex; gap: 8px; }
-
-        /* Grid */
-        .restaurant-grid {
-            display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-            gap: 20px; margin-bottom: 48px;
-        }
-        .restaurant-card {
-            background: var(--surface); border-radius: var(--radius-md);
-            overflow: hidden; box-shadow: var(--shadow-sm); transition: transform .2s, box-shadow .2s; cursor: pointer;
-        }
-        .restaurant-card:hover { transform: translateY(-4px); box-shadow: var(--shadow-lg); }
-        .card-image { width: 100%; aspect-ratio: 3/2; object-fit: cover; display: block; background: var(--surface-alt); }
-        .card-image-placeholder {
-            width: 100%; aspect-ratio: 3/2; background: var(--surface-alt);
-            display: flex; align-items: center; justify-content: center; color: var(--metadata); font-size: 2rem;
-        }
-        .card-body { padding: 14px 16px 16px; }
-        .card-body h3 { color: var(--heading); font-size: 1rem; font-weight: 700; margin-bottom: 2px; }
-        .card-type-tag {
-            display: inline-block; font-size: .6875rem; font-weight: 600; text-transform: uppercase;
-            letter-spacing: .04em; padding: 2px 8px; border-radius: 50px; margin-bottom: 4px;
-        }
-        .tag-restaurante { background: #FDEEE9; color: var(--accent); }
-        .tag-bar { background: #E9F0FD; color: #3A6BD4; }
-        .card-badge {
-            display: inline-block; font-size: .65rem; font-weight: 700;
-            padding: 2px 8px; border-radius: 50px; margin-bottom: 4px; margin-left: 4px;
-            background: linear-gradient(135deg, #D4A94A, #C49030); color: #fff; letter-spacing: .02em;
-        }
-        .card-cuisine { color: var(--metadata); font-size: .8125rem; margin-bottom: 6px; }
-        .card-rating { display: flex; align-items: center; gap: 6px; }
-        .card-stars { color: var(--star); font-size: .9rem; letter-spacing: 1px; }
-        .card-rating-num { color: var(--body-light); font-size: .8125rem; }
-        .card-reviews-count { color: var(--metadata); font-size: .75rem; }
-        .rank-badge {
-            position: absolute; top: 10px; left: 10px; background: var(--accent); color: #fff;
-            width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center;
-            justify-content: center; font-size: .8rem; font-weight: 700; box-shadow: 0 2px 8px rgba(0,0,0,.2);
-        }
-        .popular-card { position: relative; }
-        .popular-stats {
-            display: flex; align-items: center; gap: 12px;
-            margin-top: 6px; padding-top: 8px; border-top: 1px solid var(--divider);
-        }
-        .popular-stat { display: flex; align-items: center; gap: 4px; color: var(--metadata); font-size: .75rem; }
-
-        /* Modal */
-        .modal-overlay {
-            display: none; position: fixed; inset: 0; background: rgba(0,0,0,.4); z-index: 200;
-            align-items: center; justify-content: center; backdrop-filter: blur(4px);
-        }
-        .modal-overlay.active { display: flex; }
-        .modal {
-            background: var(--surface); border-radius: var(--radius-lg);
-            width: 90%; max-width: 520px; max-height: 90vh; overflow-y: auto;
-            padding: 32px; box-shadow: var(--shadow-lg);
-        }
-        .modal h2 { color: var(--heading); font-size: 1.25rem; font-weight: 700; margin-bottom: 20px; }
-        .form-group { margin-bottom: 16px; }
-        .form-group label { display: block; color: var(--heading); font-size: .8125rem; font-weight: 600; margin-bottom: 6px; }
-        .form-group input, .form-group textarea, .form-group select {
-            width: 100%; padding: 10px 14px; border: 1.5px solid var(--divider);
-            border-radius: var(--radius-sm); font-family: inherit; font-size: .9375rem;
-            color: var(--body); background: var(--panel); transition: border-color .2s; outline: none;
-        }
-        .form-group input:focus, .form-group textarea:focus, .form-group select:focus { border-color: var(--accent); }
-        .form-group textarea { resize: vertical; min-height: 80px; }
-        .star-input { display: flex; gap: 4px; direction: rtl; justify-content: flex-end; }
-        .star-input input { display: none; }
-        .star-input label { font-size: 1.5rem; color: var(--divider); cursor: pointer; transition: color .15s; }
-        .star-input label:hover, .star-input label:hover ~ label, .star-input input:checked ~ label { color: var(--star); }
-        .modal-actions { display: flex; gap: 12px; justify-content: flex-end; margin-top: 24px; }
-        .btn-cancel {
-            background: var(--surface-alt); color: var(--body); border: none;
-            border-radius: var(--radius-sm); padding: 10px 20px;
-            font-size: .875rem; font-weight: 600; font-family: inherit; cursor: pointer;
-        }
-        .btn-cancel:hover { background: var(--divider); }
-        .btn-submit {
-            background: var(--accent); color: #fff; border: none;
-            border-radius: var(--radius-sm); padding: 10px 24px;
-            font-size: .875rem; font-weight: 700; font-family: inherit; cursor: pointer;
-        }
-        .btn-submit:hover { background: var(--accent-hover); }
-        .image-upload-area {
-            border: 2px dashed var(--divider); border-radius: var(--radius-sm);
-            padding: 20px; text-align: center; cursor: pointer; transition: border-color .2s, background .2s;
-        }
-        .image-upload-area:hover { border-color: var(--accent); background: rgba(212,89,58,.03); }
-        .image-upload-area p { color: var(--metadata); font-size: .875rem; }
-        .image-upload-area input { display: none; }
-        .image-previews { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 10px; }
-        .image-preview { position: relative; width: 80px; height: 60px; border-radius: 4px; overflow: hidden; }
-        .image-preview img { width: 100%; height: 100%; object-fit: cover; }
-        .image-preview .remove-img {
-            position: absolute; top: 2px; right: 2px; background: rgba(0,0,0,.6); color: #fff;
-            border: none; width: 18px; height: 18px; border-radius: 50%; cursor: pointer;
-            font-size: .65rem; display: flex; align-items: center; justify-content: center;
-        }
-        .empty-state { text-align: center; padding: 60px 20px; color: var(--metadata); }
-        .empty-state p { font-size: 1rem; margin-bottom: 16px; }
-
-        /* Detail Modal */
-        .modal-wide { max-width: 620px; position: relative; }
-        .detail-header { display: flex; gap: 20px; margin-bottom: 24px; }
-        .detail-image { width: 160px; min-width: 160px; aspect-ratio: 4/3; border-radius: var(--radius-md); object-fit: cover; background: var(--surface-alt); }
-        .detail-image-placeholder {
-            width: 160px; min-width: 160px; aspect-ratio: 4/3; border-radius: var(--radius-md);
-            background: var(--surface-alt); display: flex; align-items: center; justify-content: center;
-            color: var(--metadata); font-size: 2.5rem;
-        }
-        .detail-info h2 { font-size: 1.375rem; margin-bottom: 4px; }
-        .detail-cuisine { color: var(--metadata); font-size: .875rem; margin-bottom: 8px; }
-        .detail-rating-row { display: flex; align-items: center; gap: 8px; }
-        .detail-avg { font-size: 1.5rem; font-weight: 700; color: var(--heading); }
-        .detail-stars { color: var(--star); font-size: 1rem; letter-spacing: 1px; }
-        .detail-count { color: var(--metadata); font-size: .8125rem; }
-        .detail-divider { border: none; border-top: 1px solid var(--divider); margin: 16px 0; }
-        .detail-reviews-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
-        .detail-reviews-title { color: var(--heading); font-size: .9375rem; font-weight: 700; }
-        .detail-review { padding: 14px 0; border-bottom: 1px solid var(--divider); }
-        .detail-review:last-child { border-bottom: none; }
-        .detail-review-top { display: flex; align-items: center; gap: 10px; margin-bottom: 6px; }
-        .detail-review-avatar {
-            width: 32px; height: 32px; border-radius: 50%; background: var(--surface-alt);
-            display: flex; align-items: center; justify-content: center;
-            font-weight: 700; color: var(--accent); font-size: .75rem;
-        }
-        .detail-review-author { color: var(--heading); font-size: .875rem; font-weight: 600; }
-        .detail-review-date { color: var(--metadata); font-size: .75rem; }
-        .detail-review-stars { color: var(--star); font-size: .8125rem; margin-bottom: 4px; letter-spacing: 1px; }
-        .detail-review-text { color: var(--body); font-size: .875rem; line-height: 1.6; }
-        .detail-review-images { display: flex; gap: 6px; margin-top: 8px; flex-wrap: wrap; }
-        .detail-review-img { width: 100px; height: 70px; object-fit: cover; border-radius: 4px; background: var(--surface-alt); }
-        .detail-empty { text-align: center; padding: 24px; color: var(--metadata); font-size: .875rem; }
-        .detail-actions { display: flex; gap: 10px; margin-top: 8px; flex-wrap: wrap; }
-        .detail-photos { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 16px; }
-        .detail-photo { width: 100%; max-width: 280px; aspect-ratio: 16/10; object-fit: cover; border-radius: var(--radius-sm); }
-        .detail-photo-wrap { position: relative; display: inline-block; }
-        .detail-photo-remove {
-            position: absolute; top: 4px; right: 4px; background: rgba(0,0,0,.6); color: #fff;
-            border: none; width: 22px; height: 22px; border-radius: 50%; cursor: pointer;
-            font-size: .7rem; display: flex; align-items: center; justify-content: center;
-        }
-
-        /* Photo gallery */
-        .detail-photo-grid { display: flex; gap: 4px; margin-bottom: 16px; border-radius: var(--radius-sm); overflow: hidden; cursor: pointer; max-height: 200px; }
-        .detail-photo-grid img { height: 200px; object-fit: cover; flex: 1; min-width: 0; }
-        .detail-photo-grid .photo-more {
-            position: relative; flex: 1; min-width: 80px;
-        }
-        .detail-photo-grid .photo-more img { width: 100%; filter: brightness(.4); }
-        .detail-photo-grid .photo-more span {
-            position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
-            color: #fff; font-weight: 700; font-size: 1.1rem;
-        }
-        .lightbox-overlay {
-            display: none; position: fixed; inset: 0; background: rgba(0,0,0,.92); z-index: 500;
-            align-items: center; justify-content: center; flex-direction: column;
-        }
-        .lightbox-overlay.active { display: flex; }
-        .lightbox-overlay img { max-width: 90vw; max-height: 80vh; object-fit: contain; border-radius: 8px; }
-        .lightbox-nav { position: absolute; top: 50%; transform: translateY(-50%); background: rgba(255,255,255,.2); border: none; color: #fff; font-size: 2rem; padding: 8px 16px; cursor: pointer; border-radius: 8px; }
-        .lightbox-nav:hover { background: rgba(255,255,255,.3); }
-        .lightbox-prev { left: 20px; }
-        .lightbox-next { right: 20px; }
-        .lightbox-close { position: absolute; top: 16px; right: 24px; background: none; border: none; color: #fff; font-size: 2rem; cursor: pointer; }
-        .lightbox-counter { color: rgba(255,255,255,.7); font-size: .875rem; margin-top: 12px; }
-        .lightbox-delete { position: absolute; top: 16px; left: 24px; background: rgba(220,50,50,.8); border: none; color: #fff; font-size: .8rem; padding: 6px 14px; cursor: pointer; border-radius: 6px; }
-        .lightbox-delete:hover { background: rgba(220,50,50,1); }
-
-        /* Detail tags (reserva, delivery) */
-        .detail-tags { display: flex; gap: 8px; margin-top: 8px; flex-wrap: wrap; }
-        .detail-tag { display: inline-flex; align-items: center; gap: 4px; padding: 3px 10px; border-radius: 50px; font-size: .75rem; font-weight: 600; }
-        .detail-tag-green { background: #e8f5e9; color: #2e7d32; }
-        .detail-tag-blue { background: #e3f2fd; color: #1565c0; }
-        .detail-tag-gray { background: var(--surface-alt); color: var(--metadata); }
-
-        /* Favorite button */
-        .fav-btn { background: none; border: none; cursor: pointer; padding: 4px; transition: transform .15s; line-height: 1; }
-        .fav-btn:hover { transform: scale(1.15); }
-        .fav-btn svg { width: 18px; height: 18px; stroke: #999; stroke-width: 2; fill: none; transition: all .15s; }
-        .fav-btn.active svg { stroke: #e53935; fill: #e53935; }
-
-        /* Profile page */
-        .profile-header { display: flex; align-items: center; gap: 20px; margin-bottom: 24px; padding: 20px; background: var(--surface); border-radius: var(--radius-lg); }
-        .profile-avatar { width: 64px; height: 64px; border-radius: 50%; background: var(--accent); display: flex; align-items: center; justify-content: center; color: #fff; font-size: 1.5rem; font-weight: 700; flex-shrink: 0; }
-        .profile-stats { display: flex; gap: 24px; margin-top: 8px; }
-        .profile-stat { text-align: center; cursor: pointer; }
-        .profile-stat strong { display: block; font-size: 1.1rem; color: var(--heading); }
-        .profile-stat span { font-size: .75rem; color: var(--metadata); }
-        .follow-btn { padding: 6px 20px; border-radius: 50px; font-size: .8125rem; font-weight: 600; cursor: pointer; border: 1.5px solid var(--accent); transition: all .2s; }
-        .follow-btn-follow { background: var(--accent); color: #fff; }
-        .follow-btn-following { background: transparent; color: var(--accent); }
-
-        /* Account modal */
-        .tabs-toggle { display: flex; border-bottom: 2px solid var(--divider); margin-bottom: 20px; }
-        .tabs-toggle button {
-            flex: 1; padding: 10px; border: none; background: none; font-family: inherit;
-            font-size: .9375rem; font-weight: 600; color: var(--body-light); cursor: pointer;
-            border-bottom: 2px solid transparent; margin-bottom: -2px; transition: all .2s;
-        }
-        .tabs-toggle button.active { color: var(--accent); border-bottom-color: var(--accent); }
-
-        .site-footer {
-            border-top: 1px solid var(--divider); padding: 28px 24px;
-            text-align: center; color: var(--metadata); font-size: .8125rem; margin-top: 20px;
-        }
-
-        @media (max-width: 700px) {
-            .nav-links { display: none; }
-            .hero { height: 280px; }
-            .hero-content h1 { font-size: 1.375rem; }
-            .hero-content { padding: 0 6%; }
-            .restaurant-grid { grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); }
-            .modal { padding: 24px; width: 95%; }
-            .detail-header { flex-direction: column; }
-            .detail-image, .detail-image-placeholder { width: 100%; min-width: auto; }
-            .modal-wide { max-width: 95%; }
-            .filter-bar { gap: 6px; }
-            .filter-btn { font-size: .75rem; padding: 5px 12px; }
-            .header-inner { padding: 0 16px; }
-            .logo span.food, .logo span.view { font-size: 1.2rem; }
-        }
-    </style>
+    <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
+    <link rel="icon" type="image/png" href="assets/icon-192.png">
+    <link rel="apple-touch-icon" href="assets/icon-192.png">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="">
+    <link rel="stylesheet" href="styles/styles.css">
 </head>
 <body>
 
     <header class="site-header">
         <div class="header-inner">
+            <button class="hamburger" onclick="toggleMobileSidebar()" aria-label="Abrir menu">
+                <span></span><span></span><span></span>
+            </button>
             <div class="logo" onclick="switchTab('restaurantes')">
                 <span class="food">FOOD</span><span class="view">VIEW</span>
             </div>
@@ -428,12 +45,16 @@
 
     <section class="hero" id="hero">
         <div id="hero-slides"></div>
+        <button class="hero-arrow hero-arrow-prev" id="hero-prev" onclick="heroPrev()" aria-label="Slide anterior" style="display:none">&#8249;</button>
+        <button class="hero-arrow hero-arrow-next" id="hero-next" onclick="heroNext()" aria-label="Próximo slide" style="display:none">&#8250;</button>
+        <div class="hero-dots" id="hero-dots"></div>
         <div class="hero-content">
             <h1>Descubra e avalie restaurantes<br>e bares selecionados.</h1>
-            <p id="hero-featured-text"></p>
+            <p id="hero-featured-text" style="cursor:pointer" onclick="openHeroPlace()"></p>
             <div class="search-wrapper">
-                <span class="search-icon">🔍</span>
+                <svg class="search-icon" style="width:16px;height:16px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
                 <input type="text" class="search-input" id="search-input" placeholder="Pesquisar por restaurante, bar ou cozinha..." oninput="handleSearch()">
+                <button type="button" class="search-clear" id="search-clear" onclick="clearSearch()" aria-label="Limpar busca">&times;</button>
             </div>
         </div>
     </section>
@@ -457,7 +78,8 @@
         </div>
         <div class="tab-content" id="tab-popular">
             <div class="section-header"><h2>Populares</h2></div>
-            <p style="color:var(--metadata);margin-bottom:24px;font-size:.9375rem">Restaurantes e bares com mais avaliações.</p>
+            <p style="color:var(--metadata);margin-bottom:16px;font-size:.9375rem">Restaurantes e bares com mais avaliações.</p>
+            <div class="filter-bar" id="filter-popular"></div>
             <div class="restaurant-grid" id="popular-grid"></div>
         </div>
         <div class="tab-content" id="tab-favoritos">
@@ -476,20 +98,72 @@
 
     <!-- Lightbox -->
     <div class="lightbox-overlay" id="lightbox" onclick="if(event.target===this)closeLightbox()">
-        <button class="lightbox-close" onclick="closeLightbox()">&times;</button>
-        <button class="lightbox-nav lightbox-prev" onclick="lightboxNav(-1)">&#8249;</button>
+        <button class="lightbox-close" onclick="closeLightbox()" aria-label="Fechar">&times;</button>
+        <button class="lightbox-nav lightbox-prev" onclick="lightboxNav(-1)" aria-label="Foto anterior">&#8249;</button>
         <img id="lightbox-img" src="" alt="">
-        <button class="lightbox-nav lightbox-next" onclick="lightboxNav(1)">&#8250;</button>
+        <button class="lightbox-nav lightbox-next" onclick="lightboxNav(1)" aria-label="Próxima foto">&#8250;</button>
         <div class="lightbox-counter" id="lightbox-counter"></div>
         <button class="lightbox-delete" id="lightbox-delete" style="display:none" onclick="lightboxDelete()">Remover foto</button>
     </div>
 
     <footer class="site-footer">FoodView — Seu diário gastronômico pessoal.</footer>
 
+    <!-- Toasts -->
+    <div class="toast-container" id="toast-container" aria-live="polite"></div>
+
+    <!-- Modal: Bulk match with Google (admin only) -->
+    <div class="modal-overlay" id="modal-fsqBulk">
+        <div class="modal" style="max-width:620px">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+                <h2 style="margin:0">Match em massa · Google</h2>
+                <span id="bulk-progress" style="color:var(--metadata);font-size:.875rem"></span>
+            </div>
+            <p style="color:var(--body-light);font-size:.875rem;margin-bottom:14px">Para cada lugar sem match, escolha um resultado do Google ou pule.</p>
+            <div id="bulk-current"></div>
+            <div id="bulk-results" style="max-height:45vh;overflow-y:auto;margin-bottom:12px"></div>
+            <div class="modal-actions">
+                <button type="button" class="btn-cancel" onclick="closeModal('fsqBulk')">Fechar</button>
+                <button type="button" class="btn btn-ghost btn-sm" onclick="skipBulkMatch()" id="bulk-skip-btn">Pular</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: Import from Google (admin only) -->
+    <div class="modal-overlay" id="modal-fsq">
+        <div class="modal" style="max-width:580px">
+            <h2>Importar do Google</h2>
+            <p style="color:var(--body-light);font-size:.875rem;margin-bottom:12px">Pesquise e importe um lugar com nome, endereço, categoria, fotos e coordenadas já estruturadas.</p>
+            <div style="display:flex;gap:8px;margin-bottom:12px">
+                <button type="button" class="filter-btn active" id="fsq-type-restaurante" onclick="setFsqType('restaurante')">Restaurante</button>
+                <button type="button" class="filter-btn" id="fsq-type-bar" onclick="setFsqType('bar')">Bar</button>
+            </div>
+            <div style="display:flex;gap:8px;margin-bottom:16px">
+                <input type="text" id="fsq-q" placeholder="Ex: Mocotó, Frank Bar, ramen vila madalena..." style="flex:1;padding:10px 14px;border:1.5px solid var(--divider);border-radius:var(--radius-sm);font-family:inherit;font-size:.9375rem;background:var(--panel);outline:none">
+                <button type="button" class="btn btn-primary btn-sm" onclick="searchFoursquare()">Buscar</button>
+            </div>
+            <div id="fsq-results" style="max-height:50vh;overflow-y:auto"></div>
+            <div class="modal-actions" style="margin-top:12px">
+                <button type="button" class="btn-cancel" onclick="closeModal('fsq')">Fechar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: Confirm -->
+    <div class="modal-overlay" id="modal-confirm" style="z-index:220">
+        <div class="modal" style="max-width:380px">
+            <h3 id="confirm-title" style="margin-bottom:8px;color:var(--heading);font-size:1.0625rem;font-weight:700">Confirmar</h3>
+            <p id="confirm-message" style="color:var(--body);font-size:.9375rem;margin-bottom:20px;line-height:1.5"></p>
+            <div class="modal-actions">
+                <button type="button" class="btn-cancel" onclick="closeConfirm(false)">Cancelar</button>
+                <button type="button" id="confirm-ok" class="btn-submit" onclick="closeConfirm(true)">Confirmar</button>
+            </div>
+        </div>
+    </div>
+
     <!-- Category drawer -->
     <div class="cat-drawer-overlay" id="cat-drawer-overlay" onclick="closeCatDrawer()"></div>
     <div class="cat-drawer" id="cat-drawer">
-        <button class="cat-drawer-close" onclick="closeCatDrawer()">&times;</button>
+        <button class="cat-drawer-close" onclick="closeCatDrawer()" aria-label="Fechar">&times;</button>
         <h4>Categorias</h4>
         <ul id="cat-drawer-list"></ul>
     </div>
@@ -501,7 +175,7 @@
             <form id="form-place" onsubmit="addPlace(event)">
                 <input type="hidden" id="p-type" value="restaurante">
                 <div class="form-group"><label>Nome</label><input type="text" id="p-name" required placeholder="Ex: Trattoria da Nonna"></div>
-                <div class="form-group"><label id="p-cuisine-label">Tipo de cozinha</label><input type="text" id="p-cuisine" placeholder="Ex: Italiana, Japonesa, Brasileira"></div>
+                <div class="form-group"><label>Categoria</label><input type="text" id="p-category" list="category-options" placeholder="Ex: Italiana, Japonesa, Cervejaria"></div>
                 <div class="form-group"><label>Endereço</label><input type="text" id="p-address" placeholder="Ex: Rua Augusta, 1200"></div>
                 <div class="form-group">
                     <label>Foto</label>
@@ -582,9 +256,17 @@
             <h3>Editar informações</h3>
             <form id="form-editplace" onsubmit="submitEditPlace(event)">
                 <input type="hidden" id="ep-id">
+                <input type="hidden" id="ep-fsq-id">
+                <input type="hidden" id="ep-lat">
+                <input type="hidden" id="ep-lng">
                 <div class="form-group"><label>Nome</label><input type="text" id="ep-name" required></div>
+                <div class="form-group" id="ep-fsq-status" style="background:var(--surface-alt);padding:10px 12px;border-radius:var(--radius-sm);font-size:.8125rem"></div>
+                <div style="margin-bottom:14px">
+                    <button type="button" class="btn btn-outline btn-sm" onclick="searchFsqMatch()" style="width:100%">Buscar no Google</button>
+                </div>
+                <div id="ep-fsq-results" style="margin-bottom:14px"></div>
                 <div class="form-group"><label>Tipo</label><select id="ep-type"><option value="restaurante">Restaurante</option><option value="bar">Bar</option></select></div>
-                <div class="form-group"><label>Culinária</label><input type="text" id="ep-cuisine"></div>
+                <div class="form-group"><label>Categoria</label><input type="text" id="ep-category" list="category-options"></div>
                 <div class="form-group"><label>Endereço</label><input type="text" id="ep-address"></div>
                 <div class="form-group"><label>Badge / Prêmio</label><input type="text" id="ep-badge" placeholder="Ex: ★ Michelin"></div>
                 <div class="form-group" style="display:flex;align-items:center;gap:12px">
@@ -613,6 +295,16 @@
                 <button class="active" onclick="showAccountTab('register',this)">Criar conta</button>
                 <button onclick="showAccountTab('login',this)">Entrar</button>
             </div>
+            <button type="button" class="btn-google" onclick="loginWithGoogle()" aria-label="Entrar com Google">
+                <svg width="18" height="18" viewBox="0 0 18 18" aria-hidden="true">
+                    <path fill="#4285F4" d="M17.64 9.2c0-.64-.06-1.25-.16-1.84H9v3.48h4.84a4.14 4.14 0 0 1-1.8 2.71v2.26h2.92c1.7-1.57 2.68-3.88 2.68-6.61z"/>
+                    <path fill="#34A853" d="M9 18c2.43 0 4.47-.81 5.96-2.18l-2.92-2.26c-.81.54-1.84.86-3.04.86-2.34 0-4.32-1.58-5.03-3.7H.96v2.32A9 9 0 0 0 9 18z"/>
+                    <path fill="#FBBC05" d="M3.97 10.71a5.41 5.41 0 0 1 0-3.42V4.96H.96a9 9 0 0 0 0 8.07l3-2.32z"/>
+                    <path fill="#EA4335" d="M9 3.58c1.32 0 2.5.45 3.44 1.35l2.58-2.58A9 9 0 0 0 9 0 9 9 0 0 0 .96 4.96l3 2.32A5.36 5.36 0 0 1 9 3.58z"/>
+                </svg>
+                <span>Continuar com Google</span>
+            </button>
+            <div class="auth-divider"><span>ou</span></div>
             <form id="form-register" onsubmit="registerAccount(event)">
                 <div class="form-group"><label>Nome</label><input type="text" id="acc-name" required placeholder="Seu nome"></div>
                 <div class="form-group"><label>Email</label><input type="email" id="acc-email" required placeholder="seu@email.com"></div>
@@ -623,752 +315,90 @@
                 <div class="form-group"><label>Email</label><input type="email" id="login-email" required placeholder="seu@email.com"></div>
                 <div class="form-group"><label>Senha</label><input type="password" id="login-pass" required placeholder="Sua senha"></div>
                 <button type="submit" class="btn-submit" style="width:100%;margin-top:8px">Entrar</button>
+                <p style="text-align:center;margin-top:12px;font-size:.8125rem"><a href="#" onclick="event.preventDefault();openForgotPassword()">Esqueci a senha</a></p>
             </form>
         </div>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
-    <script>
-        const SUPABASE_URL = 'https://jspxkdhqhjjvtepomkir.supabase.co';
-        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpzcHhrZGhxaGpqdnRlcG9ta2lyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYzNzkxNjEsImV4cCI6MjA5MTk1NTE2MX0.tABf7mPKoC4JEvUdJsO1-pjOcIARdgg2XwLb-WE6FlY';
-        const ADMIN_EMAIL = 'diogo.melcher@gmail.com';
-        const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-
-        // In-memory cache
-        let placesCache = [];
-        let reviewsCache = [];
-        let favoritesCache = [];
-        let followsCache = [];
-        let profilesCache = [];
-        let currentUser = null;
-        let searchQuery = '';
-        let categoryFilter = { restaurante: 'Todas', bar: 'Todas' };
-        let extraFilter = { michelin: false, delivery: false, reservation: false };
-
-        // Data helpers (work on cache, same interface as before)
-        function getUser() { return currentUser; }
-        function isAdmin() { return currentUser && currentUser.email === ADMIN_EMAIL; }
-        function getPlaceById(id) { return placesCache.find(r => r.id === id); }
-        function getPlaceRating(placeId) {
-            const rvs = reviewsCache.filter(r => r.place_id === placeId);
-            if (!rvs.length) return { avg: 0, count: 0 };
-            return { avg: (rvs.reduce((a, r) => a + r.rating, 0) / rvs.length).toFixed(1), count: rvs.length };
-        }
-        function starsHTML(n) { return '★'.repeat(Math.floor(n)) + (n % 1 >= 0.5 ? '½' : '') + '☆'.repeat(5 - Math.ceil(n)); }
-        const heartSVG = `<svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>`;
-        function formatDate(iso) { return new Date(iso).toLocaleDateString('pt-BR', { day: 'numeric', month: 'short', year: 'numeric' }); }
-
-        // Load data from Supabase
-        async function loadData() {
-            const [{ data: places }, { data: reviews }, { data: favs }, { data: follows }, { data: profiles }] = await Promise.all([
-                sb.from('places').select('*').order('created_at', { ascending: true }),
-                sb.from('reviews').select('*').order('created_at', { ascending: false }),
-                sb.from('favorites').select('*'),
-                sb.from('follows').select('*'),
-                sb.from('profiles').select('*')
-            ]);
-            placesCache = places || [];
-            reviewsCache = reviews || [];
-            favoritesCache = favs || [];
-            followsCache = follows || [];
-            profilesCache = profiles || [];
-            render();
-            buildHeroSlides();
-        }
-        function isFavorited(placeId) {
-            return currentUser && favoritesCache.some(f => f.user_id === currentUser.id && f.place_id === placeId);
-        }
-        function getFavCount(placeId) { return favoritesCache.filter(f => f.place_id === placeId).length; }
-        async function toggleFavorite(placeId, e) {
-            if (e) e.stopPropagation();
-            if (!currentUser) { openModal('account'); return; }
-            if (isFavorited(placeId)) {
-                await sb.from('favorites').delete().eq('user_id', currentUser.id).eq('place_id', placeId);
-            } else {
-                await sb.from('favorites').insert({ user_id: currentUser.id, place_id: placeId });
-            }
-            const { data: favs } = await sb.from('favorites').select('*');
-            favoritesCache = favs || [];
-            render();
-        }
-        function isFollowing(userId) {
-            return currentUser && followsCache.some(f => f.follower_id === currentUser.id && f.following_id === userId);
-        }
-        async function toggleFollow(userId) {
-            if (!currentUser) { openModal('account'); return; }
-            if (currentUser.id === userId) return;
-            if (isFollowing(userId)) {
-                await sb.from('follows').delete().eq('follower_id', currentUser.id).eq('following_id', userId);
-            } else {
-                await sb.from('follows').insert({ follower_id: currentUser.id, following_id: userId });
-            }
-            const { data: follows } = await sb.from('follows').select('*');
-            followsCache = follows || [];
-            if (document.getElementById('tab-profile').classList.contains('active')) {
-                openProfile(userId);
-            }
-        }
-        function getProfile(userId) { return profilesCache.find(p => p.id === userId); }
-
-        // Upload file to Supabase Storage, return public URL
-        async function uploadPhoto(file) {
-            const ext = file.name.split('.').pop();
-            const path = `${Date.now()}_${Math.random().toString(36).slice(2)}.${ext}`;
-            const { error } = await sb.storage.from('photos').upload(path, file);
-            if (error) { console.error(error); return null; }
-            const { data } = sb.storage.from('photos').getPublicUrl(path);
-            return data.publicUrl;
-        }
-
-        // Edit place info (admin only)
-        function openEditPlace(id) {
-            const p = getPlaceById(id);
-            if (!p || !isAdmin()) return;
-            document.getElementById('ep-id').value = id;
-            document.getElementById('ep-name').value = p.name || '';
-            document.getElementById('ep-type').value = p.type || 'restaurante';
-            document.getElementById('ep-cuisine').value = p.cuisine || '';
-            document.getElementById('ep-address').value = p.address || '';
-            document.getElementById('ep-badge').value = p.badge || '';
-            document.getElementById('ep-reservation').checked = !!p.has_reservation;
-            document.getElementById('ep-reservation-url').value = p.reservation_url || '';
-            const del = (p.delivery_apps || '').toLowerCase();
-            document.getElementById('ep-delivery-rappi').checked = del.includes('rappi');
-            document.getElementById('ep-delivery-ifood').checked = del.includes('ifood');
-            closeModal('detail');
-            document.getElementById('modal-editplace').classList.add('active');
-        }
-        async function submitEditPlace(e) {
-            e.preventDefault();
-            if (!isAdmin()) return;
-            const id = parseInt(document.getElementById('ep-id').value);
-            await sb.from('places').update({
-                name: document.getElementById('ep-name').value,
-                type: document.getElementById('ep-type').value,
-                cuisine: document.getElementById('ep-cuisine').value,
-                address: document.getElementById('ep-address').value,
-                badge: document.getElementById('ep-badge').value,
-                has_reservation: document.getElementById('ep-reservation').checked,
-                reservation_url: document.getElementById('ep-reservation-url').value,
-                delivery_apps: [document.getElementById('ep-delivery-rappi').checked ? 'Rappi' : '', document.getElementById('ep-delivery-ifood').checked ? 'iFood' : ''].filter(Boolean).join(',')
-            }).eq('id', id);
-            closeModal('editplace');
-            await loadData();
-            openDetail(id);
-        }
-
-        // Toggle featured (admin only)
-        async function toggleFeatured(id) {
-            const p = getPlaceById(id);
-            if (!p || !isAdmin()) return;
-            const newVal = !p.featured;
-            await sb.from('places').update({ featured: newVal }).eq('id', id);
-            await loadData();
-            openDetail(id);
-        }
-
-        // Hero slideshow
-        let heroInterval, heroIndex = 0;
-        function buildHeroSlides() {
-            const withImages = placesCache.filter(p => p.image_url || (p.photos && p.photos.length));
-            const container = document.getElementById('hero-slides');
-            const featured = document.getElementById('hero-featured-text');
-            if (!withImages.length) {
-                container.innerHTML = '<div class="hero-slide active"><div class="hero-slide-placeholder"></div></div>';
-                featured.textContent = ''; return;
-            }
-            const featuredPlaces = withImages.filter(p => p.featured);
-            const slides = featuredPlaces.length ? featuredPlaces.slice(0, 8) : withImages.slice(0, 8);
-            container.innerHTML = slides.map((p, i) => {
-                const src = p.image_url || (p.photos && p.photos[0]) || '';
-                return `<div class="hero-slide ${i === 0 ? 'active' : ''}">
-                    ${src ? `<img src="${src}" alt="${p.name}">` : '<div class="hero-slide-placeholder"></div>'}
-                </div>`;
-            }).join('');
-            featured.textContent = slides[0].name + (slides[0].cuisine ? ' · ' + slides[0].cuisine : '');
-            clearInterval(heroInterval);
-            if (slides.length > 1) {
-                heroInterval = setInterval(() => {
-                    const els = container.querySelectorAll('.hero-slide');
-                    els[heroIndex].classList.remove('active');
-                    heroIndex = (heroIndex + 1) % els.length;
-                    els[heroIndex].classList.add('active');
-                    const s = slides[heroIndex];
-                    featured.textContent = s.name + (s.cuisine ? ' · ' + s.cuisine : '');
-                }, 5000);
-            }
-        }
-
-        // Tabs
-        function switchTab(tab) {
-            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
-            document.getElementById('tab-' + tab).classList.add('active');
-            document.querySelectorAll('.nav-links a').forEach(a => a.classList.toggle('active', a.dataset.tab === tab));
-            render();
-        }
-
-        function handleSearch() {
-            searchQuery = document.getElementById('search-input').value.toLowerCase().trim();
-            render();
-        }
-
-        // Modal
-        function openModal(type) {
-            if (type === 'account-login') {
-                document.getElementById('modal-account').classList.add('active');
-                showAccountTab('login', document.querySelectorAll('.tabs-toggle button')[1]);
-                return;
-            }
-            document.getElementById('modal-' + type).classList.add('active');
-        }
-        function closeModal(type) { document.getElementById('modal-' + type).classList.remove('active'); }
-        document.querySelectorAll('.modal-overlay').forEach(o => {
-            o.addEventListener('click', e => { if (e.target === o) o.classList.remove('active'); });
-        });
-
-        // Account (Supabase Auth)
-        function showAccountTab(tab, btn) {
-            document.getElementById('form-register').style.display = tab === 'register' ? 'block' : 'none';
-            document.getElementById('form-login').style.display = tab === 'login' ? 'block' : 'none';
-            document.querySelectorAll('.tabs-toggle button').forEach(b => b.classList.remove('active'));
-            if (btn) btn.classList.add('active');
-        }
-        async function registerAccount(e) {
-            e.preventDefault();
-            const name = document.getElementById('acc-name').value;
-            const email = document.getElementById('acc-email').value;
-            const pass = document.getElementById('acc-pass').value;
-            const { data, error } = await sb.auth.signUp({
-                email, password: pass,
-                options: { data: { name } }
-            });
-            if (error) { alert(error.message); return; }
-            currentUser = { id: data.user.id, name, email };
-            await sb.from('profiles').upsert({ id: data.user.id, name, email });
-            document.getElementById('form-register').reset();
-            closeModal('account'); updateHeader(); await loadData();
-        }
-        async function loginAccount(e) {
-            e.preventDefault();
-            const email = document.getElementById('login-email').value;
-            const pass = document.getElementById('login-pass').value;
-            const { data, error } = await sb.auth.signInWithPassword({ email, password: pass });
-            if (error) { alert(error.message); return; }
-            const meta = data.user.user_metadata;
-            currentUser = { id: data.user.id, name: meta.name || email.split('@')[0], email };
-            document.getElementById('form-login').reset();
-            closeModal('account'); updateHeader();
-        }
-        async function logout() {
-            await sb.auth.signOut();
-            currentUser = null; updateHeader();
-        }
-        function toggleDropdown() {
-            document.getElementById('user-dropdown').classList.toggle('open');
-        }
-        document.addEventListener('click', e => {
-            const dd = document.getElementById('user-dropdown');
-            if (dd && !e.target.closest('.user-dropdown-wrap')) dd.classList.remove('open');
-        });
-
-        function updateHeader() {
-            const user = getUser(); const el = document.getElementById('header-right');
-            if (user) {
-                const initials = user.name.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase();
-                el.innerHTML = `
-                    <div class="user-dropdown-wrap">
-                        <div class="user-badge" onclick="toggleDropdown()">
-                            <div class="user-badge-avatar">${initials}</div>${user.name.split(' ')[0]}
-                        </div>
-                        <div class="user-dropdown" id="user-dropdown">
-                            <div class="ud-name">${user.name}</div>
-                            <span class="ud-email">${user.email}</span>
-                            <button class="btn btn-outline btn-sm" onclick="openProfile('${user.id}')" style="width:100%;margin-bottom:8px">Meu perfil</button>
-                            <button class="btn btn-ghost btn-sm" onclick="logout()" style="width:100%">Sair</button>
-                        </div>
-                    </div>`;
-            } else {
-                el.innerHTML = `
-                    <button class="btn btn-ghost btn-sm" onclick="openModal('account')">Criar conta</button>
-                    <button class="btn btn-outline btn-sm" onclick="openModal('account-login')">Entrar</button>`;
-            }
-        }
-
-        // Place
-        let placeImageFile = null;
-        function openAddPlace(type) {
-            if (!getUser()) { openModal('account'); return; }
-            document.getElementById('p-type').value = type;
-            document.getElementById('place-modal-title').textContent = type === 'bar' ? 'Novo bar' : 'Novo restaurante';
-            document.getElementById('p-cuisine-label').textContent = type === 'bar' ? 'Especialidade' : 'Tipo de cozinha';
-            document.getElementById('p-cuisine').placeholder = type === 'bar' ? 'Ex: Cervejaria, Coquetelaria' : 'Ex: Italiana, Japonesa';
-            openModal('place');
-        }
-        function previewPlaceImage(input) {
-            const c = document.getElementById('p-image-preview'); c.innerHTML = '';
-            if (input.files[0]) {
-                placeImageFile = input.files[0];
-                const url = URL.createObjectURL(input.files[0]);
-                c.innerHTML = `<div class="image-preview"><img src="${url}"><button class="remove-img" onclick="removePlaceImage()" type="button">✕</button></div>`;
-            }
-        }
-        function removePlaceImage() { placeImageFile = null; document.getElementById('p-image').value = ''; document.getElementById('p-image-preview').innerHTML = ''; }
-        async function addPlace(e) {
-            e.preventDefault();
-            let imageUrl = '';
-            if (placeImageFile) imageUrl = await uploadPhoto(placeImageFile);
-            const { error } = await sb.from('places').insert({
-                type: document.getElementById('p-type').value,
-                name: document.getElementById('p-name').value,
-                cuisine: document.getElementById('p-cuisine').value,
-                address: document.getElementById('p-address').value,
-                image_url: imageUrl,
-                photos: imageUrl ? [imageUrl] : [],
-                user_id: currentUser.id
-            });
-            if (error) { alert(error.message); return; }
-            document.getElementById('form-place').reset();
-            placeImageFile = null; document.getElementById('p-image-preview').innerHTML = '';
-            closeModal('place'); await loadData();
-        }
-
-        // Add Photos (multiple)
-        let addPhotoFiles = [];
-        let addPhotoPlaceId = null;
-        function openAddPhotoModal(placeId) {
-            if (!getUser()) { openModal('account'); return; }
-            addPhotoPlaceId = placeId;
-            addPhotoFiles = [];
-            document.getElementById('ap-preview').innerHTML = '';
-            document.getElementById('ap-place-id').value = placeId;
-            const fi = document.getElementById('ap-file-hidden');
-            fi.value = '';
-            fi.click();
-        }
-        function handleAddPhotoFiles(input) {
-            if (!input.files.length) return;
-            closeModal('detail');
-            const c = document.getElementById('ap-preview');
-            c.innerHTML = '';
-            addPhotoFiles = Array.from(input.files);
-            addPhotoFiles.forEach(f => {
-                const url = URL.createObjectURL(f);
-                c.innerHTML += `<div class="image-preview"><img src="${url}"></div>`;
-            });
-            openModal('addphoto');
-        }
-        async function submitAddPhoto(e) {
-            e.preventDefault();
-            if (!addPhotoFiles.length) { alert('Selecione ao menos uma foto'); return; }
-            const id = parseInt(document.getElementById('ap-place-id').value);
-            const p = placesCache.find(r => r.id === id);
-            if (!p) return;
-            const urls = [];
-            for (const f of addPhotoFiles) {
-                const url = await uploadPhoto(f);
-                if (url) urls.push(url);
-            }
-            const newPhotos = [...(p.photos || []), ...urls];
-            await sb.from('places').update({
-                photos: newPhotos,
-                image_url: p.image_url || urls[0] || ''
-            }).eq('id', id);
-            addPhotoFiles = [];
-            closeModal('addphoto');
-            await loadData();
-            openDetail(id);
-        }
-
-        // Delete photo
-        async function deletePhoto(placeId, photoIndex) {
-            const p = placesCache.find(r => r.id === placeId);
-            if (!p || !p.photos) return;
-            const newPhotos = [...p.photos];
-            newPhotos.splice(photoIndex, 1);
-            await sb.from('places').update({
-                photos: newPhotos,
-                image_url: newPhotos[0] || ''
-            }).eq('id', placeId);
-            await loadData();
-            openDetail(placeId);
-        }
-
-        // Edit cover
-        function editPlaceImage(placeId) {
-            const input = document.createElement('input');
-            input.type = 'file'; input.accept = 'image/*';
-            input.onchange = async (e) => {
-                const file = e.target.files[0]; if (!file) return;
-                const url = await uploadPhoto(file);
-                if (!url) return;
-                const p = placesCache.find(r => r.id === placeId);
-                const newPhotos = [url, ...(p.photos || [])];
-                await sb.from('places').update({ image_url: url, photos: newPhotos }).eq('id', placeId);
-                await loadData();
-                openDetail(placeId);
-            };
-            input.click();
-        }
-
-        // Review
-        let reviewImageFiles = [];
-        function openReviewModal(placeId) {
-            if (!getUser()) { openModal('account'); return; }
-            document.getElementById('rv-place-id').value = placeId;
-            closeModal('detail');
-            openModal('review');
-        }
-        function previewReviewImages(input) {
-            const c = document.getElementById('rv-image-previews');
-            reviewImageFiles = Array.from(input.files);
-            c.innerHTML = '';
-            reviewImageFiles.forEach(f => {
-                c.innerHTML += `<div class="image-preview"><img src="${URL.createObjectURL(f)}"></div>`;
-            });
-        }
-        async function addReview(e) {
-            e.preventDefault();
-            const rating = document.querySelector('input[name="rating"]:checked');
-            if (!rating) { alert('Selecione uma nota'); return; }
-            const urls = [];
-            for (const f of reviewImageFiles) {
-                const url = await uploadPhoto(f);
-                if (url) urls.push(url);
-            }
-            const { error } = await sb.from('reviews').insert({
-                place_id: parseInt(document.getElementById('rv-place-id').value),
-                user_id: currentUser.id,
-                author_name: currentUser.name,
-                rating: parseInt(rating.value),
-                text: document.getElementById('rv-text').value,
-                images: urls
-            });
-            if (error) { alert(error.message); return; }
-            document.getElementById('form-review').reset();
-            reviewImageFiles = []; document.getElementById('rv-image-previews').innerHTML = '';
-            closeModal('review');
-            await loadData();
-            const dm = document.getElementById('modal-detail');
-            if (dm.classList.contains('active')) openDetail(parseInt(document.getElementById('rv-place-id').value));
-        }
-
-        // Delete
-        async function deletePlace(id) {
-            if (!confirm('Remover e todas as avaliações?')) return;
-            await sb.from('places').delete().eq('id', id);
-            closeModal('detail'); await loadData();
-        }
-        async function deleteReview(id, placeId) {
-            if (!confirm('Remover esta avaliação?')) return;
-            await sb.from('reviews').delete().eq('id', id);
-            await loadData();
-            openDetail(placeId);
-        }
-
-        // Categories
-        let drawerType = 'restaurante';
-        function getCategories(type) {
-            const places = placesCache.filter(p => p.type === type);
-            const cats = new Set();
-            places.forEach(p => { if (p.cuisine) cats.add(p.cuisine.split('/')[0].split(',')[0].trim()); });
-            return ['Todas', ...Array.from(cats).sort()];
-        }
-        function setCategory(type, cat) { categoryFilter[type] = cat; closeCatDrawer(); render(); }
-        function toggleExtraFilter(key) { extraFilter[key] = !extraFilter[key]; render(); }
-        function michelinStars(p) { if (!p.badge) return 0; const m = p.badge.match(/★/g); return m ? m.length : 0; }
-        function openCatDrawer(type) {
-            drawerType = type;
-            const cats = getCategories(type);
-            document.getElementById('cat-drawer-list').innerHTML = cats.map(c =>
-                `<li><a class="${categoryFilter[type] === c ? 'active' : ''}" onclick="setCategory('${type}','${c.replace(/'/g,"\\'")}')">${c}</a></li>`
-            ).join('');
-            document.getElementById('cat-drawer').classList.add('open');
-            document.getElementById('cat-drawer-overlay').classList.add('open');
-        }
-        function closeCatDrawer() {
-            document.getElementById('cat-drawer').classList.remove('open');
-            document.getElementById('cat-drawer-overlay').classList.remove('open');
-        }
-        function buildFilterBar(type) {
-            const cats = getCategories(type);
-            const elId = 'filter-' + (type === 'restaurante' ? 'restaurantes' : 'bares');
-            const el = document.getElementById(elId);
-            if (!el) return;
-            const top = cats.slice(0, 7);
-            const hasMore = cats.length > 7;
-            el.innerHTML = top.map(c =>
-                `<button class="filter-btn ${categoryFilter[type] === c ? 'active' : ''}" onclick="setCategory('${type}','${c.replace(/'/g,"\\'")}')">${c}</button>`
-            ).join('') + (hasMore ? `<button class="filter-btn" onclick="openCatDrawer('${type}')">Mais...</button>` : '')
-            + `<span style="width:1px;height:20px;background:var(--divider);margin:0 4px"></span>`
-            + `<button class="filter-btn ${extraFilter.michelin ? 'active' : ''}" onclick="toggleExtraFilter('michelin')">⭐ Michelin</button>`
-            + `<button class="filter-btn ${extraFilter.reservation ? 'active' : ''}" onclick="toggleExtraFilter('reservation')">📅 Reserva</button>`
-            + `<button class="filter-btn ${extraFilter.delivery ? 'active' : ''}" onclick="toggleExtraFilter('delivery')">🛵 Delivery</button>`;
-        }
-
-        // Detail
-        function openDetail(id) {
-            const r = getPlaceById(id); if (!r) return;
-            const { avg, count } = getPlaceRating(r.id);
-            const rvs = reviewsCache.filter(rv => rv.place_id === r.id);
-            const user = getUser();
-            const isOwner = user && r.user_id === user.id;
-            const admin = isAdmin();
-            const canEdit = admin || isOwner;
-            const icon = r.type === 'bar' ? '🍺' : '🍽️';
-
-            const photos = r.photos || [];
-            let photosHTML = '';
-            if (photos.length > 0) {
-                const show = photos.slice(0, 3);
-                const remaining = photos.length - 3;
-                photosHTML = `<div class="detail-photo-grid" onclick="openLightbox(${r.id}, 0)">
-                    ${show.map((p, i) => {
-                        if (i === 2 && remaining > 0) {
-                            return `<div class="photo-more"><img src="${p}"><span>+${remaining}</span></div>`;
-                        }
-                        return `<img src="${p}">`;
-                    }).join('')}
-                </div>`;
-            }
-
-            const reviewsHTML = rvs.length ? rvs.map(rv => {
-                const ini = rv.author_name.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase();
-                const canDel = user && (rv.user_id === user.id || admin);
-                return `<div class="detail-review">
-                    <div class="detail-review-top"><div class="detail-review-avatar">${ini}</div>
-                        <div><span class="detail-review-author" style="cursor:pointer" onclick="event.stopPropagation();closeModal('detail');openProfile('${rv.user_id}')">${rv.author_name}</span><span class="detail-review-date"> · ${formatDate(rv.created_at)}</span></div>
-                    </div>
-                    <div class="detail-review-stars">${starsHTML(rv.rating)}</div>
-                    <div class="detail-review-text">${rv.text || ''}</div>
-                    ${rv.images?.length ? `<div class="detail-review-images">${rv.images.map(i => `<img class="detail-review-img" src="${i}">`).join('')}</div>` : ''}
-                    ${canDel ? `<div style="margin-top:6px"><span style="color:var(--metadata);font-size:.75rem;cursor:pointer" onclick="deleteReview(${rv.id},${r.id})">remover</span></div>` : ''}
-                </div>`;
-            }).join('') : `<div class="detail-empty">Nenhuma avaliação ainda.</div>`;
-
-            document.getElementById('detail-content').innerHTML = `
-                <button onclick="closeModal('detail')" style="position:absolute;top:12px;right:12px;background:none;border:none;font-size:1.5rem;cursor:pointer;color:#666;z-index:1">&times;</button>
-                <div class="detail-header">
-                    ${r.image_url ? `<img class="detail-image" src="${r.image_url}" alt="${r.name}">` : `<div class="detail-image-placeholder">${icon}</div>`}
-                    <div class="detail-info">
-                        <span class="card-type-tag ${r.type === 'bar' ? 'tag-bar' : 'tag-restaurante'}">${r.type}</span>
-                        ${r.badge ? `<span class="card-badge">${r.badge}</span>` : ''}
-                        <h2>${r.name}</h2>
-                        ${r.cuisine ? `<div class="detail-cuisine">${r.cuisine}${r.address ? ' · ' + r.address : ''}</div>` : ''}
-                        ${count > 0 ? `<div class="detail-rating-row"><span class="detail-avg">${avg}</span><span class="detail-stars">${starsHTML(parseFloat(avg))}</span><span class="detail-count">(${count} ${count === 1 ? 'avaliação' : 'avaliações'})</span></div>` : `<div class="detail-count" style="margin-top:4px">Sem avaliações ainda</div>`}
-                        <div class="detail-tags">
-                            ${r.has_reservation ? `<span class="detail-tag detail-tag-green">📅 Reserva${r.reservation_url ? ` · <a href="${r.reservation_url}" target="_blank" style="color:inherit">Reservar</a>` : ''}</span>` : ''}
-                            ${r.delivery_apps ? r.delivery_apps.split(',').map(a => `<span class="card-badge" style="background:#f3e5f5;color:#7b1fa2">${a.trim()}</span>`).join('') : ''}
-                            <span class="detail-tag detail-tag-gray">${getFavCount(r.id)} curtida${getFavCount(r.id) !== 1 ? 's' : ''}</span>
-                        </div>
-                        <div class="detail-actions">
-                            <button class="fav-btn ${isFavorited(r.id) ? 'active' : ''}" onclick="toggleFavorite(${r.id})" title="Curtir">${heartSVG}</button>
-                            <button class="btn btn-primary btn-sm" onclick="openReviewModal(${r.id})" style="margin-top:10px">Avaliar</button>
-                            <button class="btn btn-outline btn-sm" onclick="openAddPhotoModal(${r.id})" style="margin-top:10px">Adicionar fotos</button>
-                            ${canEdit ? `<button class="btn btn-ghost btn-sm" onclick="editPlaceImage(${r.id})" style="margin-top:10px">Editar capa</button>` : ''}
-                            ${admin ? `<button class="btn btn-outline btn-sm" onclick="openEditPlace(${r.id})" style="margin-top:10px">Editar info</button>` : ''}
-                            ${admin ? `<button class="btn ${r.featured ? 'btn-primary' : 'btn-outline'} btn-sm" onclick="toggleFeatured(${r.id})" style="margin-top:10px">${r.featured ? '★ No Hero' : '☆ Destacar no Hero'}</button>` : ''}
-                            ${canEdit ? `<button class="btn btn-ghost btn-sm" onclick="deletePlace(${r.id})" style="margin-top:10px">Remover</button>` : ''}
-                        </div>
-                    </div>
+    <!-- Modal: Forgot Password -->
+    <div class="modal-overlay" id="modal-forgot" style="z-index:210">
+        <div class="modal" style="max-width:400px">
+            <h2>Redefinir senha</h2>
+            <p style="color:var(--body-light);font-size:.875rem;margin-bottom:16px">Informe o email da sua conta e enviaremos um link para você criar uma nova senha.</p>
+            <form id="form-forgot" onsubmit="submitForgotPassword(event)">
+                <div class="form-group"><label>Email</label><input type="email" id="forgot-email" required placeholder="seu@email.com"></div>
+                <div class="modal-actions">
+                    <button type="button" class="btn-cancel" onclick="closeModal('forgot')">Cancelar</button>
+                    <button type="submit" class="btn-submit">Enviar link</button>
                 </div>
-                ${photosHTML}
-                <hr class="detail-divider">
-                <div class="detail-reviews-header"><span class="detail-reviews-title">Avaliações (${count})</span></div>
-                ${reviewsHTML}`;
-            document.getElementById('modal-detail').classList.add('active');
-        }
+            </form>
+        </div>
+    </div>
 
-        // Lightbox
-        let lbPhotos = [], lbIndex = 0, lbPlaceId = null;
-        function openLightbox(placeId, index) {
-            const p = getPlaceById(placeId);
-            if (!p || !p.photos || !p.photos.length) return;
-            lbPhotos = p.photos; lbIndex = index || 0; lbPlaceId = placeId;
-            updateLightbox();
-            document.getElementById('lightbox').classList.add('active');
-        }
-        function closeLightbox() { document.getElementById('lightbox').classList.remove('active'); }
-        function lightboxNav(dir) {
-            lbIndex = (lbIndex + dir + lbPhotos.length) % lbPhotos.length;
-            updateLightbox();
-        }
-        function updateLightbox() {
-            document.getElementById('lightbox-img').src = lbPhotos[lbIndex];
-            document.getElementById('lightbox-counter').textContent = `${lbIndex + 1} / ${lbPhotos.length}`;
-            const canDel = isAdmin() || (currentUser && getPlaceById(lbPlaceId)?.user_id === currentUser.id);
-            document.getElementById('lightbox-delete').style.display = canDel ? 'block' : 'none';
-        }
-        async function lightboxDelete() {
-            if (!confirm('Remover esta foto?')) return;
-            await deletePhoto(lbPlaceId, lbIndex);
-            const p = getPlaceById(lbPlaceId);
-            if (!p || !p.photos || !p.photos.length) { closeLightbox(); return; }
-            lbPhotos = p.photos;
-            lbIndex = Math.min(lbIndex, lbPhotos.length - 1);
-            updateLightbox();
-        }
-        document.addEventListener('keydown', e => {
-            if (!document.getElementById('lightbox').classList.contains('active')) return;
-            if (e.key === 'Escape') closeLightbox();
-            if (e.key === 'ArrowLeft') lightboxNav(-1);
-            if (e.key === 'ArrowRight') lightboxNav(1);
-        });
-
-        // Profile
-        function openProfile(userId) {
-            const profile = getProfile(userId);
-            if (!profile) return;
-            const userReviews = reviewsCache.filter(rv => rv.user_id === userId);
-            const userFavs = favoritesCache.filter(f => f.user_id === userId);
-            const followers = followsCache.filter(f => f.following_id === userId);
-            const following = followsCache.filter(f => f.follower_id === userId);
-            const initials = profile.name.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase();
-            const isMe = currentUser && currentUser.id === userId;
-
-            const reviewsHTML = userReviews.length ? userReviews.map(rv => {
-                const place = getPlaceById(rv.place_id);
-                return `<div class="detail-review" style="cursor:pointer" onclick="openDetail(${rv.place_id})">
-                    <div style="display:flex;justify-content:space-between;align-items:center">
-                        <strong style="color:var(--heading)">${place ? place.name : 'Desconhecido'}</strong>
-                        <span class="detail-review-date">${formatDate(rv.created_at)}</span>
-                    </div>
-                    <div class="detail-review-stars">${starsHTML(rv.rating)}</div>
-                    <div class="detail-review-text">${rv.text || ''}</div>
-                </div>`;
-            }).join('') : '<div class="detail-empty">Nenhuma avaliação ainda.</div>';
-
-            const favsHTML = userFavs.length ? `<div class="restaurant-grid" style="margin-top:16px">${userFavs.map(f => {
-                const p = getPlaceById(f.place_id);
-                return p ? renderCard(p) : '';
-            }).join('')}</div>` : '<div class="detail-empty">Nenhum favorito ainda.</div>';
-
-            document.getElementById('profile-content').innerHTML = `
-                <div class="profile-header">
-                    <div class="profile-avatar">${initials}</div>
+    <!-- Modal: Edit Profile -->
+    <div class="modal-overlay" id="modal-editprofile" style="z-index:210">
+        <div class="modal" style="max-width:440px">
+            <h2>Editar perfil</h2>
+            <form id="form-editprofile" onsubmit="submitEditProfile(event)">
+                <div class="form-group" style="display:flex;align-items:center;gap:16px">
+                    <div id="ep-avatar-preview" class="profile-avatar" style="margin:0;flex-shrink:0"></div>
                     <div style="flex:1">
-                        <h2 style="margin:0">${profile.name}</h2>
-                        <div style="color:var(--metadata);font-size:.8125rem">${profile.email}</div>
-                        <div class="profile-stats">
-                            <div class="profile-stat"><strong>${userReviews.length}</strong><span>avaliações</span></div>
-                            <div class="profile-stat"><strong>${userFavs.length}</strong><span>favoritos</span></div>
-                            <div class="profile-stat"><strong>${followers.length}</strong><span>seguidores</span></div>
-                            <div class="profile-stat"><strong>${following.length}</strong><span>seguindo</span></div>
-                        </div>
-                    </div>
-                    ${!isMe && currentUser ? `<button class="follow-btn ${isFollowing(userId) ? 'follow-btn-following' : 'follow-btn-follow'}" onclick="toggleFollow('${userId}')">${isFollowing(userId) ? 'Seguindo' : 'Seguir'}</button>` : ''}
-                </div>
-                <h3 style="margin-bottom:12px">Avaliações</h3>
-                ${reviewsHTML}
-                <h3 style="margin:24px 0 12px">Favoritos</h3>
-                ${favsHTML}
-            `;
-            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
-            document.getElementById('tab-profile').classList.add('active');
-            document.querySelectorAll('.nav-links a').forEach(a => a.classList.remove('active'));
-        }
-
-        // Render
-        function renderCard(r, options = {}) {
-            const { avg, count } = getPlaceRating(r.id);
-            const rank = options.rank;
-            const icon = r.type === 'bar' ? '🍺' : '🍽️';
-            return `<div class="restaurant-card ${rank ? 'popular-card' : ''}" onclick="openDetail(${r.id})">
-                ${rank ? `<div class="rank-badge">#${rank}</div>` : ''}
-                ${r.image_url ? `<img class="card-image" src="${r.image_url}" alt="${r.name}">` : `<div class="card-image-placeholder">${icon}</div>`}
-                <div class="card-body">
-                    <span class="card-type-tag ${r.type === 'bar' ? 'tag-bar' : 'tag-restaurante'}">${r.type}</span>
-                    ${r.badge ? `<span class="card-badge">${r.badge}</span>` : ''}
-                    ${r.delivery_apps ? r.delivery_apps.split(',').map(a => `<span class="card-badge" style="background:#f3e5f5;color:#7b1fa2">${a.trim()}</span>`).join('') : ''}
-                    <h3>${r.name}</h3>
-                    ${r.cuisine ? `<div class="card-cuisine">${r.cuisine}${r.address ? ' · ' + r.address : ''}</div>` : ''}
-                    <div class="card-rating">
-                        ${count > 0 ? `<span class="card-stars">${starsHTML(parseFloat(avg))}</span><span class="card-rating-num">${avg}</span><span class="card-reviews-count">(${count})</span>` : `<span class="card-reviews-count">Sem avaliações</span>`}
-                    </div>
-                    ${rank ? `<div class="popular-stats"><span class="popular-stat">📝 ${count} avaliações</span><span class="popular-stat">⭐ ${avg} média</span></div>` : ''}
-                    <div style="display:flex;justify-content:space-between;align-items:center;margin-top:4px">
-                        <button class="fav-btn ${isFavorited(r.id) ? 'active' : ''}" onclick="event.stopPropagation();toggleFavorite(${r.id})" title="Curtir">${heartSVG}</button>
-                        <span style="font-size:.75rem;color:var(--metadata)">${getFavCount(r.id)}</span>
+                        <label style="margin-bottom:6px">Foto de perfil</label>
+                        <button type="button" class="btn btn-outline btn-sm" onclick="document.getElementById('ep-avatar-input').click()">Trocar foto</button>
+                        <button type="button" class="btn btn-ghost btn-sm" onclick="clearAvatarPreview()" id="ep-avatar-clear" style="display:none;margin-left:6px">Remover</button>
+                        <input type="file" id="ep-avatar-input" accept="image/*" style="display:none" onchange="previewAvatar(this)">
                     </div>
                 </div>
-            </div>`;
-        }
+                <div class="form-group"><label>Nome</label><input type="text" id="ep-profile-name" required></div>
+                <div class="form-group"><label>Bio</label><textarea id="ep-profile-bio" placeholder="Conte algo sobre você (opcional)" maxlength="240"></textarea></div>
+                <div class="modal-actions">
+                    <button type="button" class="btn-cancel" onclick="closeModal('editprofile')">Cancelar</button>
+                    <button type="submit" class="btn-submit">Salvar</button>
+                </div>
+            </form>
+        </div>
+    </div>
 
-        function render() {
-            const filtered = (type) => {
-                let list = placesCache.filter(p => p.type === type);
-                if (searchQuery) list = list.filter(p => p.name.toLowerCase().includes(searchQuery) || (p.cuisine && p.cuisine.toLowerCase().includes(searchQuery)) || (p.address && p.address.toLowerCase().includes(searchQuery)));
-                const cat = categoryFilter[type];
-                if (cat && cat !== 'Todas') list = list.filter(p => p.cuisine && p.cuisine.split('/')[0].split(',')[0].trim() === cat);
-                if (extraFilter.michelin) list = list.filter(p => michelinStars(p) > 0);
-                if (extraFilter.delivery) list = list.filter(p => p.delivery_apps);
-                if (extraFilter.reservation) list = list.filter(p => p.has_reservation);
-                list.sort((a, b) => michelinStars(b) - michelinStars(a) || a.name.localeCompare(b.name, 'pt-BR'));
-                return list;
-            };
-            buildFilterBar('restaurante');
-            buildFilterBar('bar');
-            const rests = filtered('restaurante');
-            document.getElementById('grid-restaurantes').innerHTML = rests.length ? rests.map(r => renderCard(r)).join('') : `<div class="empty-state" style="grid-column:1/-1"><p>${searchQuery ? 'Nenhum restaurante encontrado.' : 'Nenhum restaurante adicionado ainda.'}</p>${!searchQuery ? '<button class="btn btn-primary" onclick="openAddPlace(\'restaurante\')">Adicionar o primeiro</button>' : ''}</div>`;
-            const bars = filtered('bar');
-            document.getElementById('grid-bares').innerHTML = bars.length ? bars.map(r => renderCard(r)).join('') : `<div class="empty-state" style="grid-column:1/-1"><p>${searchQuery ? 'Nenhum bar encontrado.' : 'Nenhum bar adicionado ainda.'}</p>${!searchQuery ? '<button class="btn btn-primary" onclick="openAddPlace(\'bar\')">Adicionar o primeiro</button>' : ''}</div>`;
-            let all = searchQuery ? placesCache.filter(p => p.name.toLowerCase().includes(searchQuery) || (p.cuisine && p.cuisine.toLowerCase().includes(searchQuery))) : placesCache;
-            const ranked = all.map(r => ({ ...r, ...getPlaceRating(r.id) })).filter(r => r.count > 0).sort((a, b) => b.count - a.count || parseFloat(b.avg) - parseFloat(a.avg));
-            document.getElementById('popular-grid').innerHTML = ranked.length ? ranked.map((r, i) => renderCard(r, { rank: i + 1 })).join('') : `<div class="empty-state" style="grid-column:1/-1"><p>Ainda não há lugares com avaliações.</p></div>`;
-            // Favoritos
-            if (currentUser) {
-                const myFavs = favoritesCache.filter(f => f.user_id === currentUser.id);
-                const favPlaces = myFavs.map(f => getPlaceById(f.place_id)).filter(Boolean);
-                document.getElementById('fav-grid').innerHTML = favPlaces.length ? favPlaces.map(r => renderCard(r)).join('') : `<div class="empty-state" style="grid-column:1/-1"><p>Você ainda não curtiu nenhum lugar.</p><p style="font-size:.8125rem">Clique no coração em qualquer restaurante ou bar para salvar.</p></div>`;
-            } else {
-                document.getElementById('fav-grid').innerHTML = `<div class="empty-state" style="grid-column:1/-1"><p>Faça login para ver seus favoritos.</p><button class="btn btn-primary" onclick="openModal('account')">Entrar</button></div>`;
-            }
-            // Amigos feed
-            const amigosEl = document.getElementById('amigos-feed');
-            if (currentUser) {
-                const followingIds = followsCache.filter(f => f.follower_id === currentUser.id).map(f => f.following_id);
-                const friendReviews = reviewsCache.filter(rv => followingIds.includes(rv.user_id)).slice(0, 50);
-                if (friendReviews.length) {
-                    amigosEl.innerHTML = friendReviews.map(rv => {
-                        const place = getPlaceById(rv.place_id);
-                        const profile = getProfile(rv.user_id);
-                        const ini = (profile?.name || rv.author_name).split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase();
-                        return `<div style="display:flex;gap:12px;padding:16px;background:var(--surface);border-radius:var(--radius-md);margin-bottom:12px;cursor:pointer" onclick="openDetail(${rv.place_id})">
-                            <div class="detail-review-avatar" onclick="event.stopPropagation();openProfile('${rv.user_id}')" style="cursor:pointer;flex-shrink:0">${ini}</div>
-                            <div style="flex:1;min-width:0">
-                                <div style="display:flex;justify-content:space-between;align-items:center">
-                                    <span style="font-weight:600;color:var(--heading);cursor:pointer" onclick="event.stopPropagation();openProfile('${rv.user_id}')">${profile?.name || rv.author_name}</span>
-                                    <span style="font-size:.75rem;color:var(--metadata)">${formatDate(rv.created_at)}</span>
-                                </div>
-                                <div style="font-size:.8125rem;color:var(--metadata);margin:2px 0">avaliou <strong style="color:var(--heading)">${place ? place.name : '?'}</strong></div>
-                                <div class="detail-review-stars">${starsHTML(rv.rating)}</div>
-                                ${rv.text ? `<div style="font-size:.875rem;color:var(--body);margin-top:4px">${rv.text.length > 120 ? rv.text.slice(0,120) + '...' : rv.text}</div>` : ''}
-                            </div>
-                            ${place?.image_url ? `<img src="${place.image_url}" style="width:60px;height:60px;object-fit:cover;border-radius:var(--radius-sm);flex-shrink:0">` : ''}
-                        </div>`;
-                    }).join('');
-                } else {
-                    amigosEl.innerHTML = followingIds.length
-                        ? `<div class="empty-state"><p>As pessoas que você segue ainda não avaliaram nada.</p></div>`
-                        : `<div class="empty-state"><p>Você ainda não segue ninguém.</p><p style="font-size:.8125rem">Clique no nome de quem avaliou um restaurante para ver o perfil e seguir.</p></div>`;
-                }
-            } else {
-                amigosEl.innerHTML = `<div class="empty-state"><p>Faça login para ver a atividade dos amigos.</p><button class="btn btn-primary" onclick="openModal('account')">Entrar</button></div>`;
-            }
-        }
+    <!-- Modal: Reset Password (after clicking recovery link) -->
+    <div class="modal-overlay" id="modal-reset" style="z-index:210">
+        <div class="modal" style="max-width:400px">
+            <h2>Escolha uma nova senha</h2>
+            <form id="form-reset" onsubmit="submitResetPassword(event)">
+                <div class="form-group"><label>Nova senha</label><input type="password" id="reset-pass" required minlength="6" placeholder="Mínimo 6 caracteres"></div>
+                <div class="form-group"><label>Confirmar senha</label><input type="password" id="reset-pass2" required minlength="6" placeholder="Digite novamente"></div>
+                <button type="submit" class="btn-submit" style="width:100%;margin-top:8px">Salvar nova senha</button>
+            </form>
+        </div>
+    </div>
 
-        // Init
-        async function init() {
-            const { data: { session } } = await sb.auth.getSession();
-            if (session) {
-                const u = session.user;
-                currentUser = { id: u.id, name: u.user_metadata?.name || u.email.split('@')[0], email: u.email };
-            }
-            updateHeader();
-            await loadData();
-        }
-        init();
-        if ('serviceWorker' in navigator) navigator.serviceWorker.register('/sw.js');
-    </script>
+    <script src="https://browser.sentry-cdn.com/8.45.0/bundle.min.js" crossorigin="anonymous"></script>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+    <script src="js/utils.js" defer></script>
+    <script src="js/data.js" defer></script>
+    <script src="js/modals.js" defer></script>
+    <script src="js/render.js" defer></script>
+    <script src="js/auth.js" defer></script>
+    <script src="js/photos.js" defer></script>
+    <script src="js/app.js" defer></script>
+
+    <!-- Mobile sidebar -->
+    <div class="mobile-sidebar-overlay" id="mobile-sidebar-overlay" onclick="toggleMobileSidebar()"></div>
+    <nav class="mobile-sidebar" id="mobile-sidebar">
+        <div class="mobile-sidebar-header">
+            <div class="logo"><span class="food">FOOD</span><span class="view">VIEW</span></div>
+            <button class="mobile-sidebar-close" onclick="toggleMobileSidebar()" aria-label="Fechar menu">&times;</button>
+        </div>
+        <ul>
+            <li><a href="#" data-tab="restaurantes" onclick="sidebarNav('restaurantes')">Restaurantes</a></li>
+            <li><a href="#" data-tab="bares" onclick="sidebarNav('bares')">Bares</a></li>
+            <li><a href="#" data-tab="popular" onclick="sidebarNav('popular')">Populares</a></li>
+            <li><a href="#" data-tab="favoritos" onclick="sidebarNav('favoritos')">Favoritos</a></li>
+            <li><a href="#" data-tab="amigos" onclick="sidebarNav('amigos')">Amigos</a></li>
+        </ul>
+    </nav>
+
+    <datalist id="category-options"></datalist>
 
 </body>
 </html>

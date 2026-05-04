@@ -1,1 +1,22 @@
 .vercel
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.idea/
+.vscode/
+
+# Env / secrets
+.env
+.env.*
+!.env.example
+
+# Logs / temp
+*.log
+*.tmp
+*.bak
+
+# Node (caso introduzido)
+node_modules/

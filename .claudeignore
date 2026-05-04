@@ -1,0 +1,27 @@
+# Reduces context Claude reads/lists automatically.
+# Code in js/ styles/ index.html stays visible.
+
+.git/
+.github/
+.vercel/
+node_modules/
+
+# Banco / dados (não é código de aplicação)
+db/
+*.sql
+*.xlsx
+*.csv
+
+# Binários / assets visuais
+assets/
+*.png
+*.jpg
+*.jpeg
+*.webp
+*.ico
+
+# OS / temp
+.DS_Store
+*.log
+*.tmp
+*.bak

@@ -1,0 +1,13 @@
+# Files excluded from the Vercel deploy bundle.
+# Keeps SQL/seed/spreadsheet artifacts out of the public site.
+
+db/
+*.sql
+*.xlsx
+*.csv
+
+.github/
+.claudeignore
+README.md
+*.bak
+*.tmp
