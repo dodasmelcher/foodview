@@ -818,9 +818,33 @@ function openDetail(id) {
     }
 }
 
+// Lazy-load Leaflet (CSS + JS) only when a map is actually opened. Saves
+// ~150KB on first paint for users who never view the favorites/detail map.
+let _leafletPromise = null;
+function loadLeaflet() {
+    if (window.L) return Promise.resolve();
+    if (_leafletPromise) return _leafletPromise;
+    _leafletPromise = new Promise((resolve, reject) => {
+        const link = document.createElement('link');
+        link.rel = 'stylesheet';
+        link.href = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css';
+        link.integrity = 'sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=';
+        link.crossOrigin = '';
+        document.head.appendChild(link);
+        const script = document.createElement('script');
+        script.src = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js';
+        script.integrity = 'sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=';
+        script.crossOrigin = '';
+        script.onload = resolve;
+        script.onerror = () => reject(new Error('Leaflet failed to load'));
+        document.head.appendChild(script);
+    });
+    return _leafletPromise;
+}
+
 let _detailMap = null;
-function renderDetailMiniMap(r) {
-    if (!window.L) return;
+async function renderDetailMiniMap(r) {
+    await loadLeaflet();
     const el = document.getElementById('detail-mini-map');
     if (!el) return;
     if (_detailMap) { try { _detailMap.remove(); } catch (_) {} _detailMap = null; }
@@ -920,8 +944,8 @@ function openProfile(userId) {
 // ===== Profile map (renders user's favorites with coords on Leaflet) =====
 let _profileMap = null;
 let _profileMarkers = [];
-function renderProfileMap(places) {
-    if (!window.L) return;
+async function renderProfileMap(places) {
+    await loadLeaflet();
     const el = document.getElementById('profile-map');
     if (!el) return;
     if (!_profileMap || _profileMap.getContainer() !== el) {
@@ -1280,14 +1304,6 @@ async function init() {
     });
 }
 init();
-// Service worker disabled. Existing registrations from earlier deploys will be
-// torn down here without any chance of re-registration.
-if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.getRegistrations()
-        .then(regs => Promise.all(regs.map(r => r.unregister().catch(() => {}))))
-        .then(() => caches?.keys().then(keys => Promise.all(keys.map(k => caches.delete(k)))))
-        .catch(() => {});
-}
 
 function toggleMobileSidebar() {
     document.getElementById('mobile-sidebar').classList.toggle('open');
