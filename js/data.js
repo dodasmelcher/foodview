@@ -28,7 +28,6 @@ async function loadData() {
     profilesCache = profiles || [];
     populateCategoryDatalist();
     render();
-    buildHeroSlides();
 }
 
 function getUser() { return currentUser; }

@@ -62,7 +62,7 @@ a:hover { color: var(--accent-hover); }
 }
 .nav-links {
     display: flex; gap: 0; list-style: none;
-    margin-left: auto; margin-right: 32px;
+    margin-left: 24px;
 }
 .nav-links a {
     color: var(--body); font-size: .875rem; font-weight: 500;
@@ -107,80 +107,31 @@ a:hover { color: var(--accent-hover); }
 .ud-name { font-weight: 700; color: var(--heading); font-size: .9375rem; }
 .ud-email { color: var(--metadata); font-size: .8125rem; margin-bottom: 12px; display: block; }
 
-/* Hero */
-.hero {
-    position: relative; height: 360px; background: #0a0a0a; overflow: hidden;
-}
-.hero-slide {
-    position: absolute; inset: 0; opacity: 0; transition: opacity 1.2s ease;
-}
-.hero-slide.active { opacity: 1; }
-.hero-slide img {
-    width: 100%; height: 100%; object-fit: cover; object-position: center;
-    display: block; filter: brightness(.45);
-}
-.hero-slide-placeholder {
-    width: 100%; height: 100%;
-    background: linear-gradient(135deg, #1a1a1a 0%, #2a2020 50%, #1a1a1a 100%);
-}
-.hero-content {
-    position: absolute; inset: 0; display: flex; flex-direction: column;
-    justify-content: center; padding: 0 10%; z-index: 2;
-}
-.hero-content h1 {
-    color: #fff; font-size: 2rem; font-weight: 700; margin-bottom: 4px;
-    letter-spacing: -.02em; line-height: 1.2;
-}
-.hero-content p { color: rgba(255,255,255,.6); font-size: .9375rem; margin-bottom: 24px; }
-.search-wrapper { max-width: 420px; position: relative; }
+/* Search (now lives in the header) */
+.search-wrapper { position: relative; flex: 1; max-width: 360px; margin: 0 16px; }
+.header-search { min-width: 0; }
 .search-input {
-    width: 100%; padding: 14px 18px 14px 44px;
-    border: none; border-radius: 50px; font-family: inherit; font-size: .9375rem;
-    color: var(--heading); background: rgba(255,255,255,.95); box-shadow: 0 4px 20px rgba(0,0,0,.2);
-    outline: none;
+    width: 100%; padding: 8px 36px 8px 36px;
+    border: 1px solid var(--divider); border-radius: 50px;
+    font-family: inherit; font-size: .875rem;
+    color: var(--heading); background: var(--surface-alt);
+    outline: none; transition: background .15s, border-color .15s;
 }
+.search-input:focus { background: var(--surface); border-color: var(--body-light); }
 .search-input::placeholder { color: var(--metadata); }
 .search-icon {
-    position: absolute; left: 16px; top: 50%; transform: translateY(-50%);
+    position: absolute; left: 12px; top: 50%; transform: translateY(-50%);
     color: var(--metadata); font-size: 1rem; pointer-events: none;
 }
 .search-clear {
-    position: absolute; right: 12px; top: 50%; transform: translateY(-50%);
-    width: 22px; height: 22px; border-radius: 50%;
+    position: absolute; right: 8px; top: 50%; transform: translateY(-50%);
+    width: 20px; height: 20px; border-radius: 50%;
     background: rgba(0,0,0,.12); border: none; color: var(--heading);
-    cursor: pointer; font-size: 1rem; line-height: 1; padding: 0;
+    cursor: pointer; font-size: .9rem; line-height: 1; padding: 0;
     display: none; align-items: center; justify-content: center;
 }
 .search-clear:hover { background: rgba(0,0,0,.2); }
 .search-clear.visible { display: flex; }
-.hero-arrow {
-    position: absolute; top: 50%; transform: translateY(-50%);
-    background: rgba(0,0,0,.4); border: none; color: #fff;
-    width: 36px; height: 36px; border-radius: 50%;
-    font-size: 1.5rem; line-height: 1; cursor: pointer; z-index: 3;
-    display: flex; align-items: center; justify-content: center;
-    transition: background .15s;
-}
-.hero-arrow:hover { background: rgba(0,0,0,.6); }
-.hero-arrow-prev { left: 16px; }
-.hero-arrow-next { right: 16px; }
-.hero-dots {
-    position: absolute; bottom: 12px; left: 50%; transform: translateX(-50%);
-    display: flex; gap: 6px; z-index: 3;
-}
-.hero-dot {
-    width: 8px; height: 8px; border-radius: 50%;
-    background: rgba(255,255,255,.35); border: none;
-    cursor: pointer; padding: 0;
-    transition: background .15s, width .15s;
-}
-.hero-dot:hover { background: rgba(255,255,255,.6); }
-.hero-dot.active { background: #fff; width: 20px; border-radius: 4px; }
-@media (max-width: 700px) {
-    .hero-arrow { width: 32px; height: 32px; font-size: 1.2rem; }
-    .hero-arrow-prev { left: 8px; }
-    .hero-arrow-next { right: 8px; }
-}
 
 /* Main */
 .main-container { max-width: 100%; margin: 0 auto; padding: 36px 40px; }
@@ -529,9 +480,6 @@ img.profile-avatar, img.user-badge-avatar, img.detail-review-avatar { object-fit
 @media (max-width: 700px) {
     .nav-links { display: none !important; }
     .hamburger { display: flex; }
-    .hero { height: 280px; }
-    .hero-content h1 { font-size: 1.375rem; }
-    .hero-content { padding: 0 6%; }
     .restaurant-grid { grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); }
     .modal { padding: 24px; width: 95%; }
     .detail-header { flex-direction: column; }
@@ -539,8 +487,9 @@ img.profile-avatar, img.user-badge-avatar, img.detail-review-avatar { object-fit
     .modal-wide { max-width: 95%; }
     .filter-bar { gap: 6px; }
     .filter-btn { font-size: .75rem; padding: 5px 12px; }
-    .header-inner { padding: 0 16px; }
+    .header-inner { padding: 0 12px; gap: 8px; }
     .logo span.food, .logo span.view { font-size: 1.2rem; }
+    .header-search { margin: 0 8px; max-width: none; }
     .profile-header { gap: 12px; padding: 16px; }
     .profile-stat strong { font-size: 1rem; }
     .profile-stat span { font-size: .65rem; }
@@ -574,15 +523,4 @@ img.profile-avatar, img.user-badge-avatar, img.detail-review-avatar { object-fit
 @keyframes shimmer {
     0% { background-position: -400px 0; }
     100% { background-position: calc(100% + 400px) 0; }
-}
-.hero-skeleton {
-    position: absolute; inset: 0;
-    background: linear-gradient(135deg, #1a1a1a 0%, #2a2020 50%, #1a1a1a 100%);
-    overflow: hidden;
-}
-.hero-skeleton::after {
-    content: ''; position: absolute; inset: 0;
-    background: linear-gradient(90deg, transparent, rgba(255,255,255,.06), transparent);
-    background-size: 600px 100%; background-repeat: no-repeat;
-    animation: shimmer 1.8s infinite linear;
 }

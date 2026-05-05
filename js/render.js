@@ -66,8 +66,6 @@ function renderSkeletons() {
         const el = document.getElementById(id);
         if (el && !el.children.length) el.innerHTML = html;
     });
-    const hero = document.getElementById('hero-slides');
-    if (hero && !hero.children.length) hero.innerHTML = '<div class="hero-skeleton"></div>';
 }
 
 // ===== Cards & grids =====

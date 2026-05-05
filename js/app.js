@@ -227,99 +227,6 @@ async function submitEditPlace(e) {
     } finally { unlock(); }
 }
 
-// Toggle featured (admin only)
-async function toggleFeatured(id) {
-    const p = getPlaceById(id);
-    if (!p || !isAdmin()) return;
-    const newVal = !p.featured;
-    await sb.from('places').update({ featured: newVal }).eq('id', id);
-    await loadData();
-    openDetail(id);
-}
-
-// Hero slideshow
-let heroInterval, heroIndex = 0, heroSlides = [];
-const HERO_AUTOPLAY_MS = 5000;
-function buildHeroSlides() {
-    const withImages = placesCache.filter(p => p.image_url || (p.photos && p.photos.length));
-    const container = document.getElementById('hero-slides');
-    const featured = document.getElementById('hero-featured-text');
-    const dots = document.getElementById('hero-dots');
-    const prev = document.getElementById('hero-prev');
-    const next = document.getElementById('hero-next');
-    clearInterval(heroInterval);
-    heroIndex = 0;
-    if (!withImages.length) {
-        container.innerHTML = '<div class="hero-slide active"><div class="hero-slide-placeholder"></div></div>';
-        featured.textContent = '';
-        dots.innerHTML = '';
-        prev.style.display = 'none';
-        next.style.display = 'none';
-        heroSlides = [];
-        return;
-    }
-    const featuredPlaces = withImages.filter(p => p.featured);
-    heroSlides = featuredPlaces.length ? featuredPlaces.slice(0, 8) : withImages.slice(0, 8);
-    container.innerHTML = heroSlides.map((p, i) => {
-        const src = imgSrc(p.image_url || (p.photos && p.photos[0]) || '', 800);
-        return `<div class="hero-slide ${i === 0 ? 'active' : ''}">
-            ${src ? `<img src="${escapeHtml(src)}" alt="${escapeHtml(p.name)}" width="1600" height="540" ${i === 0 ? 'fetchpriority="high"' : 'loading="lazy"'}>` : '<div class="hero-slide-placeholder"></div>'}
-        </div>`;
-    }).join('');
-    featured.textContent = heroSlides[0].name + (heroSlides[0].category ? ' · ' + heroSlides[0].category : '');
-    const multi = heroSlides.length > 1;
-    dots.innerHTML = multi
-        ? heroSlides.map((_, i) => `<button class="hero-dot ${i === 0 ? 'active' : ''}" data-slide="${i}" aria-label="Ir para slide ${i + 1}"></button>`).join('')
-        : '';
-    prev.style.display = multi ? 'flex' : 'none';
-    next.style.display = multi ? 'flex' : 'none';
-    if (multi) startHeroAutoplay();
-}
-function heroGoto(i) {
-    if (!heroSlides.length) return;
-    const container = document.getElementById('hero-slides');
-    const els = container.querySelectorAll('.hero-slide');
-    if (!els.length) return;
-    const target = ((i % els.length) + els.length) % els.length;
-    if (target === heroIndex) return;
-    els[heroIndex].classList.remove('active');
-    heroIndex = target;
-    els[heroIndex].classList.add('active');
-    const s = heroSlides[heroIndex];
-    document.getElementById('hero-featured-text').textContent = s.name + (s.category ? ' · ' + s.category : '');
-    document.querySelectorAll('#hero-dots .hero-dot').forEach((d, idx) => d.classList.toggle('active', idx === heroIndex));
-}
-function heroPrev() { heroGoto(heroIndex - 1); startHeroAutoplay(); }
-function heroNext() { heroGoto(heroIndex + 1); startHeroAutoplay(); }
-let heroPaused = false;
-function startHeroAutoplay() {
-    clearInterval(heroInterval);
-    if (heroPaused) return;
-    if (heroSlides.length > 1) {
-        heroInterval = setInterval(() => heroGoto(heroIndex + 1), HERO_AUTOPLAY_MS);
-    }
-}
-function pauseHero() { heroPaused = true; clearInterval(heroInterval); }
-function resumeHero() { heroPaused = false; startHeroAutoplay(); }
-// Pause autoplay while user hovers/focuses the hero — gives them time to read.
-(function bindHeroPause() {
-    const hero = document.getElementById('hero');
-    if (!hero) return;
-    hero.addEventListener('mouseenter', pauseHero);
-    hero.addEventListener('mouseleave', resumeHero);
-    hero.addEventListener('focusin', pauseHero);
-    hero.addEventListener('focusout', resumeHero);
-})();
-document.addEventListener('click', (e) => {
-    const dot = e.target.closest('#hero-dots .hero-dot');
-    if (!dot) return;
-    heroGoto(parseInt(dot.dataset.slide, 10));
-    startHeroAutoplay();
-});
-function openHeroPlace() {
-    if (heroSlides.length) openDetail(heroSlides[heroIndex].id);
-}
-
 // Tabs
 function switchTab(tab) {
     document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
@@ -819,7 +726,6 @@ function openDetail(id) {
                     <button class="btn btn-outline btn-sm" onclick="openAddPhotoModal(${r.id})" style="margin-top:10px">Adicionar fotos</button>
                     ${canEdit ? `<button class="btn btn-ghost btn-sm" onclick="editPlaceImage(${r.id})" style="margin-top:10px">Editar capa</button>` : ''}
                     ${admin ? `<button class="btn btn-outline btn-sm" onclick="openEditPlace(${r.id})" style="margin-top:10px">Editar info</button>` : ''}
-                    ${admin ? `<button class="btn ${r.featured ? 'btn-primary' : 'btn-outline'} btn-sm" onclick="toggleFeatured(${r.id})" style="margin-top:10px">${r.featured ? 'No Hero' : 'Destacar no Hero'}</button>` : ''}
                     ${canEdit ? `<button class="btn btn-ghost btn-sm" onclick="deletePlace(${r.id})" style="margin-top:10px">Remover</button>` : ''}
                 </div>
             </div>
