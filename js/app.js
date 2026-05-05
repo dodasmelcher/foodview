@@ -291,12 +291,25 @@ function heroGoto(i) {
 }
 function heroPrev() { heroGoto(heroIndex - 1); startHeroAutoplay(); }
 function heroNext() { heroGoto(heroIndex + 1); startHeroAutoplay(); }
+let heroPaused = false;
 function startHeroAutoplay() {
     clearInterval(heroInterval);
+    if (heroPaused) return;
     if (heroSlides.length > 1) {
         heroInterval = setInterval(() => heroGoto(heroIndex + 1), HERO_AUTOPLAY_MS);
     }
 }
+function pauseHero() { heroPaused = true; clearInterval(heroInterval); }
+function resumeHero() { heroPaused = false; startHeroAutoplay(); }
+// Pause autoplay while user hovers/focuses the hero — gives them time to read.
+(function bindHeroPause() {
+    const hero = document.getElementById('hero');
+    if (!hero) return;
+    hero.addEventListener('mouseenter', pauseHero);
+    hero.addEventListener('mouseleave', resumeHero);
+    hero.addEventListener('focusin', pauseHero);
+    hero.addEventListener('focusout', resumeHero);
+})();
 document.addEventListener('click', (e) => {
     const dot = e.target.closest('#hero-dots .hero-dot');
     if (!dot) return;
