@@ -232,6 +232,7 @@ function switchTab(tab) {
     document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
     document.getElementById('tab-' + tab).classList.add('active');
     document.querySelectorAll('.nav-links a').forEach(a => a.classList.toggle('active', a.dataset.tab === tab));
+    renderPageHeader(tab);
     // Render the target tab so changes made from other tabs show up immediately
     if (tab === 'restaurantes') renderRestaurantes();
     else if (tab === 'bares') renderBares();
@@ -863,6 +864,7 @@ function openProfile(userId) {
     document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
     document.getElementById('tab-profile').classList.add('active');
     document.querySelectorAll('.nav-links a').forEach(a => a.classList.remove('active'));
+    renderPageHeader('profile'); // hides the editorial header on the profile page
     if (favsWithCoords.length) renderProfileMap(favsWithCoords);
 }
 

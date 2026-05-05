@@ -3,6 +3,7 @@
 
 db/
 scripts/
+preview.html
 *.sql
 *.xlsx
 *.csv

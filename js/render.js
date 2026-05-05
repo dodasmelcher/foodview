@@ -212,9 +212,96 @@ function renderAmigos() {
 }
 
 function render() {
+    const active = document.querySelector('.tab-content.active')?.id?.replace('tab-', '') || 'restaurantes';
+    renderPageHeader(active);
     renderRestaurantes();
     renderBares();
     renderPopular();
     renderFavoritos();
     renderAmigos();
+}
+
+// ===== Editorial page header =====
+// Picks N most-recent places matching `predicate` that have an image_url.
+function pickHeaderThumbs(predicate, n = 3) {
+    return placesCache
+        .filter(p => p.image_url && predicate(p))
+        .sort((a, b) => (b.created_at || '').localeCompare(a.created_at || ''))
+        .slice(0, n);
+}
+function thumbsHtml(label, thumbs) {
+    if (!thumbs.length) return '';
+    const imgs = thumbs.map(p =>
+        `<img class="page-header-thumb" src="${escapeHtml(imgSrc(p.image_url, 152))}" alt="${escapeHtml(p.name)}" title="${escapeHtml(p.name)}" onclick="openDetail(${p.id})" loading="lazy" width="76" height="76">`
+    ).join('');
+    return `<div class="page-header-thumbs">
+        <div class="page-header-thumbs-label">${label}</div>
+        <div class="page-header-thumbs-row">${imgs}</div>
+    </div>`;
+}
+function renderPageHeader(tab) {
+    const target = document.getElementById('page-header');
+    if (!target) return;
+    const restaurantes = placesCache.filter(p => p.type === 'restaurante');
+    const bares = placesCache.filter(p => p.type === 'bar');
+
+    let eyebrow = '', title = '', subtitle = '', thumbs = '';
+    if (tab === 'restaurantes') {
+        const michelin = restaurantes.filter(p => michelinStars(p) > 0).length;
+        const reservation = restaurantes.filter(p => p.has_reservation).length;
+        eyebrow = 'São Paulo';
+        title = 'Restaurantes';
+        subtitle = `<b>${restaurantes.length}</b> lugares · <b>${michelin}</b> com Michelin · <b>${reservation}</b> com reserva`;
+        thumbs = thumbsHtml('destaques<br>recentes', pickHeaderThumbs(p => p.type === 'restaurante'));
+    } else if (tab === 'bares') {
+        const cervejarias = bares.filter(p => /cervej/i.test(p.category || '')).length;
+        const coquetel = bares.filter(p => /coquetel/i.test(p.category || '')).length;
+        eyebrow = 'São Paulo';
+        title = 'Bares';
+        subtitle = `<b>${bares.length}</b> bares · <b>${coquetel}</b> coquetelaria · <b>${cervejarias}</b> cervejarias`;
+        thumbs = thumbsHtml('novidades<br>recentes', pickHeaderThumbs(p => p.type === 'bar'));
+    } else if (tab === 'popular') {
+        const reviewedIds = new Set(reviewsCache.map(r => r.place_id));
+        const reviewedCount = placesCache.filter(p => reviewedIds.has(p.id)).length;
+        eyebrow = 'Mais avaliados';
+        title = 'Populares';
+        subtitle = `<b>${reviewedCount}</b> lugares avaliados · <b>${reviewsCache.length}</b> avaliações no total`;
+    } else if (tab === 'favoritos') {
+        if (currentUser) {
+            const myFavs = favoritesCache.filter(f => f.user_id === currentUser.id);
+            const favPlaces = myFavs.map(f => getPlaceById(f.place_id)).filter(Boolean);
+            eyebrow = (currentUser.name || '').split(' ')[0] || 'Você';
+            title = 'Meus Favoritos';
+            subtitle = favPlaces.length
+                ? `<b>${favPlaces.length}</b> lugar${favPlaces.length === 1 ? '' : 'es'} curtido${favPlaces.length === 1 ? '' : 's'}`
+                : 'Você ainda não curtiu nenhum lugar.';
+            thumbs = thumbsHtml('mais<br>recentes', favPlaces.filter(p => p.image_url).slice(0, 3));
+        } else {
+            eyebrow = 'Sua coleção';
+            title = 'Meus Favoritos';
+            subtitle = 'Faça login pra ver os lugares que você curtiu.';
+        }
+    } else if (tab === 'amigos') {
+        if (currentUser) {
+            const followingIds = followsCache.filter(f => f.follower_id === currentUser.id).map(f => f.following_id);
+            const friendReviews = reviewsCache.filter(rv => followingIds.includes(rv.user_id));
+            eyebrow = 'Rede';
+            title = 'Atividade dos Amigos';
+            subtitle = followingIds.length
+                ? `Seguindo <b>${followingIds.length}</b> ${followingIds.length === 1 ? 'pessoa' : 'pessoas'} · <b>${friendReviews.length}</b> avaliações`
+                : 'Você ainda não segue ninguém.';
+        } else {
+            eyebrow = 'Rede';
+            title = 'Atividade dos Amigos';
+            subtitle = 'Faça login pra acompanhar quem você segue.';
+        }
+    } else {
+        target.innerHTML = '';
+        return;
+    }
+    target.innerHTML = `<div class="page-header-text">
+        <span class="page-header-eyebrow">${eyebrow}</span>
+        <h1 class="page-header-title">${title}</h1>
+        <p class="page-header-subtitle">${subtitle}</p>
+    </div>${thumbs}`;
 }
