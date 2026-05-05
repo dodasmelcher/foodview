@@ -261,7 +261,7 @@ function buildHeroSlides() {
     const featuredPlaces = withImages.filter(p => p.featured);
     heroSlides = featuredPlaces.length ? featuredPlaces.slice(0, 8) : withImages.slice(0, 8);
     container.innerHTML = heroSlides.map((p, i) => {
-        const src = imgSrc(p.image_url || (p.photos && p.photos[0]) || '', 1600);
+        const src = safeUrl(p.image_url || (p.photos && p.photos[0]) || '');
         return `<div class="hero-slide ${i === 0 ? 'active' : ''}">
             ${src ? `<img src="${escapeHtml(src)}" alt="${escapeHtml(p.name)}" width="1600" height="540" ${i === 0 ? 'fetchpriority="high"' : 'loading="lazy"'}>` : '<div class="hero-slide-placeholder"></div>'}
         </div>`;
@@ -410,7 +410,7 @@ window.addEventListener('hashchange', applyRoute);
 let editProfileAvatarFile = null;
 let editProfileAvatarRemove = false;
 function avatarMarkup(profile, className, attrs = '') {
-    const url = imgSrc(profile?.avatar_url, 128);
+    const url = safeUrl(profile?.avatar_url);
     const extra = attrs ? ' ' + attrs : '';
     if (url) {
         return `<img class="${className}" src="${escapeHtml(url)}" alt=""${extra}>`;
@@ -771,7 +771,7 @@ function openDetail(id) {
         const remaining = photos.length - 3;
         photosHTML = `<div class="detail-photo-grid" onclick="openLightbox(${r.id}, 0)">
             ${show.map((p, i) => {
-                const src = escapeHtml(imgSrc(p, 400));
+                const src = escapeHtml(safeUrl(p));
                 if (i === 2 && remaining > 0) {
                     return `<div class="photo-more"><img src="${src}" loading="lazy" width="200" height="200"><span>+${remaining}</span></div>`;
                 }
@@ -790,12 +790,12 @@ function openDetail(id) {
             </div>
             <div class="detail-review-stars">${starsHTML(rv.rating)}</div>
             <div class="detail-review-text">${escapeHtml(rv.text || '')}</div>
-            ${rv.images?.length ? `<div class="detail-review-images">${rv.images.map(i => `<img class="detail-review-img" src="${escapeHtml(imgSrc(i, 200))}" loading="lazy">`).join('')}</div>` : ''}
+            ${rv.images?.length ? `<div class="detail-review-images">${rv.images.map(i => `<img class="detail-review-img" src="${escapeHtml(safeUrl(i))}" loading="lazy">`).join('')}</div>` : ''}
             ${canDel ? `<div style="margin-top:6px"><span style="color:var(--metadata);font-size:.75rem;cursor:pointer" onclick="deleteReview(${rv.id},${r.id})">remover</span></div>` : ''}
         </div>`;
     }).join('') : `<div class="detail-empty">Nenhuma avaliação ainda.</div>`;
 
-    const coverUrl = imgSrc(r.image_url, 320);
+    const coverUrl = safeUrl(r.image_url);
     const resUrl = safeUrl(r.reservation_url);
     document.getElementById('detail-content').innerHTML = `
         <button onclick="closeModal('detail')" aria-label="Fechar" style="position:absolute;top:12px;right:12px;background:none;border:none;font-size:1.5rem;cursor:pointer;color:#666;z-index:1">&times;</button>
