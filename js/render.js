@@ -75,7 +75,7 @@ function renderCard(r, options = {}) {
     const { avg, count } = getPlaceRating(r.id);
     const rank = options.rank;
     const name = escapeHtml(r.name);
-    const img = imgSrc(r.image_url, 600);
+    const img = imgSrc(r.image_url, 400);
     return `<div class="restaurant-card ${rank ? 'popular-card' : ''}" onclick="openDetail(${r.id})">
         ${rank ? `<div class="rank-badge">#${rank}</div>` : ''}
         ${img ? `<img class="card-image" src="${escapeHtml(img)}" alt="${name}" loading="lazy" width="300" height="200">` : `<div class="card-image-placeholder">${escapeHtml(r.name.charAt(0))}</div>`}

@@ -261,7 +261,7 @@ function buildHeroSlides() {
     const featuredPlaces = withImages.filter(p => p.featured);
     heroSlides = featuredPlaces.length ? featuredPlaces.slice(0, 8) : withImages.slice(0, 8);
     container.innerHTML = heroSlides.map((p, i) => {
-        const src = imgSrc(p.image_url || (p.photos && p.photos[0]) || '', 1600);
+        const src = imgSrc(p.image_url || (p.photos && p.photos[0]) || '', 800);
         return `<div class="hero-slide ${i === 0 ? 'active' : ''}">
             ${src ? `<img src="${escapeHtml(src)}" alt="${escapeHtml(p.name)}" width="1600" height="540" ${i === 0 ? 'fetchpriority="high"' : 'loading="lazy"'}>` : '<div class="hero-slide-placeholder"></div>'}
         </div>`;
