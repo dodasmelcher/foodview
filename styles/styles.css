@@ -250,7 +250,7 @@ a:hover { color: var(--accent-hover); }
 
 /* Modal */
 .modal-overlay {
-    display: none; position: fixed; inset: 0; background: rgba(0,0,0,.4); z-index: 200;
+    display: none; position: fixed; inset: 0; background: rgba(0,0,0,.4); z-index: 800;
     align-items: center; justify-content: center; backdrop-filter: blur(4px);
 }
 .modal-overlay.active { display: flex; }
@@ -372,7 +372,7 @@ a:hover { color: var(--accent-hover); }
 .detail-map-header { font-size: .9375rem; font-weight: 700; color: var(--heading); margin-top: 16px; }
 
 .lightbox-overlay {
-    display: none; position: fixed; inset: 0; background: rgba(0,0,0,.92); z-index: 500;
+    display: none; position: fixed; inset: 0; background: rgba(0,0,0,.92); z-index: 850;
     align-items: center; justify-content: center; flex-direction: column;
 }
 .lightbox-overlay.active { display: flex; }
@@ -478,12 +478,12 @@ img.profile-avatar, img.user-badge-avatar, img.detail-review-avatar { object-fit
 
 /* Mobile sidebar */
 .mobile-sidebar-overlay {
-    display: none; position: fixed; inset: 0; background: rgba(0,0,0,.4); z-index: 500;
+    display: none; position: fixed; inset: 0; background: rgba(0,0,0,.4); z-index: 850;
 }
 .mobile-sidebar-overlay.open { display: block; }
 .mobile-sidebar {
     position: fixed; top: 0; left: -280px; width: 260px; height: 100%;
-    background: var(--surface); z-index: 510; transition: left .25s ease;
+    background: var(--surface); z-index: 860; transition: left .25s ease;
     padding: 24px 20px; overflow-y: auto; box-shadow: 4px 0 20px rgba(0,0,0,.1);
 }
 .mobile-sidebar.open { left: 0; }
