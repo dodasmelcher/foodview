@@ -75,7 +75,7 @@ function renderCard(r, options = {}) {
     const { avg, count } = getPlaceRating(r.id);
     const rank = options.rank;
     const name = escapeHtml(r.name);
-    const img = safeUrl(r.image_url);
+    const img = imgSrc(r.image_url, 600);
     return `<div class="restaurant-card ${rank ? 'popular-card' : ''}" onclick="openDetail(${r.id})">
         ${rank ? `<div class="rank-badge">#${rank}</div>` : ''}
         ${img ? `<img class="card-image" src="${escapeHtml(img)}" alt="${name}" loading="lazy" width="300" height="200">` : `<div class="card-image-placeholder">${escapeHtml(r.name.charAt(0))}</div>`}
@@ -193,7 +193,7 @@ function renderAmigos() {
         const authorProfile = profile || { name: displayName };
         const nameEsc = escapeHtml(displayName);
         const userIdEsc = escapeHtml(rv.user_id);
-        const placeImg = safeUrl(place?.image_url);
+        const placeImg = imgSrc(place?.image_url, 200);
         const text = rv.text || '';
         const textTrimmed = text.length > 120 ? text.slice(0, 120) + '...' : text;
         return `<div style="display:flex;gap:12px;padding:16px;background:var(--surface);border-radius:var(--radius-md);margin-bottom:12px;cursor:pointer" onclick="openDetail(${rv.place_id})">

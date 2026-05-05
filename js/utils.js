@@ -18,6 +18,21 @@ function safeUrl(u) {
     return /^https?:\/\//i.test(s) ? s : '';
 }
 
+// Returns a safe URL routed through Supabase's image-transform endpoint when
+// the source is a Supabase Storage public URL — significantly smaller bytes.
+// Width is the *intended pixel width* including DPR; pass ~2x the CSS pixels.
+// Non-Supabase URLs (Google photos, external) pass through untouched.
+function imgSrc(u, width) {
+    const s = safeUrl(u);
+    if (!s) return '';
+    if (s.includes('/storage/v1/object/public/')) {
+        const t = s.replace('/storage/v1/object/public/', '/storage/v1/render/image/public/');
+        const sep = t.includes('?') ? '&' : '?';
+        return `${t}${sep}width=${width}&quality=75`;
+    }
+    return s;
+}
+
 function formatDate(iso) {
     return new Date(iso).toLocaleDateString('pt-BR', { day: 'numeric', month: 'short', year: 'numeric' });
 }
