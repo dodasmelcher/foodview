@@ -263,7 +263,7 @@ function buildHeroSlides() {
     container.innerHTML = heroSlides.map((p, i) => {
         const src = safeUrl(p.image_url || (p.photos && p.photos[0]) || '');
         return `<div class="hero-slide ${i === 0 ? 'active' : ''}">
-            ${src ? `<img src="${escapeHtml(src)}" alt="${escapeHtml(p.name)}">` : '<div class="hero-slide-placeholder"></div>'}
+            ${src ? `<img src="${escapeHtml(src)}" alt="${escapeHtml(p.name)}" width="1600" height="540" ${i === 0 ? 'fetchpriority="high"' : 'loading="lazy"'}>` : '<div class="hero-slide-placeholder"></div>'}
         </div>`;
     }).join('');
     featured.textContent = heroSlides[0].name + (heroSlides[0].category ? ' · ' + heroSlides[0].category : '');
@@ -773,9 +773,9 @@ function openDetail(id) {
             ${show.map((p, i) => {
                 const src = escapeHtml(safeUrl(p));
                 if (i === 2 && remaining > 0) {
-                    return `<div class="photo-more"><img src="${src}" loading="lazy"><span>+${remaining}</span></div>`;
+                    return `<div class="photo-more"><img src="${src}" loading="lazy" width="200" height="200"><span>+${remaining}</span></div>`;
                 }
-                return `<img src="${src}" loading="lazy">`;
+                return `<img src="${src}" loading="lazy" width="200" height="200">`;
             }).join('')}
         </div>`;
     }
@@ -800,7 +800,7 @@ function openDetail(id) {
     document.getElementById('detail-content').innerHTML = `
         <button onclick="closeModal('detail')" aria-label="Fechar" style="position:absolute;top:12px;right:12px;background:none;border:none;font-size:1.5rem;cursor:pointer;color:#666;z-index:1">&times;</button>
         <div class="detail-header">
-            ${coverUrl ? `<img class="detail-image" src="${escapeHtml(coverUrl)}" alt="${escapeHtml(r.name)}" loading="lazy">` : `<div class="detail-image-placeholder">${escapeHtml(icon)}</div>`}
+            ${coverUrl ? `<img class="detail-image" src="${escapeHtml(coverUrl)}" alt="${escapeHtml(r.name)}" loading="lazy" width="160" height="120">` : `<div class="detail-image-placeholder">${escapeHtml(icon)}</div>`}
             <div class="detail-info">
                 <span class="card-type-tag ${r.type === 'bar' ? 'tag-bar' : 'tag-restaurante'}">${escapeHtml(r.type)}</span>
                 ${r.badge ? `<span class="card-badge">${escapeHtml(r.badge)}</span>` : ''}

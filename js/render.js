@@ -78,7 +78,7 @@ function renderCard(r, options = {}) {
     const img = safeUrl(r.image_url);
     return `<div class="restaurant-card ${rank ? 'popular-card' : ''}" onclick="openDetail(${r.id})">
         ${rank ? `<div class="rank-badge">#${rank}</div>` : ''}
-        ${img ? `<img class="card-image" src="${escapeHtml(img)}" alt="${name}" loading="lazy">` : `<div class="card-image-placeholder">${escapeHtml(r.name.charAt(0))}</div>`}
+        ${img ? `<img class="card-image" src="${escapeHtml(img)}" alt="${name}" loading="lazy" width="300" height="200">` : `<div class="card-image-placeholder">${escapeHtml(r.name.charAt(0))}</div>`}
         <div class="card-body">
             <span class="card-type-tag ${r.type === 'bar' ? 'tag-bar' : 'tag-restaurante'}">${escapeHtml(r.type)}</span>
             ${r.badge ? `<span class="card-badge">${escapeHtml(r.badge)}</span>` : ''}
