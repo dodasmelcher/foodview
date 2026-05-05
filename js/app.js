@@ -377,6 +377,9 @@ function applyRoute() {
         } else {
             if (isOpen) modal.classList.remove('active');
             history.replaceState(null, '', window.location.pathname + window.location.search);
+            // Only toast if the cache has loaded — otherwise applyRoute on init
+            // races against loadData and would warn for valid places.
+            if (placesCache.length) showToast('Lugar não encontrado', 'error');
         }
     } else if (isOpen) {
         modal.classList.remove('active');
@@ -569,6 +572,12 @@ let reviewImageFiles = [];
 function openReviewModal(placeId) {
     if (!getUser()) { openModal('account'); return; }
     document.getElementById('rv-place-id').value = placeId;
+    // Reset preview so leftover files from a previously-cancelled review on
+    // another place don't leak into this one.
+    reviewImageFiles = [];
+    document.getElementById('rv-image-previews').innerHTML = '';
+    const fileInput = document.getElementById('rv-images');
+    if (fileInput) fileInput.value = '';
     closeModal('detail');
     openModal('review');
 }
