@@ -2,6 +2,7 @@
 # Keeps SQL/seed/spreadsheet artifacts out of the public site.
 
 db/
+scripts/
 *.sql
 *.xlsx
 *.csv

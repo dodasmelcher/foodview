@@ -1,5 +1,8 @@
 .vercel
 
+# Migration script local state (contains progress, not secrets)
+scripts/.migrate-state.json
+
 # OS
 .DS_Store
 Thumbs.db
