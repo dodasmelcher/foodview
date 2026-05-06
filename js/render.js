@@ -223,7 +223,7 @@ function render() {
 
 // ===== Editorial page header =====
 // Picks N most-recent places matching `predicate` that have an image_url.
-function pickHeaderThumbs(predicate, n = 4) {
+function pickHeaderThumbs(predicate, n = 3) {
     return placesCache
         .filter(p => p.image_url && predicate(p))
         .sort((a, b) => (b.created_at || '').localeCompare(a.created_at || ''))
@@ -231,12 +231,15 @@ function pickHeaderThumbs(predicate, n = 4) {
 }
 function thumbsHtml(label, thumbs) {
     if (!thumbs.length) return '';
-    const cards = thumbs.map(p =>
-        `<div class="page-header-thumb-card" onclick="openDetail(${p.id})" title="${escapeHtml(p.name)}">
-            <img class="page-header-thumb" src="${escapeHtml(imgSrc(p.image_url, 248))}" alt="${escapeHtml(p.name)}" loading="lazy" width="124" height="124">
+    // First thumb is the LCP candidate now that the hero is gone — load it
+    // eagerly with high priority. Rest are below-the-fold-ish, lazy-load.
+    const cards = thumbs.map((p, i) => {
+        const fetchAttr = i === 0 ? 'fetchpriority="high"' : 'loading="lazy"';
+        return `<div class="page-header-thumb-card" onclick="openDetail(${p.id})" title="${escapeHtml(p.name)}">
+            <img class="page-header-thumb" src="${escapeHtml(imgSrc(p.image_url, 192))}" alt="${escapeHtml(p.name)}" ${fetchAttr} width="124" height="124">
             <div class="page-header-thumb-name">${escapeHtml(p.name)}</div>
-        </div>`
-    ).join('');
+        </div>`;
+    }).join('');
     return `<div class="page-header-thumbs">
         <div class="page-header-thumbs-label">${label}</div>
         <div class="page-header-thumbs-row">${cards}</div>
@@ -245,6 +248,7 @@ function thumbsHtml(label, thumbs) {
 function renderPageHeader(tab) {
     const target = document.getElementById('page-header');
     if (!target) return;
+    target.dataset.tab = tab; // drives the per-tab side-bar color via CSS
     const restaurantes = placesCache.filter(p => p.type === 'restaurante');
     const bares = placesCache.filter(p => p.type === 'bar');
 
@@ -276,7 +280,7 @@ function renderPageHeader(tab) {
             subtitle = favPlaces.length
                 ? `<b>${favPlaces.length}</b> lugar${favPlaces.length === 1 ? '' : 'es'} curtido${favPlaces.length === 1 ? '' : 's'}`
                 : 'Você ainda não curtiu nenhum lugar.';
-            thumbs = thumbsHtml('mais<br>recentes', favPlaces.filter(p => p.image_url).slice(0, 4));
+            thumbs = thumbsHtml('mais<br>recentes', favPlaces.filter(p => p.image_url).slice(0, 3));
         } else {
             eyebrow = 'Sua coleção';
             title = 'Meus Favoritos';
