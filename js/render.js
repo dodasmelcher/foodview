@@ -223,7 +223,7 @@ function render() {
 
 // ===== Editorial page header =====
 // Picks N most-recent places matching `predicate` that have an image_url.
-function pickHeaderThumbs(predicate, n = 3) {
+function pickHeaderThumbs(predicate, n = 4) {
     return placesCache
         .filter(p => p.image_url && predicate(p))
         .sort((a, b) => (b.created_at || '').localeCompare(a.created_at || ''))
@@ -231,12 +231,15 @@ function pickHeaderThumbs(predicate, n = 3) {
 }
 function thumbsHtml(label, thumbs) {
     if (!thumbs.length) return '';
-    const imgs = thumbs.map(p =>
-        `<img class="page-header-thumb" src="${escapeHtml(imgSrc(p.image_url, 220))}" alt="${escapeHtml(p.name)}" title="${escapeHtml(p.name)}" onclick="openDetail(${p.id})" loading="lazy" width="104" height="104">`
+    const cards = thumbs.map(p =>
+        `<div class="page-header-thumb-card" onclick="openDetail(${p.id})" title="${escapeHtml(p.name)}">
+            <img class="page-header-thumb" src="${escapeHtml(imgSrc(p.image_url, 248))}" alt="${escapeHtml(p.name)}" loading="lazy" width="124" height="124">
+            <div class="page-header-thumb-name">${escapeHtml(p.name)}</div>
+        </div>`
     ).join('');
     return `<div class="page-header-thumbs">
         <div class="page-header-thumbs-label">${label}</div>
-        <div class="page-header-thumbs-row">${imgs}</div>
+        <div class="page-header-thumbs-row">${cards}</div>
     </div>`;
 }
 function renderPageHeader(tab) {
@@ -273,7 +276,7 @@ function renderPageHeader(tab) {
             subtitle = favPlaces.length
                 ? `<b>${favPlaces.length}</b> lugar${favPlaces.length === 1 ? '' : 'es'} curtido${favPlaces.length === 1 ? '' : 's'}`
                 : 'Você ainda não curtiu nenhum lugar.';
-            thumbs = thumbsHtml('mais<br>recentes', favPlaces.filter(p => p.image_url).slice(0, 3));
+            thumbs = thumbsHtml('mais<br>recentes', favPlaces.filter(p => p.image_url).slice(0, 4));
         } else {
             eyebrow = 'Sua coleção';
             title = 'Meus Favoritos';
