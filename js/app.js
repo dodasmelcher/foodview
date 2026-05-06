@@ -783,7 +783,25 @@ async function renderDetailMiniMap(r) {
         attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OSM</a> · &copy; <a href="https://carto.com/attributions">CARTO</a>'
     }).addTo(_detailMap);
     L.marker([r.lat, r.lng], { title: r.name }).addTo(_detailMap);
-    setTimeout(() => _detailMap && _detailMap.invalidateSize(), 50);
+    keepLeafletSized(_detailMap, el);
+}
+
+// Schedule a few invalidateSize calls + observe future size changes. Without
+// this, Leaflet tile-pads at the size it had on init and never asks for the
+// missing tiles when the container later grows (modal scroll-in, viewport
+// resize, fonts loading, etc), leaving white gaps in the map.
+function keepLeafletSized(map, el) {
+    const refresh = () => { try { map.invalidateSize(); } catch (_) {} };
+    requestAnimationFrame(refresh);
+    setTimeout(refresh, 100);
+    setTimeout(refresh, 350);
+    if (typeof ResizeObserver !== 'undefined') {
+        const ro = new ResizeObserver(refresh);
+        ro.observe(el);
+        // Stop observing once the map is removed so we don't leak.
+        const origRemove = map.remove.bind(map);
+        map.remove = () => { try { ro.disconnect(); } catch (_) {} return origRemove(); };
+    }
 }
 
 // Lightbox (openLightbox, closeLightbox, lightboxNav, updateLightbox,
@@ -886,8 +904,8 @@ async function renderProfileMap(places) {
             subdomains: 'abcd',
             attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OSM</a> · &copy; <a href="https://carto.com/attributions">CARTO</a>'
         }).addTo(_profileMap);
+        keepLeafletSized(_profileMap, el);
     }
-    setTimeout(() => _profileMap.invalidateSize(), 0);
     _profileMarkers.forEach(m => m.remove());
     _profileMarkers = [];
     if (!places.length) return;
