@@ -20,15 +20,18 @@ function safeUrl(u) {
 
 // Returns a safe URL routed through Supabase's image-transform endpoint when
 // the source is a Supabase Storage public URL — significantly smaller bytes.
-// Width is the *intended pixel width* including DPR; pass ~2x the CSS pixels.
+// Width/height are the *intended pixel dimensions* including DPR; pass ~2× the
+// CSS pixels. Both must be given (Supabase keeps the original height when
+// width alone is passed, which produces vertical-strip thumbnails).
 // Non-Supabase URLs (Google photos, external) pass through untouched.
-function imgSrc(u, width) {
+function imgSrc(u, width, height) {
     const s = safeUrl(u);
     if (!s) return '';
     if (s.includes('/storage/v1/object/public/')) {
         const t = s.replace('/storage/v1/object/public/', '/storage/v1/render/image/public/');
         const sep = t.includes('?') ? '&' : '?';
-        return `${t}${sep}width=${width}&quality=75`;
+        const h = height || width; // square default when caller doesn't say
+        return `${t}${sep}width=${width}&height=${h}&resize=cover&quality=75`;
     }
     return s;
 }

@@ -318,7 +318,7 @@ window.addEventListener('hashchange', applyRoute);
 let editProfileAvatarFile = null;
 let editProfileAvatarRemove = false;
 function avatarMarkup(profile, className, attrs = '') {
-    const url = imgSrc(profile?.avatar_url, 128);
+    const url = imgSrc(profile?.avatar_url, 128, 128);
     const extra = attrs ? ' ' + attrs : '';
     if (url) {
         return `<img class="${className}" src="${escapeHtml(url)}" alt=""${extra}>`;
@@ -679,7 +679,7 @@ function openDetail(id) {
         const remaining = photos.length - 3;
         photosHTML = `<div class="detail-photo-grid" onclick="openLightbox(${r.id}, 0)">
             ${show.map((p, i) => {
-                const src = escapeHtml(imgSrc(p, 400));
+                const src = escapeHtml(imgSrc(p, 400, 400)); // detail photo grid is square
                 if (i === 2 && remaining > 0) {
                     return `<div class="photo-more"><img src="${src}" loading="lazy" width="200" height="200"><span>+${remaining}</span></div>`;
                 }
@@ -698,12 +698,12 @@ function openDetail(id) {
             </div>
             <div class="detail-review-stars">${starsHTML(rv.rating)}</div>
             <div class="detail-review-text">${escapeHtml(rv.text || '')}</div>
-            ${rv.images?.length ? `<div class="detail-review-images">${rv.images.map(i => `<img class="detail-review-img" src="${escapeHtml(imgSrc(i, 200))}" loading="lazy">`).join('')}</div>` : ''}
+            ${rv.images?.length ? `<div class="detail-review-images">${rv.images.map(i => `<img class="detail-review-img" src="${escapeHtml(imgSrc(i, 200, 140))}" loading="lazy">`).join('')}</div>` : ''}
             ${canDel ? `<div style="margin-top:6px"><span style="color:var(--metadata);font-size:.75rem;cursor:pointer" onclick="deleteReview(${rv.id},${r.id})">remover</span></div>` : ''}
         </div>`;
     }).join('') : `<div class="detail-empty">Nenhuma avaliação ainda.</div>`;
 
-    const coverUrl = imgSrc(r.image_url, 320);
+    const coverUrl = imgSrc(r.image_url, 320, 240); // 4:3
     const resUrl = safeUrl(r.reservation_url);
     document.getElementById('detail-content').innerHTML = `
         <button onclick="closeModal('detail')" aria-label="Fechar" style="position:absolute;top:12px;right:12px;background:none;border:none;font-size:1.5rem;cursor:pointer;color:#666;z-index:1">&times;</button>

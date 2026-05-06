@@ -73,7 +73,7 @@ function renderCard(r, options = {}) {
     const { avg, count } = getPlaceRating(r.id);
     const rank = options.rank;
     const name = escapeHtml(r.name);
-    const img = imgSrc(r.image_url, 400);
+    const img = imgSrc(r.image_url, 400, 267); // 3:2
     return `<div class="restaurant-card ${rank ? 'popular-card' : ''}" onclick="openDetail(${r.id})">
         ${rank ? `<div class="rank-badge">#${rank}</div>` : ''}
         ${img ? `<img class="card-image" src="${escapeHtml(img)}" alt="${name}" loading="lazy" width="300" height="200">` : `<div class="card-image-placeholder">${escapeHtml(r.name.charAt(0))}</div>`}
@@ -191,7 +191,7 @@ function renderAmigos() {
         const authorProfile = profile || { name: displayName };
         const nameEsc = escapeHtml(displayName);
         const userIdEsc = escapeHtml(rv.user_id);
-        const placeImg = imgSrc(place?.image_url, 200);
+        const placeImg = imgSrc(place?.image_url, 200, 200); // 60×60 square thumb
         const text = rv.text || '';
         const textTrimmed = text.length > 120 ? text.slice(0, 120) + '...' : text;
         return `<div style="display:flex;gap:12px;padding:16px;background:var(--surface);border-radius:var(--radius-md);margin-bottom:12px;cursor:pointer" onclick="openDetail(${rv.place_id})">
@@ -236,7 +236,7 @@ function thumbsHtml(label, thumbs) {
     const cards = thumbs.map((p, i) => {
         const fetchAttr = i === 0 ? 'fetchpriority="high"' : 'loading="lazy"';
         return `<div class="page-header-thumb-card" onclick="openDetail(${p.id})" title="${escapeHtml(p.name)}">
-            <img class="page-header-thumb" src="${escapeHtml(imgSrc(p.image_url, 192))}" alt="${escapeHtml(p.name)}" ${fetchAttr} width="124" height="124">
+            <img class="page-header-thumb" src="${escapeHtml(imgSrc(p.image_url, 192, 192))}" alt="${escapeHtml(p.name)}" ${fetchAttr} width="124" height="124">
             <div class="page-header-thumb-name">${escapeHtml(p.name)}</div>
         </div>`;
     }).join('');
