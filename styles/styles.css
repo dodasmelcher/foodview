@@ -133,14 +133,23 @@ a:hover { color: var(--accent-hover); }
 .search-clear:hover { background: rgba(0,0,0,.2); }
 .search-clear.visible { display: flex; }
 
-/* Editorial page header (per-tab) */
+/* Editorial page header (per-tab) — dark magazine vibe */
 .page-header {
-    background: var(--surface-alt);
+    background: linear-gradient(135deg, #1a1a1a 0%, #2a2020 100%);
     padding: 48px 40px 44px;
     display: flex;
     align-items: center;
     justify-content: space-between;
     gap: 32px;
+    position: relative;
+    overflow: hidden;
+}
+.page-header::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; bottom: 0;
+    width: 4px;
+    background: var(--accent);
 }
 .page-header-text { flex: 1; min-width: 0; }
 .page-header-eyebrow {
@@ -164,15 +173,15 @@ a:hover { color: var(--accent-hover); }
     font-size: 2.75rem;
     font-weight: 700;
     letter-spacing: -.03em;
-    color: var(--heading);
+    color: #fff;
     line-height: 1.02;
     margin-bottom: 10px;
 }
 .page-header-subtitle {
-    color: var(--metadata);
+    color: rgba(255,255,255,.55);
     font-size: 1rem;
 }
-.page-header-subtitle b { color: var(--body); font-weight: 600; }
+.page-header-subtitle b { color: rgba(255,255,255,.85); font-weight: 600; }
 .page-header-thumbs {
     display: flex;
     align-items: center;
@@ -183,7 +192,7 @@ a:hover { color: var(--accent-hover); }
     font-size: .6875rem;
     font-weight: 700;
     letter-spacing: .14em;
-    color: var(--metadata);
+    color: rgba(255,255,255,.4);
     text-transform: uppercase;
     text-align: right;
     line-height: 1.4;
@@ -206,15 +215,18 @@ a:hover { color: var(--accent-hover); }
     width: 124px; height: 124px;
     border-radius: 14px;
     object-fit: cover;
-    border: 1px solid var(--divider);
-    background: var(--surface);
+    border: 1px solid rgba(255,255,255,.12);
+    background: rgba(255,255,255,.05);
     display: block;
-    transition: box-shadow .15s;
+    transition: box-shadow .15s, border-color .15s;
+}
+.page-header-thumb-card:hover .page-header-thumb {
+    border-color: rgba(255,255,255,.3);
 }
 .page-header-thumb-name {
     font-size: .8125rem;
     font-weight: 600;
-    color: var(--heading);
+    color: rgba(255,255,255,.85);
     line-height: 1.25;
     text-align: center;
     overflow: hidden;
