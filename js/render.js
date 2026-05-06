@@ -232,7 +232,7 @@ function pickHeaderThumbs(predicate, n = 3) {
 function thumbsHtml(label, thumbs) {
     if (!thumbs.length) return '';
     const imgs = thumbs.map(p =>
-        `<img class="page-header-thumb" src="${escapeHtml(imgSrc(p.image_url, 152))}" alt="${escapeHtml(p.name)}" title="${escapeHtml(p.name)}" onclick="openDetail(${p.id})" loading="lazy" width="76" height="76">`
+        `<img class="page-header-thumb" src="${escapeHtml(imgSrc(p.image_url, 220))}" alt="${escapeHtml(p.name)}" title="${escapeHtml(p.name)}" onclick="openDetail(${p.id})" loading="lazy" width="104" height="104">`
     ).join('');
     return `<div class="page-header-thumbs">
         <div class="page-header-thumbs-label">${label}</div>
@@ -247,11 +247,9 @@ function renderPageHeader(tab) {
 
     let eyebrow = '', title = '', subtitle = '', thumbs = '';
     if (tab === 'restaurantes') {
-        const michelin = restaurantes.filter(p => michelinStars(p) > 0).length;
-        const reservation = restaurantes.filter(p => p.has_reservation).length;
         eyebrow = 'São Paulo';
         title = 'Restaurantes';
-        subtitle = `<b>${restaurantes.length}</b> lugares · <b>${michelin}</b> com Michelin · <b>${reservation}</b> com reserva`;
+        subtitle = `<b>${restaurantes.length}</b> lugares selecionados`;
         thumbs = thumbsHtml('destaques<br>recentes', pickHeaderThumbs(p => p.type === 'restaurante'));
     } else if (tab === 'bares') {
         const cervejarias = bares.filter(p => /cervej/i.test(p.category || '')).length;

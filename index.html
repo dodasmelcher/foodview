@@ -43,6 +43,11 @@
             <div class="logo" onclick="switchTab('restaurantes')">
                 <span class="food">FOOD</span><span class="view">VIEW</span>
             </div>
+            <div class="search-wrapper header-search">
+                <svg class="search-icon" style="width:16px;height:16px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+                <input type="text" class="search-input" id="search-input" placeholder="Pesquisar por restaurante, bar ou cozinha..." oninput="handleSearch()">
+                <button type="button" class="search-clear" id="search-clear" onclick="clearSearch()" aria-label="Limpar busca">&times;</button>
+            </div>
             <ul class="nav-links">
                 <li><a href="#" class="active" data-tab="restaurantes" onclick="switchTab('restaurantes')">Restaurantes</a></li>
                 <li><a href="#" data-tab="bares" onclick="switchTab('bares')">Bares</a></li>
@@ -50,11 +55,6 @@
                 <li><a href="#" data-tab="favoritos" onclick="switchTab('favoritos')">Favoritos</a></li>
                 <li><a href="#" data-tab="amigos" onclick="switchTab('amigos')">Amigos</a></li>
             </ul>
-            <div class="search-wrapper header-search">
-                <svg class="search-icon" style="width:16px;height:16px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
-                <input type="text" class="search-input" id="search-input" placeholder="Pesquisar por restaurante, bar ou cozinha..." oninput="handleSearch()">
-                <button type="button" class="search-clear" id="search-clear" onclick="clearSearch()" aria-label="Limpar busca">&times;</button>
-            </div>
             <div class="header-right" id="header-right">
                 <button class="btn btn-ghost btn-sm" onclick="openModal('account')">Criar conta</button>
                 <button class="btn btn-outline btn-sm" onclick="openModal('account-login')">Entrar</button>
