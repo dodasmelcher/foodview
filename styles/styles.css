@@ -503,7 +503,10 @@ a:hover { color: var(--accent-hover); }
 
 /* Opening hours */
 .detail-hours { margin-top: 16px; }
-.detail-hours-title { font-weight: 700; color: var(--heading); font-size: .9375rem; margin-bottom: 6px; }
+.detail-hours-title { display: flex; align-items: baseline; gap: 8px; font-weight: 700; color: var(--heading); font-size: .9375rem; margin-bottom: 6px; }
+.detail-hours-status { font-size: .75rem; font-weight: 600; }
+.detail-hours-status.is-open { color: #88c5a4; }
+.detail-hours-status.is-closed { color: #e0928a; }
 .detail-hours-list { list-style: none; padding: 0; margin: 0; columns: 2; column-gap: 24px; }
 .detail-hours-list li { font-size: .8125rem; color: var(--body-light); padding: 2px 0; break-inside: avoid; }
 .detail-hours-list li.today { color: var(--heading); font-weight: 700; }

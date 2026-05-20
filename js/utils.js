@@ -40,6 +40,18 @@ function formatDate(iso) {
     return new Date(iso).toLocaleDateString('pt-BR', { day: 'numeric', month: 'short', year: 'numeric' });
 }
 
+// Trim a Google formatted address down to street + neighborhood, dropping the
+// "City - UF" segment and the CEP. Comma-separated segments that are clearly a
+// CEP (12345-678) or end in a state abbreviation (" - SP") are removed; manual
+// addresses like "R. Augusta, 1200 — Consolação" pass through unchanged.
+function formatAddress(addr) {
+    if (!addr) return '';
+    return String(addr).split(',')
+        .map(s => s.trim())
+        .filter(s => s && !/^\d{5}-?\d{3}$/.test(s) && !/\s-\s[A-Z]{2}$/.test(s))
+        .join(', ');
+}
+
 function starsHTML(n) {
     const filled = '★'.repeat(Math.floor(n));
     const half = (n % 1 >= 0.5 ? '½' : '');

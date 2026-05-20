@@ -712,13 +712,13 @@ function openDetail(id) {
     const phone = r.phone || '';
     const wa = waLink(phone);
     const openState = isPlaceOpenNow(r.hours); // true / false / null (unknown)
-    const statusTag = openState === null ? '' :
-        `<span class="detail-tag ${openState ? 'detail-tag-green' : 'detail-tag-red'}">${openState ? 'Aberto agora' : 'Fechado agora'}</span>`;
+    const statusHTML = openState === null ? '' :
+        `<span class="detail-hours-status ${openState ? 'is-open' : 'is-closed'}">${openState ? 'Aberto agora' : 'Fechado agora'}</span>`;
     const weekHours = (r.hours && Array.isArray(r.hours.weekdayDescriptions)) ? r.hours.weekdayDescriptions : [];
     const todayIdx = spWeekdayIndex();
     const hoursHTML = weekHours.length ? `
         <div class="detail-hours">
-            <div class="detail-hours-title">Horários</div>
+            <div class="detail-hours-title">Horários ${statusHTML}</div>
             <ul class="detail-hours-list">${weekHours.map((d, i) => `<li${i === todayIdx ? ' class="today"' : ''}>${escapeHtml(d)}</li>`).join('')}</ul>
         </div>` : '';
     document.getElementById('detail-content').innerHTML = `
@@ -729,12 +729,11 @@ function openDetail(id) {
                 <span class="card-type-tag ${r.type === 'bar' ? 'tag-bar' : 'tag-restaurante'}">${escapeHtml(r.type)}</span>
                 ${r.badge ? `<span class="card-badge">${escapeHtml(r.badge)}</span>` : ''}
                 <h2>${escapeHtml(r.name)}</h2>
-                ${(r.category || r.address) ? `<div class="detail-cuisine">${[r.category, r.address].filter(Boolean).map(escapeHtml).join(' · ')}</div>` : ''}
+                ${(r.category || r.address) ? `<div class="detail-cuisine">${[r.category, formatAddress(r.address)].filter(Boolean).map(escapeHtml).join(' · ')}</div>` : ''}
                 ${count > 0 ? `<div class="detail-rating-row"><span class="detail-avg">${avg}</span><span class="detail-stars">${starsHTML(parseFloat(avg))}</span><span class="detail-count">(${count} ${count === 1 ? 'avaliação' : 'avaliações'})</span></div>` : `<div class="detail-count" style="margin-top:4px">Sem avaliações ainda</div>`}
                 <div class="detail-tags">
-                    ${statusTag}
                     ${r.website && safeUrl(r.website) ? `<span class="detail-tag detail-tag-blue"><a href="${escapeHtml(safeUrl(r.website))}" target="_blank" rel="noopener noreferrer" style="color:inherit">Site oficial</a></span>` : ''}
-                    ${phone ? `<span class="detail-tag detail-tag-gray"><a href="tel:${escapeHtml(phone.replace(/\s/g, ''))}" style="color:inherit">${escapeHtml(phone)}</a></span>` : ''}
+                    ${phone ? `<span class="detail-tag detail-tag-gray"><a href="tel:${escapeHtml(phone.replace(/\s/g, ''))}" style="color:inherit">Ligar</a></span>` : ''}
                     ${wa ? `<span class="detail-tag detail-tag-green"><a href="${escapeHtml(wa)}" target="_blank" rel="noopener noreferrer" style="color:inherit">WhatsApp</a></span>` : ''}
                     ${r.delivery_apps ? r.delivery_apps.split(',').map(a => `<span class="card-badge" style="background:#f3e5f5;color:#7b1fa2">${escapeHtml(a.trim())}</span>`).join('') : ''}
                     <span class="detail-tag detail-tag-gray" data-fav-count-label="${r.id}">${getFavCount(r.id)} curtida${getFavCount(r.id) !== 1 ? 's' : ''}</span>
