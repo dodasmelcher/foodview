@@ -86,13 +86,21 @@ create table if not exists public.follows (
   check (follower_id <> following_id)
 );
 
+create table if not exists public.review_likes (
+  user_id    uuid not null references auth.users(id) on delete cascade,
+  review_id  bigint not null references public.reviews(id) on delete cascade,
+  created_at timestamptz default now(),
+  primary key (user_id, review_id)
+);
+
 -- ===== Row Level Security =====================================================
 
-alter table public.places    enable row level security;
-alter table public.reviews   enable row level security;
-alter table public.profiles  enable row level security;
-alter table public.favorites enable row level security;
-alter table public.follows   enable row level security;
+alter table public.places       enable row level security;
+alter table public.reviews      enable row level security;
+alter table public.profiles     enable row level security;
+alter table public.favorites    enable row level security;
+alter table public.follows      enable row level security;
+alter table public.review_likes enable row level security;
 
 -- places: world-readable; logged-in users create; owner or admin edits/deletes.
 drop policy if exists read_places   on public.places;
@@ -146,6 +154,14 @@ drop policy if exists delete_follow  on public.follows;
 create policy read_follows  on public.follows for select using (true);
 create policy insert_follow on public.follows for insert with check (auth.uid() = follower_id);
 create policy delete_follow on public.follows for delete using (auth.uid() = follower_id);
+
+-- review_likes: counts are public; a user may only add/remove their own likes.
+drop policy if exists read_review_likes  on public.review_likes;
+drop policy if exists insert_review_like on public.review_likes;
+drop policy if exists delete_review_like on public.review_likes;
+create policy read_review_likes  on public.review_likes for select using (true);
+create policy insert_review_like on public.review_likes for insert with check (auth.uid() = user_id);
+create policy delete_review_like on public.review_likes for delete using (auth.uid() = user_id);
 
 -- ===== Storage ================================================================
 -- Public photos bucket; logged-in users upload; owner (by folder = uid) or

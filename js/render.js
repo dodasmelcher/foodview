@@ -218,6 +218,7 @@ function renderAmigos() {
                 <div style="font-size:.8125rem;color:var(--metadata);margin:2px 0">avaliou <strong style="color:var(--heading)">${escapeHtml(place ? place.name : '?')}</strong></div>
                 <div class="detail-review-stars">${starsHTML(rv.rating)}</div>
                 ${text ? `<div style="font-size:.875rem;color:var(--body);margin-top:4px">${escapeHtml(textTrimmed)}</div>` : ''}
+                <div class="rev-likes-row">${reviewLikeHTML(rv.id)}</div>
             </div>
             ${placeImg ? `<img src="${escapeHtml(placeImg)}" style="width:60px;height:60px;object-fit:cover;border-radius:var(--radius-sm);flex-shrink:0" loading="lazy">` : ''}
         </div>`;
@@ -229,13 +230,128 @@ function renderAmigos() {
 // opens next, so the hidden grids don't need to be rebuilt on every refresh.
 // The profile tab is rendered by openProfile, not here.
 function render() {
-    const active = document.querySelector('.tab-content.active')?.id?.replace('tab-', '') || 'restaurantes';
+    const active = document.querySelector('.tab-content.active')?.id?.replace('tab-', '') || 'inicio';
     renderPageHeader(active);
-    if (active === 'restaurantes') renderRestaurantes();
+    if (active === 'inicio') renderHome();
+    else if (active === 'restaurantes') renderRestaurantes();
     else if (active === 'bares') renderBares();
     else if (active === 'popular') renderPopular();
     else if (active === 'favoritos') renderFavoritos();
     else if (active === 'amigos') renderAmigos();
+}
+
+// ===== Início (home) =====
+function reviewsLastDays(days) {
+    const cutoff = Date.now() - days * 86400000;
+    return reviewsCache.filter(r => r.created_at && new Date(r.created_at).getTime() >= cutoff);
+}
+function topBy(keyFn, n) {
+    const count = {};
+    placesCache.forEach(p => { const k = keyFn(p); if (k) count[k] = (count[k] || 0) + 1; });
+    return Object.entries(count).sort((a, b) => b[1] - a[1]).slice(0, n).map(([k]) => k);
+}
+function renderHome() {
+    const el = document.getElementById('tab-inicio');
+    if (!el) return;
+    const withImg = (pred) => placesCache.filter(p => p.image_url && pred(p));
+
+    // --- launchpad: greeting + segmented + search + chips ---
+    const first = currentUser ? (currentUser.name || '').split(' ')[0] : '';
+    const greeting = first
+        ? `Olá de novo, <span>${escapeHtml(first)}</span>. O que você quer comer hoje?`
+        : `Bem-vindo ao <span>FoodView</span>. O que você quer comer hoje?`;
+    const topCats = topBy(p => p.category, 3);
+    const topHoods = topBy(p => extractBairro(p.address), 2);
+    const chips = [
+        ...topCats.map(c => `<span class="hchip" onclick="goExplore({cozinha:'${escapeJs(c)}'})">${escapeHtml(c)}</span>`),
+        `<span class="hchip" onclick="goExplore({tab:'bares'})">Bares</span>`,
+        `<span class="hchip" onclick="goExplore({michelin:true})">★ Michelin</span>`,
+        `<span class="hchip" onclick="goExplore({delivery:true})">Delivery</span>`,
+        ...topHoods.map(b => `<span class="hchip" onclick="goExplore({bairro:'${escapeJs(b)}'})">${escapeHtml(b)}</span>`)
+    ].join('');
+    const launchpad = `<div class="home-greeting">${greeting}</div>
+        <div class="seg">
+            <button class="seg-btn active" onclick="goExplore({tab:'popular'})">Tudo</button>
+            <button class="seg-btn" onclick="goExplore({tab:'restaurantes'})">Restaurantes</button>
+            <button class="seg-btn" onclick="goExplore({tab:'bares'})">Bares</button>
+        </div>
+        <div class="hsearch">
+            <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+            <input type="text" id="home-search" placeholder="Buscar restaurante, cozinha ou bairro…" onkeydown="homeSearch(event)">
+        </div>
+        <div class="hchips">${chips}</div>`;
+
+    // --- destaque da semana: most-liked place reviewed in the last 7 days ---
+    const recent = reviewsLastDays(7);
+    const likeByPlace = {};
+    recent.forEach(r => { likeByPlace[r.place_id] = (likeByPlace[r.place_id] || 0) + getReviewLikeCount(r.id); });
+    const reviewedRecently = [...new Set(recent.map(r => r.place_id))].map(getPlaceById).filter(p => p && p.image_url);
+    reviewedRecently.sort((a, b) => (likeByPlace[b.id] || 0) - (likeByPlace[a.id] || 0)
+        || getPlaceRating(b.id).count - getPlaceRating(a.id).count);
+    const featured = reviewedRecently[0] || pickPopularThumbs(() => true, 1)[0];
+    let featHTML = '';
+    if (featured) {
+        const { avg, count } = getPlaceRating(featured.id);
+        const meta = [count > 0 ? `★ ${avg}` : null, featured.category, extractBairro(featured.address)].filter(Boolean).join(' · ');
+        featHTML = `<div class="home-section"><div class="home-section-head"><h2>Destaque da semana</h2></div>
+            <div class="feat-hero" onclick="openDetail(${featured.id})" style="background-image:url('${escapeHtml(imgSrc(featured.image_url, 1200, 480))}')">
+                <div class="feat-inner">
+                    <span class="feat-eyebrow">Destaque da semana</span>
+                    <h2 class="feat-title">${escapeHtml(featured.name)}</h2>
+                    ${meta ? `<div class="feat-meta">${escapeHtml(meta)}</div>` : ''}
+                    <button class="btn btn-primary btn-sm">Ver detalhes</button>
+                </div>
+            </div></div>`;
+    }
+
+    // --- coleções ---
+    const colls = [];
+    const michelin = withImg(p => michelinStars(p) > 0);
+    if (michelin.length) colls.push({ name: 'Estrelas Michelin', sub: `${michelin.length} lugares premiados`, cover: michelin[0], feat: true, go: 'goExplore({michelin:true})' });
+    topCats.forEach(c => {
+        const list = withImg(p => p.category === c);
+        if (list.length >= 3) colls.push({ name: c, sub: `${list.length} lugares`, cover: list[0], go: `goExplore({cozinha:'${escapeJs(c)}'})` });
+    });
+    if (topHoods[0]) {
+        const list = withImg(p => extractBairro(p.address) === topHoods[0]);
+        if (list.length) colls.push({ name: 'Em ' + topHoods[0], sub: `${list.length} lugares`, cover: list[0], go: `goExplore({bairro:'${escapeJs(topHoods[0])}'})` });
+    }
+    const novos = placesCache.filter(p => p.image_url).slice().sort((a, b) => (b.created_at || '').localeCompare(a.created_at || ''));
+    if (novos.length) colls.push({ name: 'Novos no FoodView', sub: `${novos.length} lugares`, cover: novos[0], go: `goExplore({sort:'recentes'})` });
+    const collCards = colls.slice(0, 5).map(c =>
+        `<div class="coll ${c.feat ? 'feat' : ''}" onclick="${c.go}" style="background-image:url('${escapeHtml(imgSrc(c.cover.image_url, c.feat ? 900 : 500, c.feat ? 450 : 334))}')">
+            <div class="coll-inner"><div class="coll-name">${escapeHtml(c.name)}</div><div class="coll-count">${escapeHtml(c.sub)}</div></div>
+        </div>`).join('');
+    const collHTML = collCards
+        ? `<div class="home-section"><div class="home-section-head"><h2>Coleções</h2></div><div class="coll-grid">${collCards}</div></div>`
+        : '';
+
+    // --- avaliações da semana ---
+    let week = reviewsLastDays(7).slice();
+    week.sort((a, b) => getReviewLikeCount(b.id) - getReviewLikeCount(a.id) || (b.created_at || '').localeCompare(a.created_at || ''));
+    if (week.length < 2) week = reviewsCache.slice(0, 6); // fallback when there's little recent activity
+    week = week.slice(0, 6);
+    const weekCards = week.map(rv => {
+        const place = getPlaceById(rv.place_id);
+        const prof = getProfile(rv.user_id) || { name: rv.author_name || '' };
+        const thumb = imgSrc(place?.image_url, 128, 168);
+        const text = (rv.text || '').length > 150 ? rv.text.slice(0, 150) + '…' : (rv.text || '');
+        return `<div class="rev-card" onclick="openDetail(${rv.place_id})">
+            ${thumb ? `<img class="rev-thumb" src="${escapeHtml(thumb)}" alt="" loading="lazy">` : ''}
+            <div class="rev-body">
+                <div class="rev-place">${escapeHtml(place ? place.name : '?')}</div>
+                <div class="rev-stars">${starsHTML(rv.rating)}</div>
+                <div class="rev-by">${avatarMarkup(prof, 'rev-mini')}${escapeHtml(prof.name || '')} · ${formatDate(rv.created_at)}</div>
+                ${text ? `<div class="rev-text">${escapeHtml(text)}</div>` : ''}
+                <div class="rev-likes-row">${reviewLikeHTML(rv.id)}</div>
+            </div>
+        </div>`;
+    }).join('');
+    const weekHTML = weekCards
+        ? `<div class="home-section"><div class="home-section-head"><h2>Avaliações da semana</h2></div><div class="rev-week">${weekCards}</div></div>`
+        : '';
+
+    el.innerHTML = launchpad + featHTML + collHTML + weekHTML;
 }
 
 // ===== Editorial page header =====

@@ -11,21 +11,24 @@ let reviewsCache = [];
 let favoritesCache = [];
 let followsCache = [];
 let profilesCache = [];
+let reviewLikesCache = [];
 let currentUser = null;
 
 async function loadData() {
-    const [{ data: places }, { data: reviews }, { data: favs }, { data: follows }, { data: profiles }] = await Promise.all([
+    const [{ data: places }, { data: reviews }, { data: favs }, { data: follows }, { data: profiles }, { data: revLikes }] = await Promise.all([
         sb.from('places').select('*').order('created_at', { ascending: true }),
         sb.from('reviews').select('*').order('created_at', { ascending: false }),
         sb.from('favorites').select('*'),
         sb.from('follows').select('*'),
-        sb.from('profiles').select('*')
+        sb.from('profiles').select('*'),
+        sb.from('review_likes').select('*') // tolerant: null until the table exists
     ]);
     placesCache = places || [];
     reviewsCache = reviews || [];
     favoritesCache = favs || [];
     followsCache = follows || [];
     profilesCache = profiles || [];
+    reviewLikesCache = revLikes || [];
     populateCategoryDatalist();
     render();
     // Open a deep-linked place (/lugar/123) once the cache is populated — at
@@ -61,6 +64,10 @@ function isFavorited(placeId) {
     return currentUser && favoritesCache.some(f => f.user_id === currentUser.id && f.place_id === placeId);
 }
 function getFavCount(placeId) { return favoritesCache.filter(f => f.place_id === placeId).length; }
+function getReviewLikeCount(reviewId) { return reviewLikesCache.filter(l => l.review_id === reviewId).length; }
+function isReviewLiked(reviewId) {
+    return currentUser && reviewLikesCache.some(l => l.user_id === currentUser.id && l.review_id === reviewId);
+}
 function michelinStars(p) { if (!p.badge) return 0; const m = p.badge.match(/★/g); return m ? m.length : 0; }
 
 // Resize+compress an image client-side via canvas before upload. Outputs WebP

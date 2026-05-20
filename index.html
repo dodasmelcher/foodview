@@ -40,7 +40,7 @@
             <button class="hamburger" onclick="toggleMobileSidebar()" aria-label="Abrir menu" aria-expanded="false" aria-controls="mobile-sidebar">
                 <span></span><span></span><span></span>
             </button>
-            <div class="logo" onclick="switchTab('restaurantes')">
+            <div class="logo" onclick="switchTab('inicio')">
                 <span class="food">FOOD</span><span class="view">VIEW</span>
             </div>
             <div class="search-wrapper header-search">
@@ -49,7 +49,8 @@
                 <button type="button" class="search-clear" id="search-clear" onclick="clearSearch()" aria-label="Limpar busca">&times;</button>
             </div>
             <ul class="nav-links">
-                <li><a href="#" class="active" data-tab="restaurantes" onclick="switchTab('restaurantes')">Restaurantes</a></li>
+                <li><a href="#" class="active" data-tab="inicio" onclick="switchTab('inicio')">Início</a></li>
+                <li><a href="#" data-tab="restaurantes" onclick="switchTab('restaurantes')">Restaurantes</a></li>
                 <li><a href="#" data-tab="bares" onclick="switchTab('bares')">Bares</a></li>
                 <li><a href="#" data-tab="popular" onclick="switchTab('popular')">Populares</a></li>
                 <li><a href="#" data-tab="favoritos" onclick="switchTab('favoritos')">Favoritos</a></li>
@@ -65,7 +66,8 @@
     <div class="page-header" id="page-header"></div>
 
     <main class="main-container">
-        <div class="tab-content active" id="tab-restaurantes">
+        <div class="tab-content active" id="tab-inicio"></div>
+        <div class="tab-content" id="tab-restaurantes">
             <div class="tab-actions"><button class="btn btn-primary btn-sm" onclick="openAddPlace('restaurante')">+ Restaurante</button></div>
             <div class="filter-bar" id="filter-restaurantes"></div>
             <div class="restaurant-grid" id="grid-restaurantes"></div>
@@ -379,6 +381,7 @@
             <button class="mobile-sidebar-close" onclick="toggleMobileSidebar()" aria-label="Fechar menu">&times;</button>
         </div>
         <ul>
+            <li><a href="#" data-tab="inicio" onclick="sidebarNav('inicio')">Início</a></li>
             <li><a href="#" data-tab="restaurantes" onclick="sidebarNav('restaurantes')">Restaurantes</a></li>
             <li><a href="#" data-tab="bares" onclick="sidebarNav('bares')">Bares</a></li>
             <li><a href="#" data-tab="popular" onclick="sidebarNav('popular')">Populares</a></li>

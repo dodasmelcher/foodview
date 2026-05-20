@@ -12,6 +12,11 @@ function escapeHtml(s) {
         .replace(/'/g, '&#39;');
 }
 
+// Escape a string for use inside a single-quoted JS string in an inline onclick.
+function escapeJs(s) {
+    return String(s == null ? '' : s).replace(/\\/g, '\\\\').replace(/'/g, "\\'");
+}
+
 function safeUrl(u) {
     if (!u) return '';
     const s = String(u).trim();

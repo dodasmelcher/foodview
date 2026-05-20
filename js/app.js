@@ -58,6 +58,63 @@ async function toggleFavorite(placeId, e) {
         showToast('Não foi possível atualizar o favorito', 'error');
     }
 }
+// ===== Review likes (optimistic, mirrors toggleFavorite) =====
+const reviewHeartSVG = `<svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>`;
+function reviewLikeHTML(reviewId) {
+    return `<button class="rev-like-btn ${isReviewLiked(reviewId) ? 'liked' : ''}" data-review-like="${reviewId}" onclick="event.stopPropagation();toggleReviewLike(${reviewId})" aria-label="Curtir avaliação" title="Curtir avaliação">${reviewHeartSVG}<span data-review-like-count="${reviewId}">${getReviewLikeCount(reviewId)}</span></button>`;
+}
+function updateReviewLikeUI(reviewId) {
+    const liked = isReviewLiked(reviewId), count = getReviewLikeCount(reviewId);
+    document.querySelectorAll(`[data-review-like="${reviewId}"]`).forEach(b => b.classList.toggle('liked', liked));
+    document.querySelectorAll(`[data-review-like-count="${reviewId}"]`).forEach(el => el.textContent = count);
+}
+async function toggleReviewLike(reviewId) {
+    if (!currentUser) { openModal('account'); return; }
+    const wasLiked = isReviewLiked(reviewId);
+    if (wasLiked) reviewLikesCache = reviewLikesCache.filter(l => !(l.user_id === currentUser.id && l.review_id === reviewId));
+    else reviewLikesCache.push({ user_id: currentUser.id, review_id: reviewId });
+    updateReviewLikeUI(reviewId);
+    const { error } = wasLiked
+        ? await sb.from('review_likes').delete().eq('user_id', currentUser.id).eq('review_id', reviewId)
+        : await sb.from('review_likes').insert({ user_id: currentUser.id, review_id: reviewId });
+    if (error) {
+        if (wasLiked) reviewLikesCache.push({ user_id: currentUser.id, review_id: reviewId });
+        else reviewLikesCache = reviewLikesCache.filter(l => !(l.user_id === currentUser.id && l.review_id === reviewId));
+        updateReviewLikeUI(reviewId);
+        showToast('Não foi possível curtir a avaliação', 'error');
+    }
+}
+
+// ===== Home launchpad: jump into a filtered tab from the Início page =====
+function goExplore(opts = {}) {
+    categoryFilter = { restaurante: 'Todas', bar: 'Todas' };
+    bairroFilter = { restaurante: 'Todos', bar: 'Todos' };
+    extraFilter = { michelin: false, delivery: false };
+    const tab = opts.tab || 'restaurantes';
+    const t = tab === 'bares' ? 'bar' : 'restaurante';
+    if (opts.cozinha) categoryFilter[t] = opts.cozinha;
+    if (opts.bairro) bairroFilter[t] = opts.bairro;
+    if (opts.michelin) extraFilter.michelin = true;
+    if (opts.delivery) extraFilter.delivery = true;
+    sortBy = opts.sort || 'avaliados';
+    const term = opts.search != null ? opts.search : '';
+    searchQuery = term.toLowerCase().trim();
+    const hi = document.getElementById('search-input');
+    if (hi) hi.value = term;
+    document.getElementById('search-clear')?.classList.toggle('visible', !!searchQuery);
+    resetPage('restaurantes', 'bares', 'popular');
+    switchTab(tab);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+function homeSearch(e) {
+    if (e && e.key && e.key !== 'Enter') return;
+    goExplore({ tab: 'restaurantes', search: document.getElementById('home-search')?.value || '' });
+}
+// Re-render the home greeting once auth resolves (session may land after the
+// first render, when the cache is already populated).
+function refreshHomeIfActive() {
+    if (placesCache.length && document.getElementById('tab-inicio')?.classList.contains('active')) renderHome();
+}
 function isFollowing(userId) {
     return currentUser && followsCache.some(f => f.follower_id === currentUser.id && f.following_id === userId);
 }
@@ -236,7 +293,8 @@ function switchTab(tab) {
     document.querySelectorAll('.nav-links a').forEach(a => a.classList.toggle('active', a.dataset.tab === tab));
     renderPageHeader(tab);
     // Render the target tab so changes made from other tabs show up immediately
-    if (tab === 'restaurantes') renderRestaurantes();
+    if (tab === 'inicio') renderHome();
+    else if (tab === 'restaurantes') renderRestaurantes();
     else if (tab === 'bares') renderBares();
     else if (tab === 'popular') renderPopular();
     else if (tab === 'favoritos') renderFavoritos();
@@ -722,7 +780,7 @@ function openDetail(id) {
             <div class="detail-review-stars">${starsHTML(rv.rating)}</div>
             <div class="detail-review-text">${escapeHtml(rv.text || '')}</div>
             ${rv.images?.length ? `<div class="detail-review-images">${rv.images.map(i => `<img class="detail-review-img" src="${escapeHtml(imgSrc(i, 200, 140))}" loading="lazy">`).join('')}</div>` : ''}
-            ${canDel ? `<div style="margin-top:6px"><span style="color:var(--metadata);font-size:.75rem;cursor:pointer" onclick="deleteReview(${rv.id},${r.id})">remover</span></div>` : ''}
+            <div class="rev-likes-row">${reviewLikeHTML(rv.id)}${canDel ? `<span class="rev-remove" onclick="deleteReview(${rv.id},${r.id})">remover</span>` : ''}</div>
         </div>`;
     }).join('') : `<div class="detail-empty">Nenhuma avaliação ainda.</div>`;
 
@@ -1292,6 +1350,7 @@ async function init() {
         .then(({ data: { session } }) => {
             currentUser = sessionToUser(session);
             updateHeader();
+            refreshHomeIfActive();
         })
         .catch(err => {
             console.error('getSession failed:', err);
@@ -1304,6 +1363,7 @@ async function init() {
         if (event === 'INITIAL_SESSION') {
             currentUser = sessionToUser(session);
             updateHeader();
+            refreshHomeIfActive();
             return;
         }
         if (event === 'TOKEN_REFRESHED') {
