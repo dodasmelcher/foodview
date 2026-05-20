@@ -52,6 +52,13 @@ function formatAddress(addr) {
         .join(', ');
 }
 
+// Neighborhood = the segment after the last " - " / " — " of the trimmed
+// address (e.g. "R. Augusta, 1200 - Consolação" → "Consolação"). '' if none.
+function extractBairro(addr) {
+    const parts = formatAddress(addr).split(/\s[—-]\s/);
+    return parts.length > 1 ? parts[parts.length - 1].trim() : '';
+}
+
 function starsHTML(n) {
     const filled = '★'.repeat(Math.floor(n));
     const half = (n % 1 >= 0.5 ? '½' : '');

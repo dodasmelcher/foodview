@@ -100,15 +100,31 @@ function filterByType(type) {
     if (searchQuery) list = list.filter(p => p.name.toLowerCase().includes(searchQuery) || (p.category && p.category.toLowerCase().includes(searchQuery)) || (p.address && p.address.toLowerCase().includes(searchQuery)));
     const cat = categoryFilter[type];
     if (cat && cat !== 'Todas') list = list.filter(p => p.category === cat);
+    const bairro = bairroFilter[type];
+    if (bairro && bairro !== 'Todos') list = list.filter(p => extractBairro(p.address) === bairro);
     if (extraFilter.michelin) list = list.filter(p => michelinStars(p) > 0);
     if (extraFilter.delivery) list = list.filter(p => p.delivery_apps);
-    list.sort((a, b) => michelinStars(b) - michelinStars(a) || a.name.localeCompare(b.name, 'pt-BR'));
+    return sortPlaces(list);
+}
+// Apply the active "Ordenar" choice. The default ("avaliados") keeps the curated
+// feel — most reviewed, then Michelin, then name — so a mostly-unreviewed catalog
+// still looks intentional rather than random.
+function sortPlaces(list) {
+    if (sortBy === 'nota') {
+        list.sort((a, b) => parseFloat(getPlaceRating(b.id).avg) - parseFloat(getPlaceRating(a.id).avg) || a.name.localeCompare(b.name, 'pt-BR'));
+    } else if (sortBy === 'az') {
+        list.sort((a, b) => a.name.localeCompare(b.name, 'pt-BR'));
+    } else if (sortBy === 'recentes') {
+        list.sort((a, b) => (b.created_at || '').localeCompare(a.created_at || ''));
+    } else {
+        list.sort((a, b) => getPlaceRating(b.id).count - getPlaceRating(a.id).count || michelinStars(b) - michelinStars(a) || a.name.localeCompare(b.name, 'pt-BR'));
+    }
     return list;
 }
 
 function renderRestaurantes() {
-    buildFilterBar('restaurante');
     const rests = filterByType('restaurante');
+    buildFilterBar('restaurante', rests.length);
     const el = document.getElementById('grid-restaurantes');
     if (!rests.length) {
         el.innerHTML = `<div class="empty-state" style="grid-column:1/-1"><p>${searchQuery ? 'Nenhum restaurante encontrado.' : 'Nenhum restaurante adicionado ainda.'}</p>${!searchQuery ? '<button class="btn btn-primary" onclick="openAddPlace(\'restaurante\')">Adicionar o primeiro</button>' : ''}</div>`;
@@ -120,8 +136,8 @@ function renderRestaurantes() {
 }
 
 function renderBares() {
-    buildFilterBar('bar');
     const bars = filterByType('bar');
+    buildFilterBar('bar', bars.length);
     const el = document.getElementById('grid-bares');
     if (!bars.length) {
         el.innerHTML = `<div class="empty-state" style="grid-column:1/-1"><p>${searchQuery ? 'Nenhum bar encontrado.' : 'Nenhum bar adicionado ainda.'}</p>${!searchQuery ? '<button class="btn btn-primary" onclick="openAddPlace(\'bar\')">Adicionar o primeiro</button>' : ''}</div>`;
@@ -133,12 +149,12 @@ function renderBares() {
 }
 
 function renderPopular() {
-    buildPopularFilterBar();
     let all = searchQuery ? placesCache.filter(p => p.name.toLowerCase().includes(searchQuery) || (p.category && p.category.toLowerCase().includes(searchQuery)) || (p.address && p.address.toLowerCase().includes(searchQuery))) : placesCache;
     if (extraFilter.michelin) all = all.filter(p => michelinStars(p) > 0);
     if (extraFilter.delivery) all = all.filter(p => p.delivery_apps);
     const ranked = all.map(r => ({ ...r, ...getPlaceRating(r.id) })).filter(r => r.count > 0).sort((a, b) => b.count - a.count || parseFloat(b.avg) - parseFloat(a.avg));
     const active = searchQuery || extraFilter.michelin || extraFilter.delivery;
+    buildPopularFilterBar(ranked.length);
     const el = document.getElementById('popular-grid');
     if (!ranked.length) {
         el.innerHTML = `<div class="empty-state" style="grid-column:1/-1"><p>${active ? 'Nenhum resultado com esses filtros.' : 'Ainda não há lugares com avaliações.'}</p></div>`;
@@ -223,11 +239,14 @@ function render() {
 }
 
 // ===== Editorial page header =====
-// Picks N most-recent places matching `predicate` that have an image_url.
-function pickHeaderThumbs(predicate, n = 3) {
+// Picks the N most-reviewed places matching `predicate` that have an image —
+// the "em alta" strip (Michelin then name as tiebreakers so it's never random).
+function pickPopularThumbs(predicate, n = 4) {
     return placesCache
         .filter(p => p.image_url && predicate(p))
-        .sort((a, b) => (b.created_at || '').localeCompare(a.created_at || ''))
+        .sort((a, b) => getPlaceRating(b.id).count - getPlaceRating(a.id).count
+            || michelinStars(b) - michelinStars(a)
+            || a.name.localeCompare(b.name, 'pt-BR'))
         .slice(0, n);
 }
 function thumbsHtml(label, thumbs) {
@@ -253,39 +272,43 @@ function renderPageHeader(tab) {
     const restaurantes = placesCache.filter(p => p.type === 'restaurante');
     const bares = placesCache.filter(p => p.type === 'bar');
 
+    const emAlta = (predicate) => thumbsHtml('em<br>alta', pickPopularThumbs(predicate));
     let eyebrow = '', title = '', subtitle = '', thumbs = '';
     if (tab === 'restaurantes') {
         eyebrow = 'São Paulo';
         title = 'Restaurantes';
         subtitle = `<b>${restaurantes.length}</b> lugares selecionados`;
-        thumbs = thumbsHtml('destaques<br>recentes', pickHeaderThumbs(p => p.type === 'restaurante'));
+        thumbs = emAlta(p => p.type === 'restaurante');
     } else if (tab === 'bares') {
         const cervejarias = bares.filter(p => /cervej/i.test(p.category || '')).length;
         const coquetel = bares.filter(p => /coquetel/i.test(p.category || '')).length;
         eyebrow = 'São Paulo';
         title = 'Bares';
         subtitle = `<b>${bares.length}</b> bares · <b>${coquetel}</b> coquetelaria · <b>${cervejarias}</b> cervejarias`;
-        thumbs = thumbsHtml('novidades<br>recentes', pickHeaderThumbs(p => p.type === 'bar'));
+        thumbs = emAlta(p => p.type === 'bar');
     } else if (tab === 'popular') {
         const reviewedIds = new Set(reviewsCache.map(r => r.place_id));
         const reviewedCount = placesCache.filter(p => reviewedIds.has(p.id)).length;
         eyebrow = 'Mais avaliados';
         title = 'Populares';
         subtitle = `<b>${reviewedCount}</b> lugares avaliados · <b>${reviewsCache.length}</b> avaliações no total`;
+        thumbs = emAlta(() => true);
     } else if (tab === 'favoritos') {
         if (currentUser) {
             const myFavs = favoritesCache.filter(f => f.user_id === currentUser.id);
             const favPlaces = myFavs.map(f => getPlaceById(f.place_id)).filter(Boolean);
+            const favImgs = favPlaces.filter(p => p.image_url);
             eyebrow = (currentUser.name || '').split(' ')[0] || 'Você';
             title = 'Meus Favoritos';
             subtitle = favPlaces.length
                 ? `<b>${favPlaces.length}</b> lugar${favPlaces.length === 1 ? '' : 'es'} curtido${favPlaces.length === 1 ? '' : 's'}`
                 : 'Você ainda não curtiu nenhum lugar.';
-            thumbs = thumbsHtml('mais<br>recentes', favPlaces.filter(p => p.image_url).slice(0, 3));
+            thumbs = favImgs.length ? thumbsHtml('seus<br>favoritos', favImgs.slice(0, 4)) : emAlta(() => true);
         } else {
             eyebrow = 'Sua coleção';
             title = 'Meus Favoritos';
             subtitle = 'Faça login pra ver os lugares que você curtiu.';
+            thumbs = emAlta(() => true);
         }
     } else if (tab === 'amigos') {
         if (currentUser) {
@@ -296,10 +319,14 @@ function renderPageHeader(tab) {
             subtitle = followingIds.length
                 ? `Seguindo <b>${followingIds.length}</b> ${followingIds.length === 1 ? 'pessoa' : 'pessoas'} · <b>${friendReviews.length}</b> avaliações`
                 : 'Você ainda não segue ninguém.';
+            const seen = new Set();
+            const friendPlaces = friendReviews.map(rv => getPlaceById(rv.place_id)).filter(p => p && p.image_url && !seen.has(p.id) && seen.add(p.id));
+            thumbs = friendPlaces.length ? thumbsHtml('amigos<br>curtiram', friendPlaces.slice(0, 4)) : emAlta(() => true);
         } else {
             eyebrow = 'Rede';
             title = 'Atividade dos Amigos';
             subtitle = 'Faça login pra acompanhar quem você segue.';
+            thumbs = emAlta(() => true);
         }
     } else {
         target.innerHTML = '';

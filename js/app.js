@@ -1,6 +1,8 @@
 // Supabase client + caches (placesCache, currentUser, sb, etc.) live in js/data.js
 let searchQuery = '';
 let categoryFilter = { restaurante: 'Todas', bar: 'Todas' };
+let bairroFilter = { restaurante: 'Todos', bar: 'Todos' };
+let sortBy = 'avaliados';
 let extraFilter = { michelin: false, delivery: false };
 
 // Pagination (PAGE_SIZE, visibleCount, resetPage, loadMore, _loadMoreIO,
@@ -584,11 +586,27 @@ function populateCategoryDatalist() {
     const sorted = Array.from(all).sort((a, b) => a.localeCompare(b, 'pt-BR'));
     el.innerHTML = sorted.map(c => `<option value="${escapeHtml(c)}">`).join('');
 }
-function setCategory(type, cat) {
-    categoryFilter[type] = cat;
-    closeCatDrawer();
+function getNeighborhoods(type) {
+    const set = new Set();
+    placesCache.forEach(p => { if (p.type === type) { const b = extractBairro(p.address); if (b) set.add(b); } });
+    return ['Todos', ...Array.from(set).sort((a, b) => a.localeCompare(b, 'pt-BR'))];
+}
+function rerenderType(type) {
     if (type === 'bar') { resetPage('bares'); renderBares(); }
     else { resetPage('restaurantes'); renderRestaurantes(); }
+}
+function setCategory(type, cat) { categoryFilter[type] = cat; rerenderType(type); }
+function setBairro(type, b) { bairroFilter[type] = b; rerenderType(type); }
+function setSort(v) {
+    sortBy = v;
+    resetPage('restaurantes', 'bares');
+    renderRestaurantes(); renderBares();
+}
+function clearFilters(type) {
+    if (type !== 'popular') { categoryFilter[type] = 'Todas'; bairroFilter[type] = 'Todos'; }
+    extraFilter = { michelin: false, delivery: false };
+    resetPage('restaurantes', 'bares', 'popular');
+    renderRestaurantes(); renderBares(); renderPopular();
 }
 function toggleExtraFilter(key) {
     extraFilter[key] = !extraFilter[key];
@@ -612,58 +630,58 @@ function closeCatDrawer() {
     document.getElementById('cat-drawer').classList.remove('open');
     document.getElementById('cat-drawer-overlay').classList.remove('open');
 }
-function buildFilterBar(type) {
-    const elId = 'filter-' + (type === 'restaurante' ? 'restaurantes' : 'bares');
-    const el = document.getElementById(elId);
-    if (!el) return;
-    const quickCats = ['Todas', 'Árabe', 'Brasileira', 'Italiana', 'Japonesa'];
-    el.dataset.type = type;
-    el.innerHTML = quickCats.map(c =>
-        `<button class="filter-btn ${categoryFilter[type] === c ? 'active' : ''}" data-action="setCat" data-cat="${escapeHtml(c)}">${escapeHtml(c)}</button>`
-    ).join('') + `<button class="filter-btn" data-action="openDrawer">Mais...</button>`
-    + `<span style="width:1px;height:20px;background:var(--divider);margin:0 4px"></span>`
-    + `<button class="filter-btn ${extraFilter.michelin ? 'active' : ''}" data-action="extra" data-extra="michelin">Michelin</button>`
-    + `<button class="filter-btn ${extraFilter.delivery ? 'active' : ''}" data-action="extra" data-extra="delivery">Delivery</button>`;
+const SORT_OPTIONS = [['avaliados', 'Mais avaliados'], ['nota', 'Melhor nota'], ['az', 'A–Z'], ['recentes', 'Recentes']];
+function fOption(v, label, selected) {
+    return `<option value="${escapeHtml(v)}"${v === selected ? ' selected' : ''}>${escapeHtml(label)}</option>`;
 }
-function buildPopularFilterBar() {
+function fBarRight(count, active) {
+    return `<div class="fbar-right"><span class="fbar-count"><b>${count}</b> ${count === 1 ? 'resultado' : 'resultados'}</span>`
+        + `${active ? `<button class="fclear" data-action="clear">✕ Limpar (${active})</button>` : ''}</div>`;
+}
+function fChips() {
+    return `<button class="fchip ${extraFilter.michelin ? 'active' : ''}" data-extra="michelin">★ Michelin</button>`
+        + `<button class="fchip ${extraFilter.delivery ? 'active' : ''}" data-extra="delivery">🛵 Delivery</button>`;
+}
+function buildFilterBar(type, count = 0) {
+    const el = document.getElementById('filter-' + (type === 'restaurante' ? 'restaurantes' : 'bares'));
+    if (!el) return;
+    el.dataset.type = type;
+    const catVal = categoryFilter[type], bairroVal = bairroFilter[type];
+    const cats = getCategories(type).map(c => fOption(c, c === 'Todas' ? 'Cozinha: todas' : c, catVal)).join('');
+    const bairros = getNeighborhoods(type).map(b => fOption(b, b === 'Todos' ? 'Bairro: todos' : b, bairroVal)).join('');
+    const sorts = SORT_OPTIONS.map(([v, l]) => fOption(v, 'Ordenar: ' + l.toLowerCase(), sortBy)).join('');
+    const active = (catVal !== 'Todas') + (bairroVal !== 'Todos') + extraFilter.michelin + extraFilter.delivery;
+    el.innerHTML =
+        `<select class="fselect" data-filter="cozinha">${cats}</select>`
+        + `<select class="fselect" data-filter="bairro">${bairros}</select>`
+        + `<select class="fselect" data-filter="sort">${sorts}</select>`
+        + `<span class="fsep"></span>` + fChips() + fBarRight(count, active);
+}
+function buildPopularFilterBar(count = 0) {
     const el = document.getElementById('filter-popular');
     if (!el) return;
-    el.innerHTML = `<button class="filter-btn ${extraFilter.michelin ? 'active' : ''}" data-action="extra" data-extra="michelin">Michelin</button>`
-        + `<button class="filter-btn ${extraFilter.delivery ? 'active' : ''}" data-action="extra" data-extra="delivery">Delivery</button>`;
+    el.innerHTML = fChips() + fBarRight(count, extraFilter.michelin + extraFilter.delivery);
 }
 function attachFilterHandlers() {
-    ['filter-restaurantes', 'filter-bares'].forEach(id => {
+    ['filter-restaurantes', 'filter-bares', 'filter-popular'].forEach(id => {
         const el = document.getElementById(id);
         if (!el || el.dataset.bound) return;
         el.dataset.bound = '1';
+        const typeOf = () => el.dataset.type || 'popular';
+        el.addEventListener('change', (e) => {
+            const sel = e.target.closest('select');
+            if (!sel) return;
+            if (sel.dataset.filter === 'cozinha') setCategory(typeOf(), sel.value);
+            else if (sel.dataset.filter === 'bairro') setBairro(typeOf(), sel.value);
+            else if (sel.dataset.filter === 'sort') setSort(sel.value);
+        });
         el.addEventListener('click', (e) => {
             const btn = e.target.closest('button');
             if (!btn) return;
-            const type = el.dataset.type;
-            const action = btn.dataset.action;
-            if (action === 'setCat') setCategory(type, btn.dataset.cat);
-            else if (action === 'openDrawer') openCatDrawer(type);
-            else if (action === 'extra') toggleExtraFilter(btn.dataset.extra);
+            if (btn.dataset.extra) toggleExtraFilter(btn.dataset.extra);
+            else if (btn.dataset.action === 'clear') clearFilters(typeOf());
         });
     });
-    const popular = document.getElementById('filter-popular');
-    if (popular && !popular.dataset.bound) {
-        popular.dataset.bound = '1';
-        popular.addEventListener('click', (e) => {
-            const btn = e.target.closest('button');
-            if (!btn || btn.dataset.action !== 'extra') return;
-            toggleExtraFilter(btn.dataset.extra);
-        });
-    }
-    const drawer = document.getElementById('cat-drawer-list');
-    if (drawer && !drawer.dataset.bound) {
-        drawer.dataset.bound = '1';
-        drawer.addEventListener('click', (e) => {
-            const a = e.target.closest('a[data-cat]');
-            if (!a) return;
-            setCategory(drawer.dataset.type, a.dataset.cat);
-        });
-    }
 }
 
 // Detail
