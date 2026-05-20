@@ -712,15 +712,22 @@ function openDetail(id) {
     const phone = r.phone || '';
     const wa = waLink(phone);
     const openState = isPlaceOpenNow(r.hours); // true / false / null (unknown)
-    const statusHTML = openState === null ? '' :
-        `<span class="detail-hours-status ${openState ? 'is-open' : 'is-closed'}">${openState ? 'Aberto agora' : 'Fechado agora'}</span>`;
     const weekHours = (r.hours && Array.isArray(r.hours.weekdayDescriptions)) ? r.hours.weekdayDescriptions : [];
     const todayIdx = spWeekdayIndex();
+    const todayRaw = weekHours[todayIdx] || '';
+    const todayHours = todayRaw.includes(':') ? todayRaw.slice(todayRaw.indexOf(':') + 1).trim() : todayRaw;
+    const statusText = openState === null ? 'Horários' : (openState ? 'Aberto agora' : 'Fechado agora');
+    const statusClass = openState === null ? '' : (openState ? 'is-open' : 'is-closed');
+    // Collapsed by default: status + today's hours on one line; expand for the
+    // full week.
     const hoursHTML = weekHours.length ? `
-        <div class="detail-hours">
-            <div class="detail-hours-title">Horários ${statusHTML}</div>
+        <details class="detail-hours">
+            <summary class="detail-hours-summary">
+                <span class="detail-hours-status ${statusClass}">${statusText}</span>
+                ${todayHours ? `<span class="detail-hours-today">· Hoje ${escapeHtml(todayHours)}</span>` : ''}
+            </summary>
             <ul class="detail-hours-list">${weekHours.map((d, i) => `<li${i === todayIdx ? ' class="today"' : ''}>${escapeHtml(d)}</li>`).join('')}</ul>
-        </div>` : '';
+        </details>` : '';
     document.getElementById('detail-content').innerHTML = `
         <button onclick="closeModal('detail')" aria-label="Fechar" style="position:absolute;top:12px;right:12px;background:none;border:none;font-size:1.5rem;cursor:pointer;color:#666;z-index:1">&times;</button>
         <div class="detail-header">
