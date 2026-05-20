@@ -30,6 +30,8 @@ create table if not exists public.places (
   reservation_url text,
   delivery_apps   text,
   website         text,
+  phone           text,
+  hours           jsonb,
   lat             double precision,
   lng             double precision,
   fsq_id          text,
@@ -43,6 +45,8 @@ alter table public.places add column if not exists has_reservation boolean defau
 alter table public.places add column if not exists reservation_url text;
 alter table public.places add column if not exists delivery_apps   text;
 alter table public.places add column if not exists website         text;
+alter table public.places add column if not exists phone           text;
+alter table public.places add column if not exists hours           jsonb;  -- Google regularOpeningHours
 alter table public.places add column if not exists lat             double precision;
 alter table public.places add column if not exists lng             double precision;
 alter table public.places add column if not exists fsq_id          text;

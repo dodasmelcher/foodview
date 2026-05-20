@@ -50,6 +50,44 @@ function starsHTML(n) {
 
 const heartSVG = `<svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>`;
 
+// Current weekday/time in São Paulo (where every place is), regardless of the
+// visitor's timezone. Returns { day: 0=Sun..6, min: minutes since midnight }.
+function spNow() {
+    const d = new Date(new Date().toLocaleString('en-US', { timeZone: 'America/Sao_Paulo' }));
+    return { day: d.getDay(), min: d.getHours() * 60 + d.getMinutes() };
+}
+
+// Google Places (New) regularOpeningHours → is it open right now? periods[] hold
+// { open, close } with { day:0=Sun..6, hour, minute }; a period with no `close`
+// means open 24h. Returns true / false, or null when hours are unknown.
+function isPlaceOpenNow(hours) {
+    const periods = hours && Array.isArray(hours.periods) ? hours.periods : null;
+    if (!periods || !periods.length) return null;
+    const { day, min } = spNow();
+    const now = day * 1440 + min;
+    const WEEK = 7 * 1440;
+    for (const p of periods) {
+        if (!p.open) continue;
+        if (!p.close) return true; // open 24h
+        const open = p.open.day * 1440 + (p.open.hour || 0) * 60 + (p.open.minute || 0);
+        let close = p.close.day * 1440 + (p.close.hour || 0) * 60 + (p.close.minute || 0);
+        if (close <= open) close += WEEK; // overnight / past Saturday→Sunday
+        if ((now >= open && now < close) || (now + WEEK >= open && now + WEEK < close)) return true;
+    }
+    return false;
+}
+
+// weekdayDescriptions is ordered Monday..Sunday; map São Paulo's weekday to it.
+function spWeekdayIndex() {
+    return (spNow().day + 6) % 7; // JS 0=Sun → array 0=Mon
+}
+
+// Phone (any format, ideally international) → wa.me link, or '' if too short.
+function waLink(phone) {
+    const digits = String(phone || '').replace(/\D/g, '');
+    return digits.length >= 10 ? `https://wa.me/${digits}` : '';
+}
+
 function withTimeout(promise, ms, label = 'operation') {
     return Promise.race([
         promise,

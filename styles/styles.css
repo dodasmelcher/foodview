@@ -499,6 +499,15 @@ a:hover { color: var(--accent-hover); }
 .detail-tag-green { background: rgba(91, 163, 125, .2); color: #88c5a4; }
 .detail-tag-blue { background: rgba(74, 141, 171, .22); color: #8cc4dd; }
 .detail-tag-gray { background: var(--surface-alt); color: var(--body-light); }
+.detail-tag-red { background: rgba(192, 57, 43, .2); color: #e0928a; }
+
+/* Opening hours */
+.detail-hours { margin-top: 16px; }
+.detail-hours-title { font-weight: 700; color: var(--heading); font-size: .9375rem; margin-bottom: 6px; }
+.detail-hours-list { list-style: none; padding: 0; margin: 0; columns: 2; column-gap: 24px; }
+.detail-hours-list li { font-size: .8125rem; color: var(--body-light); padding: 2px 0; break-inside: avoid; }
+.detail-hours-list li.today { color: var(--heading); font-weight: 700; }
+@media (max-width: 560px) { .detail-hours-list { columns: 1; } }
 
 /* Favorite button */
 .fav-btn { background: none; border: none; cursor: pointer; padding: 4px; transition: transform .15s; line-height: 1; }

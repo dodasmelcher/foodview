@@ -1,7 +1,7 @@
 // Supabase client + caches (placesCache, currentUser, sb, etc.) live in js/data.js
 let searchQuery = '';
 let categoryFilter = { restaurante: 'Todas', bar: 'Todas' };
-let extraFilter = { michelin: false, delivery: false, reservation: false };
+let extraFilter = { michelin: false, delivery: false };
 
 // Pagination (PAGE_SIZE, visibleCount, resetPage, loadMore, _loadMoreIO,
 // loadMoreHTML, attachLoadMoreObserver) and rendering (renderSkeletons,
@@ -85,8 +85,7 @@ function openEditPlace(id) {
     document.getElementById('ep-category').value = p.category || '';
     document.getElementById('ep-address').value = p.address || '';
     document.getElementById('ep-badge').value = p.badge || '';
-    document.getElementById('ep-reservation').checked = !!p.has_reservation;
-    document.getElementById('ep-reservation-url').value = p.reservation_url || '';
+    document.getElementById('ep-website').value = p.website || '';
     document.getElementById('ep-fsq-id').value = p.fsq_id || '';
     document.getElementById('ep-lat').value = (p.lat != null) ? p.lat : '';
     document.getElementById('ep-lng').value = (p.lng != null) ? p.lng : '';
@@ -180,6 +179,8 @@ async function applyFsqMatch(btn) {
             if (merged.length > existing.length) update.photos = merged;
             if (!place.image_url && newPhotos[0]) update.image_url = newPhotos[0];
             if (extras.website && !place.website) update.website = extras.website;
+            if (extras.phone && !place.phone) update.phone = extras.phone;
+            if (extras.hours && !place.hours) update.hours = extras.hours;
             if (Object.keys(update).length) {
                 await sb.from('places').update(update).eq('id', id);
                 Object.assign(place, update);
@@ -214,8 +215,7 @@ async function submitEditPlace(e) {
             category: document.getElementById('ep-category').value.trim() || null,
             address: document.getElementById('ep-address').value,
             badge: document.getElementById('ep-badge').value,
-            has_reservation: document.getElementById('ep-reservation').checked,
-            reservation_url: document.getElementById('ep-reservation-url').value,
+            website: document.getElementById('ep-website').value.trim() || null,
             delivery_apps: [document.getElementById('ep-delivery-rappi').checked ? 'Rappi' : '', document.getElementById('ep-delivery-ifood').checked ? 'iFood' : ''].filter(Boolean).join(','),
             lat: Number.isFinite(lat) ? lat : null,
             lng: Number.isFinite(lng) ? lng : null,
@@ -623,14 +623,12 @@ function buildFilterBar(type) {
     ).join('') + `<button class="filter-btn" data-action="openDrawer">Mais...</button>`
     + `<span style="width:1px;height:20px;background:var(--divider);margin:0 4px"></span>`
     + `<button class="filter-btn ${extraFilter.michelin ? 'active' : ''}" data-action="extra" data-extra="michelin">Michelin</button>`
-    + `<button class="filter-btn ${extraFilter.reservation ? 'active' : ''}" data-action="extra" data-extra="reservation">Reserva</button>`
     + `<button class="filter-btn ${extraFilter.delivery ? 'active' : ''}" data-action="extra" data-extra="delivery">Delivery</button>`;
 }
 function buildPopularFilterBar() {
     const el = document.getElementById('filter-popular');
     if (!el) return;
     el.innerHTML = `<button class="filter-btn ${extraFilter.michelin ? 'active' : ''}" data-action="extra" data-extra="michelin">Michelin</button>`
-        + `<button class="filter-btn ${extraFilter.reservation ? 'active' : ''}" data-action="extra" data-extra="reservation">Reserva</button>`
         + `<button class="filter-btn ${extraFilter.delivery ? 'active' : ''}" data-action="extra" data-extra="delivery">Delivery</button>`;
 }
 function attachFilterHandlers() {
@@ -711,7 +709,18 @@ function openDetail(id) {
     }).join('') : `<div class="detail-empty">Nenhuma avaliação ainda.</div>`;
 
     const coverUrl = imgSrc(r.image_url, 320, 240); // 4:3
-    const resUrl = safeUrl(r.reservation_url);
+    const phone = r.phone || '';
+    const wa = waLink(phone);
+    const openState = isPlaceOpenNow(r.hours); // true / false / null (unknown)
+    const statusTag = openState === null ? '' :
+        `<span class="detail-tag ${openState ? 'detail-tag-green' : 'detail-tag-red'}">${openState ? 'Aberto agora' : 'Fechado agora'}</span>`;
+    const weekHours = (r.hours && Array.isArray(r.hours.weekdayDescriptions)) ? r.hours.weekdayDescriptions : [];
+    const todayIdx = spWeekdayIndex();
+    const hoursHTML = weekHours.length ? `
+        <div class="detail-hours">
+            <div class="detail-hours-title">Horários</div>
+            <ul class="detail-hours-list">${weekHours.map((d, i) => `<li${i === todayIdx ? ' class="today"' : ''}>${escapeHtml(d)}</li>`).join('')}</ul>
+        </div>` : '';
     document.getElementById('detail-content').innerHTML = `
         <button onclick="closeModal('detail')" aria-label="Fechar" style="position:absolute;top:12px;right:12px;background:none;border:none;font-size:1.5rem;cursor:pointer;color:#666;z-index:1">&times;</button>
         <div class="detail-header">
@@ -723,8 +732,10 @@ function openDetail(id) {
                 ${(r.category || r.address) ? `<div class="detail-cuisine">${[r.category, r.address].filter(Boolean).map(escapeHtml).join(' · ')}</div>` : ''}
                 ${count > 0 ? `<div class="detail-rating-row"><span class="detail-avg">${avg}</span><span class="detail-stars">${starsHTML(parseFloat(avg))}</span><span class="detail-count">(${count} ${count === 1 ? 'avaliação' : 'avaliações'})</span></div>` : `<div class="detail-count" style="margin-top:4px">Sem avaliações ainda</div>`}
                 <div class="detail-tags">
-                    ${r.has_reservation && resUrl ? `<span class="detail-tag detail-tag-green"><a href="${escapeHtml(resUrl)}" target="_blank" rel="noopener noreferrer" style="color:inherit">Reservar</a></span>` : r.has_reservation ? `<span class="detail-tag detail-tag-green">Reserva</span>` : ''}
+                    ${statusTag}
                     ${r.website && safeUrl(r.website) ? `<span class="detail-tag detail-tag-blue"><a href="${escapeHtml(safeUrl(r.website))}" target="_blank" rel="noopener noreferrer" style="color:inherit">Site oficial</a></span>` : ''}
+                    ${phone ? `<span class="detail-tag detail-tag-gray"><a href="tel:${escapeHtml(phone.replace(/\s/g, ''))}" style="color:inherit">${escapeHtml(phone)}</a></span>` : ''}
+                    ${wa ? `<span class="detail-tag detail-tag-green"><a href="${escapeHtml(wa)}" target="_blank" rel="noopener noreferrer" style="color:inherit">WhatsApp</a></span>` : ''}
                     ${r.delivery_apps ? r.delivery_apps.split(',').map(a => `<span class="card-badge" style="background:#f3e5f5;color:#7b1fa2">${escapeHtml(a.trim())}</span>`).join('') : ''}
                     <span class="detail-tag detail-tag-gray" data-fav-count-label="${r.id}">${getFavCount(r.id)} curtida${getFavCount(r.id) !== 1 ? 's' : ''}</span>
                 </div>
@@ -738,6 +749,7 @@ function openDetail(id) {
                 </div>
             </div>
         </div>
+        ${hoursHTML}
         ${photosHTML}
         <hr class="detail-divider">
         <div class="detail-reviews-header"><span class="detail-reviews-title">Avaliações (${count})</span></div>
@@ -929,11 +941,11 @@ async function renderProfileMap(places) {
     const bounds = L.latLngBounds(places.map(p => [p.lat, p.lng]));
     _profileMap.fitBounds(bounds, { padding: [60, 60], maxZoom: 15 });
 }
-// Admin one-shot: refetch website (and missing photos) from Google for all
-// places that already have fsq_id but no website saved yet.
+// Admin one-shot: backfill website / phone / hours (and missing photos) from
+// Google for every place with an fsq_id that's still missing any of them.
 async function refreshGoogleExtras() {
     if (!isAdmin()) return;
-    const targets = placesCache.filter(p => p.fsq_id && !p.website);
+    const targets = placesCache.filter(p => p.fsq_id && (!p.website || !p.phone || !p.hours));
     if (!targets.length) { showToast('Nada pra atualizar', 'info'); return; }
     if (!await customConfirm(`Buscar site oficial no Google para ${targets.length} lugares? Demora ≈${Math.ceil(targets.length / 2)}s.`, { title: 'Atualizar sites?', okText: 'Atualizar' })) return;
     showToast(`Atualizando ${targets.length}...`, 'info', 3000);
@@ -943,6 +955,8 @@ async function refreshGoogleExtras() {
             const extras = await fetchGoogleExtras(p.fsq_id);
             const update = {};
             if (extras.website) update.website = extras.website;
+            if (extras.phone && !p.phone) update.phone = extras.phone;
+            if (extras.hours && !p.hours) update.hours = extras.hours;
             const existing = Array.isArray(p.photos) ? p.photos : [];
             const merged = [...existing, ...extras.photos.filter(u => !existing.includes(u))];
             if (merged.length > existing.length) update.photos = merged;
@@ -1054,18 +1068,22 @@ async function rehostPhotos(urls) {
     }
 }
 async function fetchGoogleExtras(placeId) {
-    // Returns { photos: string[], website: string|null } with photos already
-    // re-hosted on Supabase Storage (callers persist these directly).
-    if (!placeId) return { photos: [], website: null };
+    // Returns { photos, website, phone, hours } with photos already re-hosted on
+    // Supabase Storage (callers persist these directly).
+    const empty = { photos: [], website: null, phone: null, hours: null };
+    if (!placeId) return empty;
     try {
         const r = await fetch(`/api/places-details?id=${encodeURIComponent(placeId)}`);
-        if (!r.ok) return { photos: [], website: null };
+        if (!r.ok) return empty;
         const data = await r.json();
+        const d = data.details || {};
         return {
             photos: await rehostPhotos(Array.isArray(data.photos) ? data.photos : []),
-            website: data.details?.websiteUri || null
+            website: d.websiteUri || null,
+            phone: d.internationalPhoneNumber || d.nationalPhoneNumber || null,
+            hours: d.regularOpeningHours || null
         };
-    } catch (_) { return { photos: [], website: null }; }
+    } catch (_) { return empty; }
 }
 async function fetchGooglePhotos(placeId) {
     return (await fetchGoogleExtras(placeId)).photos;
@@ -1092,6 +1110,8 @@ async function applyBulkMatch(btn) {
     if (addr) update.address = addr;
     if (cat && !p.category) update.category = cat;
     if (extras.website && !p.website) update.website = extras.website;
+    if (extras.phone && !p.phone) update.phone = extras.phone;
+    if (extras.hours && !p.hours) update.hours = extras.hours;
     const existingPhotos = Array.isArray(p.photos) ? p.photos : [];
     const mergedPhotos = [...existingPhotos, ...newPhotos.filter(u => !existingPhotos.includes(u))];
     if (mergedPhotos.length > existingPhotos.length) update.photos = mergedPhotos;
@@ -1212,6 +1232,8 @@ async function importFromFoursquare(btn) {
             photos: photoUrls,
             fsq_id: details.id || placeId,
             website: details.websiteUri || null,
+            phone: details.internationalPhoneNumber || details.nationalPhoneNumber || null,
+            hours: details.regularOpeningHours || null,
             user_id: currentUser?.id || null
         });
         if (error) {

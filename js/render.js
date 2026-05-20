@@ -102,7 +102,6 @@ function filterByType(type) {
     if (cat && cat !== 'Todas') list = list.filter(p => p.category === cat);
     if (extraFilter.michelin) list = list.filter(p => michelinStars(p) > 0);
     if (extraFilter.delivery) list = list.filter(p => p.delivery_apps);
-    if (extraFilter.reservation) list = list.filter(p => p.has_reservation);
     list.sort((a, b) => michelinStars(b) - michelinStars(a) || a.name.localeCompare(b.name, 'pt-BR'));
     return list;
 }
@@ -138,9 +137,8 @@ function renderPopular() {
     let all = searchQuery ? placesCache.filter(p => p.name.toLowerCase().includes(searchQuery) || (p.category && p.category.toLowerCase().includes(searchQuery)) || (p.address && p.address.toLowerCase().includes(searchQuery))) : placesCache;
     if (extraFilter.michelin) all = all.filter(p => michelinStars(p) > 0);
     if (extraFilter.delivery) all = all.filter(p => p.delivery_apps);
-    if (extraFilter.reservation) all = all.filter(p => p.has_reservation);
     const ranked = all.map(r => ({ ...r, ...getPlaceRating(r.id) })).filter(r => r.count > 0).sort((a, b) => b.count - a.count || parseFloat(b.avg) - parseFloat(a.avg));
-    const active = searchQuery || extraFilter.michelin || extraFilter.delivery || extraFilter.reservation;
+    const active = searchQuery || extraFilter.michelin || extraFilter.delivery;
     const el = document.getElementById('popular-grid');
     if (!ranked.length) {
         el.innerHTML = `<div class="empty-state" style="grid-column:1/-1"><p>${active ? 'Nenhum resultado com esses filtros.' : 'Ainda não há lugares com avaliações.'}</p></div>`;
