@@ -263,6 +263,11 @@ function renderPageHeader(tab) {
         title = 'Bares';
         subtitle = `<b>${bares.length}</b> bares · <b>${coquetel}</b> coquetelaria · <b>${cervejarias}</b> cervejarias`;
         thumbs = thumbsHtml('novidades<br>recentes', pickHeaderThumbs(p => p.type === 'bar'));
+    } else if (tab === 'mapa') {
+        const withCoords = placesCache.filter(p => typeof p.lat === 'number' && typeof p.lng === 'number').length;
+        eyebrow = 'São Paulo';
+        title = 'No Mapa';
+        subtitle = `<b>${withCoords}</b> lugares com localização`;
     } else if (tab === 'popular') {
         const reviewedIds = new Set(reviewsCache.map(r => r.place_id));
         const reviewedCount = placesCache.filter(p => reviewedIds.has(p.id)).length;

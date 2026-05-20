@@ -478,6 +478,14 @@ a:hover { color: var(--accent-hover); }
 .detail-mini-map { height: 220px; border-radius: var(--radius-sm); overflow: hidden; background: var(--surface-alt); margin: 12px 0 4px; }
 .detail-map-header { font-size: .9375rem; font-weight: 700; color: var(--heading); margin-top: 16px; }
 
+/* City map */
+#city-map { height: 72vh; min-height: 420px; border-radius: var(--radius-md); overflow: hidden; background: var(--surface-alt); }
+.map-legend { display: flex; gap: 18px; margin-bottom: 12px; }
+.map-legend-item { display: inline-flex; align-items: center; gap: 6px; font-size: .8125rem; color: var(--body-light); }
+.map-dot { width: 11px; height: 11px; border-radius: 50%; border: 1.5px solid #fff; box-shadow: 0 0 0 1px rgba(0,0,0,.15); }
+.map-dot-rest { background: #D4593A; }
+.map-dot-bar { background: #4a8dab; }
+
 .lightbox-overlay {
     display: none; position: fixed; inset: 0; background: rgba(0,0,0,.92); z-index: 850;
     align-items: center; justify-content: center; flex-direction: column;

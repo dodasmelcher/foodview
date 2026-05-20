@@ -51,6 +51,7 @@
             <ul class="nav-links">
                 <li><a href="#" class="active" data-tab="restaurantes" onclick="switchTab('restaurantes')">Restaurantes</a></li>
                 <li><a href="#" data-tab="bares" onclick="switchTab('bares')">Bares</a></li>
+                <li><a href="#" data-tab="mapa" onclick="switchTab('mapa')">Mapa</a></li>
                 <li><a href="#" data-tab="popular" onclick="switchTab('popular')">Populares</a></li>
                 <li><a href="#" data-tab="favoritos" onclick="switchTab('favoritos')">Favoritos</a></li>
                 <li><a href="#" data-tab="amigos" onclick="switchTab('amigos')">Amigos</a></li>
@@ -74,6 +75,13 @@
             <div class="tab-actions"><button class="btn btn-primary btn-sm" onclick="openAddPlace('bar')">+ Bar</button></div>
             <div class="filter-bar" id="filter-bares"></div>
             <div class="restaurant-grid" id="grid-bares"></div>
+        </div>
+        <div class="tab-content" id="tab-mapa">
+            <div class="map-legend">
+                <span class="map-legend-item"><i class="map-dot map-dot-rest"></i>Restaurantes</span>
+                <span class="map-legend-item"><i class="map-dot map-dot-bar"></i>Bares</span>
+            </div>
+            <div id="city-map"></div>
         </div>
         <div class="tab-content" id="tab-popular">
             <div class="filter-bar" id="filter-popular"></div>
@@ -381,6 +389,7 @@
         <ul>
             <li><a href="#" data-tab="restaurantes" onclick="sidebarNav('restaurantes')">Restaurantes</a></li>
             <li><a href="#" data-tab="bares" onclick="sidebarNav('bares')">Bares</a></li>
+            <li><a href="#" data-tab="mapa" onclick="sidebarNav('mapa')">Mapa</a></li>
             <li><a href="#" data-tab="popular" onclick="sidebarNav('popular')">Populares</a></li>
             <li><a href="#" data-tab="favoritos" onclick="sidebarNav('favoritos')">Favoritos</a></li>
             <li><a href="#" data-tab="amigos" onclick="sidebarNav('amigos')">Amigos</a></li>
