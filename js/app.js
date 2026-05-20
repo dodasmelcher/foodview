@@ -236,7 +236,6 @@ function switchTab(tab) {
     // Render the target tab so changes made from other tabs show up immediately
     if (tab === 'restaurantes') renderRestaurantes();
     else if (tab === 'bares') renderBares();
-    else if (tab === 'mapa') renderCityMap();
     else if (tab === 'popular') renderPopular();
     else if (tab === 'favoritos') renderFavoritos();
     else if (tab === 'amigos') renderAmigos();
@@ -914,42 +913,6 @@ function openProfile(userId) {
 
 // renderCard, filterByType, renderRestaurantes/Bares/Popular/Favoritos/Amigos,
 // render — moved to js/render.js
-
-// ===== City map (all geocoded places on Leaflet, colored by type) =====
-let _cityMap = null;
-let _cityMarkers = [];
-async function renderCityMap() {
-    const el = document.getElementById('city-map');
-    if (!el) return;
-    await loadLeaflet();
-    const places = placesCache.filter(p => typeof p.lat === 'number' && typeof p.lng === 'number');
-    if (!_cityMap || _cityMap.getContainer() !== el) {
-        if (_cityMap) { try { _cityMap.remove(); } catch (_) {} }
-        _cityMap = L.map(el, { scrollWheelZoom: true }).setView([-23.5613, -46.6562], 12);
-        L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
-            maxZoom: 19, subdomains: 'abcd',
-            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OSM</a> · &copy; <a href="https://carto.com/attributions">CARTO</a>'
-        }).addTo(_cityMap);
-        keepLeafletSized(_cityMap, el);
-    }
-    _cityMarkers.forEach(m => m.remove());
-    _cityMarkers = [];
-    if (!places.length) return;
-    places.forEach(p => {
-        const fill = p.type === 'bar' ? '#4a8dab' : '#D4593A';
-        const marker = L.circleMarker([p.lat, p.lng], {
-            radius: 7, color: '#fff', weight: 1.5, fillColor: fill, fillOpacity: .9
-        }).addTo(_cityMap);
-        const html = `<div class="map-popup">
-            <div class="map-popup-name">${escapeHtml(p.name)}</div>
-            ${p.category ? `<div class="map-popup-cat">${escapeHtml(p.category)}</div>` : ''}
-            <button class="btn btn-primary btn-sm" onclick="openDetail(${p.id})">Ver detalhes</button>
-        </div>`;
-        marker.bindPopup(html, { autoPan: true, autoPanPadding: [40, 40], offset: L.point(0, -4), closeButton: true, maxWidth: 240 });
-        _cityMarkers.push(marker);
-    });
-    _cityMap.fitBounds(L.latLngBounds(places.map(p => [p.lat, p.lng])), { padding: [50, 50], maxZoom: 14 });
-}
 
 // ===== Profile map (renders user's favorites with coords on Leaflet) =====
 let _profileMap = null;
