@@ -1,4 +1,7 @@
 {
+  "rewrites": [
+    { "source": "/lugar/:id(\\d+)", "destination": "/api/place-page?id=:id" }
+  ],
   "headers": [
     {
       "source": "/assets/(.*)",

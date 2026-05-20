@@ -28,6 +28,9 @@ async function loadData() {
     profilesCache = profiles || [];
     populateCategoryDatalist();
     render();
+    // Open a deep-linked place (/lugar/123) once the cache is populated — at
+    // init time applyRoute runs with an empty cache and can't find it yet.
+    if (typeof applyRoute === 'function') applyRoute();
 }
 
 function getUser() { return currentUser; }

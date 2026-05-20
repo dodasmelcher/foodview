@@ -1,6 +1,9 @@
 -- ==========================================
--- FoodView - Supabase Setup
--- Cole tudo isso no SQL Editor do Supabase
+-- FoodView - Supabase Setup  [OBSOLETO]
+-- ==========================================
+-- ⚠️ Este arquivo está DEFASADO. Use db/schema.sql como fonte de verdade do
+-- schema + RLS (inclui category, profiles, favorites, follows, coordenadas e
+-- os campos de match com o Google). Mantido só pelos seeds históricos abaixo.
 -- ==========================================
 
 -- Tabela de places

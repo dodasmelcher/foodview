@@ -271,20 +271,24 @@ function clearSearch() {
 }
 
 // Modal
-// Hash-based routing for shareable place links (#/lugar/123)
+// Path-based routing for shareable place links (/lugar/123) so social scrapers
+// and the SEO function (api/place-page.js) can render per-place meta tags.
+// Legacy hash links (#/lugar/123) are still honoured for old shared URLs.
 function parseRoute() {
-    const m = window.location.hash.match(/^#\/lugar\/(\d+)$/);
-    return m ? { type: 'place', id: parseInt(m[1], 10) } : null;
+    const path = window.location.pathname.match(/^\/lugar\/(\d+)/);
+    if (path) return { type: 'place', id: parseInt(path[1], 10) };
+    const hash = window.location.hash.match(/^#\/lugar\/(\d+)$/);
+    return hash ? { type: 'place', id: parseInt(hash[1], 10) } : null;
 }
 function routeToPlace(id) {
-    const target = '#/lugar/' + id;
-    if (window.location.hash !== target) {
+    const target = '/lugar/' + id;
+    if (window.location.pathname !== target) {
         history.pushState(null, '', target);
     }
 }
 function clearPlaceRoute() {
-    if (/^#\/lugar\//.test(window.location.hash)) {
-        history.pushState(null, '', window.location.pathname + window.location.search);
+    if (/^\/lugar\//.test(window.location.pathname) || /^#\/lugar\//.test(window.location.hash)) {
+        history.pushState(null, '', '/' + window.location.search);
     }
 }
 function applyRoute() {
@@ -306,6 +310,9 @@ function applyRoute() {
         modal.classList.remove('active');
     }
 }
+// pushState path routing → back/forward fires popstate. Keep hashchange too so
+// legacy #/lugar/ links still react.
+window.addEventListener('popstate', applyRoute);
 window.addEventListener('hashchange', applyRoute);
 
 // openModal, closeModal, overlay click listener live in js/modals.js
@@ -1025,15 +1032,37 @@ async function loadBulkCurrent() {
             `<div class="detail-empty" style="padding:8px">Erro: ${escapeHtml(err.message)}</div>`;
     }
 }
+// Google photo URLs (photoUri) are temporary and expire. Re-host them on
+// Supabase Storage before persisting so imported places keep their images.
+// Best-effort: on any failure (incl. the endpoint missing its service key)
+// the originals are returned unchanged so import still succeeds.
+async function rehostPhotos(urls) {
+    const list = (urls || []).filter(u => typeof u === 'string' && u);
+    if (!list.length) return [];
+    try {
+        const res = await fetch('/api/rehost-photos', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ urls: list })
+        });
+        if (!res.ok) return list; // e.g. 501 when SUPABASE_SERVICE_KEY isn't set
+        const data = await res.json();
+        const out = Array.isArray(data.urls) ? data.urls : [];
+        return list.map((u, i) => out[i] || u);
+    } catch (_) {
+        return list;
+    }
+}
 async function fetchGoogleExtras(placeId) {
-    // Returns { photos: string[], website: string|null }
+    // Returns { photos: string[], website: string|null } with photos already
+    // re-hosted on Supabase Storage (callers persist these directly).
     if (!placeId) return { photos: [], website: null };
     try {
         const r = await fetch(`/api/places-details?id=${encodeURIComponent(placeId)}`);
         if (!r.ok) return { photos: [], website: null };
         const data = await r.json();
         return {
-            photos: Array.isArray(data.photos) ? data.photos : [],
+            photos: await rehostPhotos(Array.isArray(data.photos) ? data.photos : []),
             website: data.details?.websiteUri || null
         };
     } catch (_) { return { photos: [], website: null }; }
@@ -1169,7 +1198,8 @@ async function importFromFoursquare(btn) {
         const lng = details.location?.longitude;
         const address = details.formattedAddress || details.shortFormattedAddress || '';
         const category = details.primaryTypeDisplayName?.text || null;
-        const photoUrls = Array.isArray(photos) ? photos : [];
+        // Re-host Google photos on Supabase so they don't expire (see rehostPhotos).
+        const photoUrls = await rehostPhotos(Array.isArray(photos) ? photos : []);
 
         const { error } = await sb.from('places').insert({
             type: fsqType,
