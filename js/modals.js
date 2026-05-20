@@ -52,3 +52,27 @@ function closeConfirm(result) {
     _confirmResolve = null;
     if (r) r(result);
 }
+
+// ===== A11y: dialogs + focus trap =====
+// Mark every modal as a dialog so screen readers announce it as such.
+document.querySelectorAll('.modal-overlay .modal').forEach(m => {
+    m.setAttribute('role', 'dialog');
+    m.setAttribute('aria-modal', 'true');
+});
+// Trap Tab focus inside the topmost open modal (by z-index, since stacking
+// order ≠ DOM order — e.g. the confirm dialog sits above the detail modal).
+// The lightbox uses its own overlay/keys and is intentionally excluded.
+document.addEventListener('keydown', e => {
+    if (e.key !== 'Tab') return;
+    const overlays = Array.from(document.querySelectorAll('.modal-overlay.active'));
+    if (!overlays.length) return;
+    const top = overlays.reduce((a, b) =>
+        (parseInt(getComputedStyle(b).zIndex) || 0) >= (parseInt(getComputedStyle(a).zIndex) || 0) ? b : a);
+    const sel = 'a[href], button:not([disabled]), input:not([disabled]):not([type="hidden"]), textarea:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])';
+    const list = Array.from(top.querySelectorAll(sel)).filter(el => el.offsetParent !== null);
+    if (!list.length) return;
+    const first = list[0], last = list[list.length - 1];
+    if (!top.contains(document.activeElement)) { e.preventDefault(); first.focus(); }
+    else if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+    else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+});

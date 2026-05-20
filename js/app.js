@@ -1312,8 +1312,9 @@ async function init() {
 init();
 
 function toggleMobileSidebar() {
-    document.getElementById('mobile-sidebar').classList.toggle('open');
+    const open = document.getElementById('mobile-sidebar').classList.toggle('open');
     document.getElementById('mobile-sidebar-overlay').classList.toggle('open');
+    document.querySelector('.hamburger')?.setAttribute('aria-expanded', String(open));
 }
 function sidebarNav(tab) {
     toggleMobileSidebar();
