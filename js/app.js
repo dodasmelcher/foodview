@@ -222,7 +222,7 @@ async function submitEditPlace(e) {
             fsq_id: fsqId
         }).eq('id', id);
         closeModal('editplace');
-        await loadData();
+        await reloadPlaces();
         openDetail(id);
     } finally { unlock(); }
 }
@@ -487,7 +487,7 @@ async function addPlace(e) {
         if (error) { showToast(error.message, 'error'); return; }
         document.getElementById('form-place').reset();
         placeImageFile = null; document.getElementById('p-image-preview').innerHTML = '';
-        closeModal('place'); await loadData();
+        closeModal('place'); await reloadPlaces();
     } finally { unlock(); }
 }
 
@@ -548,7 +548,7 @@ async function addReview(e) {
         document.getElementById('form-review').reset();
         reviewImageFiles = []; document.getElementById('rv-image-previews').innerHTML = '';
         closeModal('review');
-        await loadData();
+        await reloadReviews();
         const dm = document.getElementById('modal-detail');
         if (dm.classList.contains('active')) openDetail(parseInt(document.getElementById('rv-place-id').value));
     } finally { unlock(); }
@@ -565,7 +565,7 @@ async function deleteReview(id, placeId) {
     const ok = await customConfirm('Tem certeza que quer remover esta avaliação?', { title: 'Remover avaliação?', okText: 'Remover', danger: true });
     if (!ok) return;
     await sb.from('reviews').delete().eq('id', id);
-    await loadData();
+    await reloadReviews();
     openDetail(placeId);
 }
 
@@ -1149,7 +1149,7 @@ function renderBulkDone() {
             <div style="color:var(--body-light);font-size:.875rem">${_bulkStats.matched} matches · ${_bulkStats.skipped} pulados</div>
         </div>`;
     document.getElementById('bulk-results').innerHTML = '';
-    loadData();
+    reloadPlaces();
 }
 
 // ===== Foursquare import (admin) =====
@@ -1249,7 +1249,7 @@ async function importFromFoursquare(btn) {
         btn.textContent = '✓ Importado';
         btn.classList.remove('btn-primary');
         btn.classList.add('btn-ghost');
-        await loadData();
+        await reloadPlaces();
     } catch (err) {
         showToast('Erro: ' + err.message, 'error');
         btn.disabled = false; btn.textContent = prev;

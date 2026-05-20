@@ -65,7 +65,7 @@ async function submitAddPhoto(e) {
         }).eq('id', id);
         addPhotoFiles = [];
         closeModal('addphoto');
-        await loadData();
+        await reloadPlaces();
         openDetail(id);
     } finally { unlock(); }
 }
@@ -84,7 +84,7 @@ async function deletePhoto(placeId, photoIndex) {
         update.image_url = newPhotos[0] || '';
     }
     await sb.from('places').update(update).eq('id', placeId);
-    await loadData();
+    await reloadPlaces();
     openDetail(placeId);
 }
 
@@ -99,7 +99,7 @@ function editPlaceImage(placeId) {
         const p = placesCache.find(r => r.id === placeId);
         const newPhotos = [...new Set([url, ...(p.photos || [])])];
         await sb.from('places').update({ image_url: url, photos: newPhotos }).eq('id', placeId);
-        await loadData();
+        await reloadPlaces();
         openDetail(placeId);
     };
     input.click();

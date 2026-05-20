@@ -33,6 +33,21 @@ async function loadData() {
     if (typeof applyRoute === 'function') applyRoute();
 }
 
+// Targeted refreshes: most mutations touch a single table, so refetch just that
+// one instead of reloading all five (full loadData stays for deletes that
+// cascade and for auth changes). render() only repaints the active tab.
+async function reloadPlaces() {
+    const { data } = await sb.from('places').select('*').order('created_at', { ascending: true });
+    placesCache = data || [];
+    populateCategoryDatalist();
+    render();
+}
+async function reloadReviews() {
+    const { data } = await sb.from('reviews').select('*').order('created_at', { ascending: false });
+    reviewsCache = data || [];
+    render();
+}
+
 function getUser() { return currentUser; }
 function isAdmin() { return currentUser && currentUser.email === ADMIN_EMAIL; }
 function getPlaceById(id) { return placesCache.find(r => r.id === id); }

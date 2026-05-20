@@ -209,14 +209,17 @@ function renderAmigos() {
     attachLoadMoreObserver(amigosEl);
 }
 
+// Repaint only the visible tab — switchTab re-renders whichever tab the user
+// opens next, so the hidden grids don't need to be rebuilt on every refresh.
+// The profile tab is rendered by openProfile, not here.
 function render() {
     const active = document.querySelector('.tab-content.active')?.id?.replace('tab-', '') || 'restaurantes';
     renderPageHeader(active);
-    renderRestaurantes();
-    renderBares();
-    renderPopular();
-    renderFavoritos();
-    renderAmigos();
+    if (active === 'restaurantes') renderRestaurantes();
+    else if (active === 'bares') renderBares();
+    else if (active === 'popular') renderPopular();
+    else if (active === 'favoritos') renderFavoritos();
+    else if (active === 'amigos') renderAmigos();
 }
 
 // ===== Editorial page header =====
