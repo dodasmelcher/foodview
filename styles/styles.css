@@ -502,7 +502,7 @@ a:hover { color: var(--accent-hover); }
 .detail-tag-red { background: rgba(192, 57, 43, .2); color: #e0928a; }
 
 /* Opening hours (collapsible) */
-.detail-hours { margin-top: 16px; border-top: 1px solid var(--divider); padding-top: 14px; }
+.detail-hours { margin-top: 16px; margin-bottom: 20px; border-top: 1px solid var(--divider); padding-top: 14px; }
 .detail-hours-summary { list-style: none; cursor: pointer; display: flex; align-items: baseline; gap: 6px; font-size: .875rem; }
 .detail-hours-summary::-webkit-details-marker { display: none; }
 .detail-hours-summary::after { content: '▾'; margin-left: auto; color: var(--metadata); display: inline-block; transition: transform .2s; }
