@@ -338,6 +338,11 @@ a:hover { color: var(--accent-hover); }
     padding: 2px 8px; border-radius: 50px; margin-bottom: 4px; margin-left: 4px;
     background: linear-gradient(135deg, #D4A94A, #C49030); color: #fff; letter-spacing: .02em;
 }
+.badge-delivery { background: #f3e5f5; color: #7b1fa2; }
+
+/* Admin Google-match flows */
+.fsq-feedback { padding: 10px; background: #e8f5e9; color: #2e7d32; border-radius: var(--radius-sm); font-size: .8125rem; }
+.fsq-result-row { padding: 10px; border: 1px solid var(--divider); border-radius: var(--radius-sm); margin-bottom: 8px; display: flex; gap: 8px; align-items: center; justify-content: space-between; }
 .card-cuisine { color: var(--metadata); font-size: .8125rem; margin-bottom: 6px; }
 .card-rating { display: flex; align-items: center; gap: 6px; }
 .card-stars { color: var(--star); font-size: .9rem; letter-spacing: 1px; }

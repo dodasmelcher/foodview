@@ -137,7 +137,7 @@ async function searchFsqMatch() {
             const placeId = p.id || '';
             const cat = p.primaryTypeDisplayName?.text || '';
             const rating = p.rating ? ` · ${p.rating.toFixed(1)}★` : '';
-            return `<div style="padding:10px;border:1px solid var(--divider);border-radius:var(--radius-sm);margin-bottom:8px;display:flex;gap:8px;align-items:center;justify-content:space-between">
+            return `<div class="fsq-result-row">
                 <div style="flex:1;min-width:0">
                     <div style="color:var(--heading);font-weight:600;font-size:.875rem">${escapeHtml(pname)}</div>
                     <div style="color:var(--body-light);font-size:.75rem">${escapeHtml(cat)}${rating}</div>
@@ -168,7 +168,7 @@ async function applyFsqMatch(btn) {
     const place = getPlaceById(id);
     const resultsEl = document.getElementById('ep-fsq-results');
     resultsEl.innerHTML =
-        '<div style="padding:10px;background:#e8f5e9;color:#2e7d32;border-radius:var(--radius-sm);font-size:.8125rem">✓ Match aplicado. Buscando fotos no Google...</div>';
+        '<div class="fsq-feedback">✓ Match aplicado. Buscando fotos no Google...</div>';
     try {
         const extras = await fetchGoogleExtras(fsq);
         const newPhotos = extras.photos;
@@ -191,10 +191,10 @@ async function applyFsqMatch(btn) {
         if (extras.website) parts.push('site oficial');
         const extra = parts.length ? ` · ${parts.join(' + ')}` : '';
         resultsEl.innerHTML =
-            `<div style="padding:10px;background:#e8f5e9;color:#2e7d32;border-radius:var(--radius-sm);font-size:.8125rem">✓ Match aplicado${extra}. Clique em <strong>Salvar</strong> pra persistir o resto.</div>`;
+            `<div class="fsq-feedback">✓ Match aplicado${extra}. Clique em <strong>Salvar</strong> pra persistir o resto.</div>`;
     } catch (_) {
         resultsEl.innerHTML =
-            '<div style="padding:10px;background:#e8f5e9;color:#2e7d32;border-radius:var(--radius-sm);font-size:.8125rem">✓ Match aplicado. Clique em <strong>Salvar</strong> pra persistir.</div>';
+            '<div class="fsq-feedback">✓ Match aplicado. Clique em <strong>Salvar</strong> pra persistir.</div>';
     }
 }
 async function submitEditPlace(e) {
@@ -742,7 +742,7 @@ function openDetail(id) {
                     ${r.website && safeUrl(r.website) ? `<span class="detail-tag detail-tag-blue"><a href="${escapeHtml(safeUrl(r.website))}" target="_blank" rel="noopener noreferrer" style="color:inherit">Site oficial</a></span>` : ''}
                     ${phone ? `<span class="detail-tag detail-tag-gray"><a href="tel:${escapeHtml(phone.replace(/\s/g, ''))}" style="color:inherit">Ligar</a></span>` : ''}
                     ${wa ? `<span class="detail-tag detail-tag-green"><a href="${escapeHtml(wa)}" target="_blank" rel="noopener noreferrer" style="color:inherit">WhatsApp</a></span>` : ''}
-                    ${r.delivery_apps ? r.delivery_apps.split(',').map(a => `<span class="card-badge" style="background:#f3e5f5;color:#7b1fa2">${escapeHtml(a.trim())}</span>`).join('') : ''}
+                    ${r.delivery_apps ? r.delivery_apps.split(',').map(a => `<span class="card-badge badge-delivery">${escapeHtml(a.trim())}</span>`).join('') : ''}
                     <span class="detail-tag detail-tag-gray" data-fav-count-label="${r.id}">${getFavCount(r.id)} curtida${getFavCount(r.id) !== 1 ? 's' : ''}</span>
                 </div>
                 <div class="detail-actions">
@@ -1035,7 +1035,7 @@ async function loadBulkCurrent() {
             const placeId = r.id || '';
             const cat = r.primaryTypeDisplayName?.text || '';
             const rating = r.rating ? ` · ${r.rating.toFixed(1)}★` : '';
-            return `<div style="padding:10px;border:1px solid var(--divider);border-radius:var(--radius-sm);margin-bottom:8px;display:flex;gap:8px;align-items:center;justify-content:space-between">
+            return `<div class="fsq-result-row">
                 <div style="flex:1;min-width:0">
                     <div style="color:var(--heading);font-weight:600;font-size:.875rem">${escapeHtml(rname)}</div>
                     <div style="color:var(--body-light);font-size:.75rem">${escapeHtml(cat)}${rating}</div>

@@ -80,7 +80,7 @@ function renderCard(r, options = {}) {
         <div class="card-body">
             <span class="card-type-tag ${r.type === 'bar' ? 'tag-bar' : 'tag-restaurante'}">${escapeHtml(r.type)}</span>
             ${r.badge ? `<span class="card-badge">${escapeHtml(r.badge)}</span>` : ''}
-            ${r.delivery_apps ? r.delivery_apps.split(',').map(a => `<span class="card-badge" style="background:#f3e5f5;color:#7b1fa2">${escapeHtml(a.trim())}</span>`).join('') : ''}
+            ${r.delivery_apps ? r.delivery_apps.split(',').map(a => `<span class="card-badge badge-delivery">${escapeHtml(a.trim())}</span>`).join('') : ''}
             <h3>${name}</h3>
             ${(r.category || r.address) ? `<div class="card-cuisine">${[r.category, formatAddress(r.address)].filter(Boolean).map(escapeHtml).join(' · ')}</div>` : ''}
             <div class="card-rating">
