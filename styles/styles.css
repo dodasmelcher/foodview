@@ -338,16 +338,17 @@ a:hover { color: var(--accent-hover); }
     padding: 2px 8px; border-radius: 50px; margin-bottom: 4px; margin-left: 4px;
     background: linear-gradient(135deg, #D4A94A, #C49030); color: #fff; letter-spacing: .02em;
 }
-.badge-delivery { background: #f3e5f5; color: #7b1fa2; }
+.badge-delivery { background: rgba(160, 110, 190, .2); color: #c4a0db; }
 
 /* Admin Google-match flows */
-.fsq-feedback { padding: 10px; background: #e8f5e9; color: #2e7d32; border-radius: var(--radius-sm); font-size: .8125rem; }
+.fsq-feedback { padding: 10px; background: rgba(91, 163, 125, .15); color: #88c5a4; border-radius: var(--radius-sm); font-size: .8125rem; }
 .fsq-result-row { padding: 10px; border: 1px solid var(--divider); border-radius: var(--radius-sm); margin-bottom: 8px; display: flex; gap: 8px; align-items: center; justify-content: space-between; }
 .card-cuisine { color: var(--metadata); font-size: .8125rem; margin-bottom: 6px; }
 .card-rating { display: flex; align-items: center; gap: 6px; }
 .card-stars { color: var(--star); font-size: .9rem; letter-spacing: 1px; }
 .card-rating-num { color: var(--body-light); font-size: .8125rem; }
 .card-reviews-count { color: var(--metadata); font-size: .75rem; }
+.card-noreviews { font-style: italic; opacity: .7; }
 .rank-badge {
     position: absolute; top: 10px; left: 10px; background: var(--accent); color: #fff;
     width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center;
@@ -421,13 +422,21 @@ a:hover { color: var(--accent-hover); }
 
 /* Detail Modal */
 .modal-wide { max-width: 620px; position: relative; }
-.detail-header { display: flex; gap: 20px; margin-bottom: 24px; }
-.detail-image { width: 160px; min-width: 160px; aspect-ratio: 4/3; border-radius: var(--radius-md); object-fit: cover; background: var(--surface-alt); }
+.detail-header { display: flex; flex-direction: column; gap: 16px; margin-bottom: 20px; }
+.detail-image { width: 100%; aspect-ratio: 21/9; border-radius: var(--radius-md); object-fit: cover; background: var(--surface-alt); }
 .detail-image-placeholder {
-    width: 160px; min-width: 160px; aspect-ratio: 4/3; border-radius: var(--radius-md);
+    width: 100%; aspect-ratio: 21/9; border-radius: var(--radius-md);
     background: var(--surface-alt); display: flex; align-items: center; justify-content: center;
-    color: var(--metadata); font-size: 2.5rem;
+    color: var(--metadata); font-size: 3rem;
 }
+.detail-close {
+    position: absolute; top: 12px; right: 12px; width: 32px; height: 32px; border-radius: 50%;
+    background: rgba(0,0,0,.45); border: none; color: #fff; font-size: 1.4rem; line-height: 1;
+    cursor: pointer; z-index: 2; display: flex; align-items: center; justify-content: center;
+}
+.detail-close:hover { background: rgba(0,0,0,.65); }
+.detail-actions-admin { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 14px; padding-top: 14px; border-top: 1px solid var(--divider); }
+.detail-remove { margin-left: auto; }
 .detail-info h2 { font-size: 1.375rem; margin-bottom: 4px; }
 .detail-cuisine { color: var(--metadata); font-size: .875rem; margin-bottom: 8px; }
 .detail-rating-row { display: flex; align-items: center; gap: 8px; }

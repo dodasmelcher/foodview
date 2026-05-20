@@ -78,13 +78,13 @@ function renderCard(r, options = {}) {
         ${rank ? `<div class="rank-badge">#${rank}</div>` : ''}
         ${img ? `<img class="card-image" src="${escapeHtml(img)}" alt="${name}" loading="lazy" width="300" height="200">` : `<div class="card-image-placeholder">${escapeHtml(r.name.charAt(0))}</div>`}
         <div class="card-body">
-            <span class="card-type-tag ${r.type === 'bar' ? 'tag-bar' : 'tag-restaurante'}">${escapeHtml(r.type)}</span>
+            ${options.hideType ? '' : `<span class="card-type-tag ${r.type === 'bar' ? 'tag-bar' : 'tag-restaurante'}">${escapeHtml(r.type)}</span>`}
             ${r.badge ? `<span class="card-badge">${escapeHtml(r.badge)}</span>` : ''}
             ${r.delivery_apps ? r.delivery_apps.split(',').map(a => `<span class="card-badge badge-delivery">${escapeHtml(a.trim())}</span>`).join('') : ''}
             <h3>${name}</h3>
             ${(r.category || r.address) ? `<div class="card-cuisine">${[r.category, formatAddress(r.address)].filter(Boolean).map(escapeHtml).join(' · ')}</div>` : ''}
             <div class="card-rating">
-                ${count > 0 ? `<span class="card-stars">${starsHTML(parseFloat(avg))}</span><span class="card-rating-num">${avg}</span><span class="card-reviews-count">(${count})</span>` : `<span class="card-reviews-count">Sem avaliações</span>`}
+                ${count > 0 ? `<span class="card-stars">${starsHTML(parseFloat(avg))}</span><span class="card-rating-num">${avg}</span><span class="card-reviews-count">(${count})</span>` : `<span class="card-reviews-count card-noreviews">Sem avaliações</span>`}
             </div>
             ${rank ? `<div class="popular-stats"><span class="popular-stat">${count} avaliações</span><span class="popular-stat">${avg} média</span></div>` : ''}
             <div style="display:flex;justify-content:space-between;align-items:center;margin-top:4px">
@@ -115,7 +115,7 @@ function renderRestaurantes() {
         return;
     }
     const shown = Math.min(visibleCount.restaurantes, rests.length);
-    el.innerHTML = rests.slice(0, shown).map(r => renderCard(r)).join('') + loadMoreHTML('restaurantes', rests.length, shown);
+    el.innerHTML = rests.slice(0, shown).map(r => renderCard(r, { hideType: true })).join('') + loadMoreHTML('restaurantes', rests.length, shown);
     attachLoadMoreObserver(el);
 }
 
@@ -128,7 +128,7 @@ function renderBares() {
         return;
     }
     const shown = Math.min(visibleCount.bares, bars.length);
-    el.innerHTML = bars.slice(0, shown).map(r => renderCard(r)).join('') + loadMoreHTML('bares', bars.length, shown);
+    el.innerHTML = bars.slice(0, shown).map(r => renderCard(r, { hideType: true })).join('') + loadMoreHTML('bares', bars.length, shown);
     attachLoadMoreObserver(el);
 }
 

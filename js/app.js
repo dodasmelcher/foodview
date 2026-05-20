@@ -107,7 +107,7 @@ function updateFsqStatus(p) {
     else if (hasCoords) txt = '⚠️ Tem coordenadas mas sem match no Google';
     else txt = '✗ Sem coordenadas — busque no Google pra preencher';
     el.textContent = txt;
-    el.style.color = hasFsq && hasCoords ? '#2e7d32' : (hasCoords ? '#7A7A7A' : '#c0392b');
+    el.style.color = hasFsq && hasCoords ? '#88c5a4' : (hasCoords ? 'var(--body-light)' : '#e0928a');
 }
 async function searchFsqMatch() {
     const name = document.getElementById('ep-name').value.trim();
@@ -708,7 +708,7 @@ function openDetail(id) {
         </div>`;
     }).join('') : `<div class="detail-empty">Nenhuma avaliação ainda.</div>`;
 
-    const coverUrl = imgSrc(r.image_url, 320, 240); // 4:3
+    const coverUrl = imgSrc(r.image_url, 1200, 520); // 21:9 hero banner
     const phone = r.phone || '';
     const wa = waLink(phone);
     const openState = isPlaceOpenNow(r.hours); // true / false / null (unknown)
@@ -729,9 +729,9 @@ function openDetail(id) {
             <ul class="detail-hours-list">${weekHours.map((d, i) => `<li${i === todayIdx ? ' class="today"' : ''}>${escapeHtml(d)}</li>`).join('')}</ul>
         </details>` : '';
     document.getElementById('detail-content').innerHTML = `
-        <button onclick="closeModal('detail')" aria-label="Fechar" style="position:absolute;top:12px;right:12px;background:none;border:none;font-size:1.5rem;cursor:pointer;color:#666;z-index:1">&times;</button>
+        <button class="detail-close" onclick="closeModal('detail')" aria-label="Fechar">&times;</button>
         <div class="detail-header">
-            ${coverUrl ? `<img class="detail-image" src="${escapeHtml(coverUrl)}" alt="${escapeHtml(r.name)}" loading="lazy" width="160" height="120">` : `<div class="detail-image-placeholder">${escapeHtml(icon)}</div>`}
+            ${coverUrl ? `<img class="detail-image" src="${escapeHtml(coverUrl)}" alt="${escapeHtml(r.name)}" loading="lazy" width="1200" height="520">` : `<div class="detail-image-placeholder">${escapeHtml(icon)}</div>`}
             <div class="detail-info">
                 <span class="card-type-tag ${r.type === 'bar' ? 'tag-bar' : 'tag-restaurante'}">${escapeHtml(r.type)}</span>
                 ${r.badge ? `<span class="card-badge">${escapeHtml(r.badge)}</span>` : ''}
@@ -747,12 +747,14 @@ function openDetail(id) {
                 </div>
                 <div class="detail-actions">
                     <button class="fav-btn ${isFavorited(r.id) ? 'active' : ''}" data-place-id="${r.id}" onclick="toggleFavorite(${r.id})" title="Curtir" aria-label="Curtir">${heartSVG}</button>
-                    <button class="btn btn-primary btn-sm" onclick="openReviewModal(${r.id})" style="margin-top:10px">Avaliar</button>
-                    <button class="btn btn-outline btn-sm" onclick="openAddPhotoModal(${r.id})" style="margin-top:10px">Adicionar fotos</button>
-                    ${canEdit ? `<button class="btn btn-ghost btn-sm" onclick="editPlaceImage(${r.id})" style="margin-top:10px">Editar capa</button>` : ''}
-                    ${admin ? `<button class="btn btn-outline btn-sm" onclick="openEditPlace(${r.id})" style="margin-top:10px">Editar info</button>` : ''}
-                    ${canEdit ? `<button class="btn btn-ghost btn-sm" onclick="deletePlace(${r.id})" style="margin-top:10px">Remover</button>` : ''}
+                    <button class="btn btn-primary btn-sm" onclick="openReviewModal(${r.id})">Avaliar</button>
+                    <button class="btn btn-outline btn-sm" onclick="openAddPhotoModal(${r.id})">Adicionar fotos</button>
                 </div>
+                ${canEdit ? `<div class="detail-actions-admin">
+                    <button class="btn btn-ghost btn-sm" onclick="editPlaceImage(${r.id})">Editar capa</button>
+                    ${admin ? `<button class="btn btn-ghost btn-sm" onclick="openEditPlace(${r.id})">Editar info</button>` : ''}
+                    <button class="btn btn-ghost btn-sm detail-remove" onclick="deletePlace(${r.id})">Remover</button>
+                </div>` : ''}
             </div>
         </div>
         ${hoursHTML}
