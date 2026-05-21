@@ -483,6 +483,24 @@ a:hover { color: var(--accent-hover); }
 .star-input input { display: none; }
 .star-input label { font-size: 1.5rem; color: var(--divider); cursor: pointer; transition: color .15s; }
 .star-input label:hover, .star-input label:hover ~ label, .star-input input:checked ~ label { color: var(--star); }
+
+/* 4-category rating input */
+.rating-rows { display: flex; flex-direction: column; gap: 6px; }
+.rating-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.rating-cat { color: var(--body); font-size: .9375rem; font-weight: 600; }
+.rating-row .star-input label { font-size: 1.35rem; }
+.rating-avg { color: var(--body-light); font-size: .875rem; margin-top: 10px; }
+.rating-avg b { color: var(--heading); }
+
+/* Per-category averages on the place detail */
+.cat-breakdown { display: grid; grid-template-columns: 1fr 1fr; gap: 7px 22px; margin-top: 12px; }
+.cat-item { display: flex; align-items: center; gap: 8px; font-size: .8125rem; }
+.cat-label { color: var(--body-light); width: 86px; flex-shrink: 0; }
+.cat-bar { flex: 1; height: 5px; background: var(--surface-alt); border-radius: 3px; overflow: hidden; }
+.cat-bar i { display: block; height: 100%; background: var(--star); border-radius: 3px; }
+.cat-val { color: var(--heading); font-weight: 600; width: 26px; text-align: right; }
+.rev-subscores { color: var(--metadata); font-size: .75rem; margin: 2px 0 4px; }
+@media (max-width: 560px) { .cat-breakdown { grid-template-columns: 1fr; } }
 .modal-actions { display: flex; gap: 12px; justify-content: flex-end; margin-top: 24px; }
 .btn-cancel {
     background: var(--surface-alt); color: var(--body); border: none;

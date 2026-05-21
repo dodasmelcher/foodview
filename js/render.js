@@ -216,7 +216,7 @@ function renderAmigos() {
                     <span style="font-size:.75rem;color:var(--metadata)">${formatDate(rv.created_at)}</span>
                 </div>
                 <div style="font-size:.8125rem;color:var(--metadata);margin:2px 0">avaliou <strong style="color:var(--heading)">${escapeHtml(place ? place.name : '?')}</strong></div>
-                <div class="detail-review-stars">${starsHTML(rv.rating)}</div>
+                <div class="detail-review-stars">${starsHTML(reviewScore(rv))}</div>
                 ${text ? `<div style="font-size:.875rem;color:var(--body);margin-top:4px">${escapeHtml(textTrimmed)}</div>` : ''}
                 <div class="rev-likes-row">${reviewLikeHTML(rv.id)}</div>
             </div>
@@ -340,7 +340,7 @@ function renderHome() {
             ${thumb ? `<img class="rev-thumb" src="${escapeHtml(thumb)}" alt="" loading="lazy">` : ''}
             <div class="rev-body">
                 <div class="rev-place">${escapeHtml(place ? place.name : '?')}</div>
-                <div class="rev-stars">${starsHTML(rv.rating)}</div>
+                <div class="rev-stars">${starsHTML(reviewScore(rv))}</div>
                 <div class="rev-by">${avatarMarkup(prof, 'rev-mini')}${escapeHtml(prof.name || '')} · ${formatDate(rv.created_at)}</div>
                 ${text ? `<div class="rev-text">${escapeHtml(text)}</div>` : ''}
                 <div class="rev-likes-row">${reviewLikeHTML(rv.id)}</div>

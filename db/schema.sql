@@ -56,11 +56,20 @@ create table if not exists public.reviews (
   place_id    bigint references public.places(id) on delete cascade,
   user_id     uuid references auth.users(id) on delete set null,
   author_name text not null,
-  rating      integer not null check (rating >= 1 and rating <= 5),
+  rating      integer not null check (rating >= 1 and rating <= 5), -- rounded overall (avg of the 4 below)
+  food        smallint check (food between 1 and 5),
+  ambiance    smallint check (ambiance between 1 and 5),
+  service     smallint check (service between 1 and 5),
+  price       smallint check (price between 1 and 5),
   text        text default '',
   images      jsonb default '[]'::jsonb,
   created_at  timestamptz default now()
 );
+-- Per-category scores added after launch (nullable: old reviews only have `rating`).
+alter table public.reviews add column if not exists food     smallint check (food between 1 and 5);
+alter table public.reviews add column if not exists ambiance smallint check (ambiance between 1 and 5);
+alter table public.reviews add column if not exists service  smallint check (service between 1 and 5);
+alter table public.reviews add column if not exists price    smallint check (price between 1 and 5);
 
 create table if not exists public.profiles (
   id         uuid primary key references auth.users(id) on delete cascade,

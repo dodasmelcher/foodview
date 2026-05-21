@@ -196,14 +196,46 @@
             <form id="form-review" onsubmit="addReview(event)">
                 <input type="hidden" id="rv-place-id" value="">
                 <div class="form-group">
-                    <label>Nota</label>
-                    <div class="star-input">
-                        <input type="radio" id="star5" name="rating" value="5"><label for="star5">★</label>
-                        <input type="radio" id="star4" name="rating" value="4"><label for="star4">★</label>
-                        <input type="radio" id="star3" name="rating" value="3"><label for="star3">★</label>
-                        <input type="radio" id="star2" name="rating" value="2"><label for="star2">★</label>
-                        <input type="radio" id="star1" name="rating" value="1"><label for="star1">★</label>
+                    <label>Notas</label>
+                    <div class="rating-rows">
+                        <div class="rating-row"><span class="rating-cat">Comida</span>
+                            <div class="star-input">
+                                <input type="radio" id="food5" name="r-food" value="5" onchange="updateReviewAvg()"><label for="food5">★</label>
+                                <input type="radio" id="food4" name="r-food" value="4" onchange="updateReviewAvg()"><label for="food4">★</label>
+                                <input type="radio" id="food3" name="r-food" value="3" onchange="updateReviewAvg()"><label for="food3">★</label>
+                                <input type="radio" id="food2" name="r-food" value="2" onchange="updateReviewAvg()"><label for="food2">★</label>
+                                <input type="radio" id="food1" name="r-food" value="1" onchange="updateReviewAvg()"><label for="food1">★</label>
+                            </div>
+                        </div>
+                        <div class="rating-row"><span class="rating-cat">Ambiente</span>
+                            <div class="star-input">
+                                <input type="radio" id="amb5" name="r-amb" value="5" onchange="updateReviewAvg()"><label for="amb5">★</label>
+                                <input type="radio" id="amb4" name="r-amb" value="4" onchange="updateReviewAvg()"><label for="amb4">★</label>
+                                <input type="radio" id="amb3" name="r-amb" value="3" onchange="updateReviewAvg()"><label for="amb3">★</label>
+                                <input type="radio" id="amb2" name="r-amb" value="2" onchange="updateReviewAvg()"><label for="amb2">★</label>
+                                <input type="radio" id="amb1" name="r-amb" value="1" onchange="updateReviewAvg()"><label for="amb1">★</label>
+                            </div>
+                        </div>
+                        <div class="rating-row"><span class="rating-cat">Atendimento</span>
+                            <div class="star-input">
+                                <input type="radio" id="svc5" name="r-svc" value="5" onchange="updateReviewAvg()"><label for="svc5">★</label>
+                                <input type="radio" id="svc4" name="r-svc" value="4" onchange="updateReviewAvg()"><label for="svc4">★</label>
+                                <input type="radio" id="svc3" name="r-svc" value="3" onchange="updateReviewAvg()"><label for="svc3">★</label>
+                                <input type="radio" id="svc2" name="r-svc" value="2" onchange="updateReviewAvg()"><label for="svc2">★</label>
+                                <input type="radio" id="svc1" name="r-svc" value="1" onchange="updateReviewAvg()"><label for="svc1">★</label>
+                            </div>
+                        </div>
+                        <div class="rating-row"><span class="rating-cat">Preços</span>
+                            <div class="star-input">
+                                <input type="radio" id="prc5" name="r-price" value="5" onchange="updateReviewAvg()"><label for="prc5">★</label>
+                                <input type="radio" id="prc4" name="r-price" value="4" onchange="updateReviewAvg()"><label for="prc4">★</label>
+                                <input type="radio" id="prc3" name="r-price" value="3" onchange="updateReviewAvg()"><label for="prc3">★</label>
+                                <input type="radio" id="prc2" name="r-price" value="2" onchange="updateReviewAvg()"><label for="prc2">★</label>
+                                <input type="radio" id="prc1" name="r-price" value="1" onchange="updateReviewAvg()"><label for="prc1">★</label>
+                            </div>
+                        </div>
                     </div>
+                    <div class="rating-avg" id="rv-avg">Média: —</div>
                 </div>
                 <div class="form-group"><label>Comentário</label><textarea id="rv-text" required placeholder="O que achou?"></textarea></div>
                 <div class="form-group">

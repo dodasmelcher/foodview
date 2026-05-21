@@ -560,9 +560,26 @@ async function addPlace(e) {
 
 // Review
 let reviewImageFiles = [];
+function reviewSel(name) {
+    const el = document.querySelector(`input[name="${name}"]:checked`);
+    return el ? parseInt(el.value) : null;
+}
+function readReviewScores() {
+    const food = reviewSel('r-food'), ambiance = reviewSel('r-amb'), service = reviewSel('r-svc'), price = reviewSel('r-price');
+    if (!food || !ambiance || !service || !price) return null;
+    return { food, ambiance, service, price, rating: Math.round((food + ambiance + service + price) / 4) };
+}
+function updateReviewAvg() {
+    const s = readReviewScores();
+    const el = document.getElementById('rv-avg');
+    if (el) el.innerHTML = s ? `Média: <b>${((s.food + s.ambiance + s.service + s.price) / 4).toFixed(1)}</b>` : 'Média: —';
+}
 function openReviewModal(placeId) {
     if (!getUser()) { openModal('account'); return; }
+    // Reset radios/textarea first, then set the place id (reset() would clear it).
+    document.getElementById('form-review').reset();
     document.getElementById('rv-place-id').value = placeId;
+    updateReviewAvg();
     // Reset preview so leftover files from a previously-cancelled review on
     // another place don't leak into this one.
     reviewImageFiles = [];
@@ -592,8 +609,8 @@ async function addReview(e) {
     const unlock = lockSubmit(e.target, 'Publicando...');
     if (!unlock) return;
     try {
-        const rating = document.querySelector('input[name="rating"]:checked');
-        if (!rating) { showToast('Selecione uma nota', 'error'); return; }
+        const scores = readReviewScores();
+        if (!scores) { showToast('Dê nota nas 4 categorias', 'error'); return; }
         const urls = [];
         for (const f of reviewImageFiles) {
             const url = await uploadPhoto(f);
@@ -603,7 +620,8 @@ async function addReview(e) {
             place_id: parseInt(document.getElementById('rv-place-id').value),
             user_id: currentUser.id,
             author_name: currentUser.name,
-            rating: parseInt(rating.value),
+            rating: scores.rating,
+            food: scores.food, ambiance: scores.ambiance, service: scores.service, price: scores.price,
             text: document.getElementById('rv-text').value,
             images: urls
         });
@@ -780,7 +798,8 @@ function openDetail(id) {
             <div class="detail-review-top">${avatarMarkup(authorProfile, 'detail-review-avatar')}
                 <div><span class="detail-review-author" style="cursor:pointer" onclick="event.stopPropagation();closeModal('detail');openProfile('${escapeHtml(rv.user_id)}')">${escapeHtml(authorName)}</span><span class="detail-review-date"> · ${formatDate(rv.created_at)}</span></div>
             </div>
-            <div class="detail-review-stars">${starsHTML(rv.rating)}</div>
+            <div class="detail-review-stars">${starsHTML(reviewScore(rv))}</div>
+            ${typeof rv.food === 'number' ? `<div class="rev-subscores">Comida ${rv.food} · Ambiente ${rv.ambiance} · Atend. ${rv.service} · Preços ${rv.price}</div>` : ''}
             <div class="detail-review-text">${escapeHtml(rv.text || '')}</div>
             ${rv.images?.length ? `<div class="detail-review-images">${rv.images.map(i => `<img class="detail-review-img" src="${escapeHtml(imgSrc(i, 200, 140))}" loading="lazy">`).join('')}</div>` : ''}
             <div class="rev-likes-row">${reviewLikeHTML(rv.id)}${canDel ? `<span class="rev-remove" onclick="deleteReview(${rv.id},${r.id})">remover</span>` : ''}</div>
@@ -807,6 +826,12 @@ function openDetail(id) {
             </summary>
             <ul class="detail-hours-list">${weekHours.map((d, i) => `<li${i === todayIdx ? ' class="today"' : ''}>${escapeHtml(d)}</li>`).join('')}</ul>
         </details>` : '';
+    // Per-category averages breakdown (only categories with data).
+    const cats = getPlaceCategoryAverages(r.id);
+    const catItems = [['Comida', 'food'], ['Ambiente', 'ambiance'], ['Atendimento', 'service'], ['Preços', 'price']]
+        .filter(([, k]) => cats[k] != null)
+        .map(([label, k]) => `<div class="cat-item"><span class="cat-label">${label}</span><span class="cat-bar"><i style="width:${(cats[k] / 5 * 100).toFixed(0)}%"></i></span><span class="cat-val">${cats[k].toFixed(1)}</span></div>`).join('');
+    const catHTML = catItems ? `<div class="cat-breakdown">${catItems}</div>` : '';
     document.getElementById('detail-content').innerHTML = `
         <button class="detail-close" onclick="closeModal('detail')" aria-label="Fechar">&times;</button>
         <div class="detail-header">
@@ -817,6 +842,7 @@ function openDetail(id) {
                 <h2>${escapeHtml(r.name)}</h2>
                 ${(r.category || r.address) ? `<div class="detail-cuisine">${[r.category, formatAddress(r.address)].filter(Boolean).map(escapeHtml).join(' · ')}</div>` : ''}
                 ${count > 0 ? `<div class="detail-rating-row"><span class="detail-avg">${avg}</span><span class="detail-stars">${starsHTML(parseFloat(avg))}</span><span class="detail-count">(${count} ${count === 1 ? 'avaliação' : 'avaliações'})</span></div>` : `<div class="detail-count" style="margin-top:4px">Sem avaliações ainda</div>`}
+                ${catHTML}
                 <div class="detail-tags">
                     ${r.website && safeUrl(r.website) ? `<span class="detail-tag detail-tag-blue"><a href="${escapeHtml(safeUrl(r.website))}" target="_blank" rel="noopener noreferrer" style="color:inherit">Site oficial</a></span>` : ''}
                     ${phone ? `<span class="detail-tag detail-tag-gray"><a href="tel:${escapeHtml(phone.replace(/\s/g, ''))}" style="color:inherit">Ligar</a></span>` : ''}
@@ -944,7 +970,7 @@ function openProfile(userId) {
                 <strong style="color:var(--heading)">${escapeHtml(place ? place.name : 'Desconhecido')}</strong>
                 <span class="detail-review-date">${formatDate(rv.created_at)}</span>
             </div>
-            <div class="detail-review-stars">${starsHTML(rv.rating)}</div>
+            <div class="detail-review-stars">${starsHTML(reviewScore(rv))}</div>
             <div class="detail-review-text">${escapeHtml(rv.text || '')}</div>
         </div>`;
     }).join('') : '<div class="detail-empty">Nenhuma avaliação ainda.</div>';

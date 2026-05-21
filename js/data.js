@@ -54,10 +54,26 @@ async function reloadReviews() {
 function getUser() { return currentUser; }
 function isAdmin() { return currentUser && currentUser.email === ADMIN_EMAIL; }
 function getPlaceById(id) { return placesCache.find(r => r.id === id); }
+// A review's overall score = average of its 4 category scores, or its legacy
+// integer `rating` for reviews made before the 4-category system.
+function reviewScore(rv) {
+    const subs = [rv.food, rv.ambiance, rv.service, rv.price].filter(v => typeof v === 'number');
+    return subs.length ? subs.reduce((a, b) => a + b, 0) / subs.length : (rv.rating || 0);
+}
 function getPlaceRating(placeId) {
     const rvs = reviewsCache.filter(r => r.place_id === placeId);
     if (!rvs.length) return { avg: 0, count: 0 };
-    return { avg: (rvs.reduce((a, r) => a + r.rating, 0) / rvs.length).toFixed(1), count: rvs.length };
+    return { avg: (rvs.reduce((a, r) => a + reviewScore(r), 0) / rvs.length).toFixed(1), count: rvs.length };
+}
+// Per-category averages across a place's reviews; each is null when no review
+// scored that category.
+function getPlaceCategoryAverages(placeId) {
+    const rvs = reviewsCache.filter(r => r.place_id === placeId);
+    const avgOf = (key) => {
+        const vals = rvs.map(r => r[key]).filter(v => typeof v === 'number');
+        return vals.length ? vals.reduce((a, b) => a + b, 0) / vals.length : null;
+    };
+    return { food: avgOf('food'), ambiance: avgOf('ambiance'), service: avgOf('service'), price: avgOf('price') };
 }
 function getProfile(userId) { return profilesCache.find(p => p.id === userId); }
 function isFavorited(placeId) {
