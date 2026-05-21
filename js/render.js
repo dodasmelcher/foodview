@@ -80,11 +80,12 @@ function renderCard(r, options = {}) {
     if (rank) badges.push(`<span class="pcard-rank">#${rank}</span>`);
     if (r.badge) badges.push(`<span class="pcard-badge">${escapeHtml(r.badge)}</span>`);
     if (r.delivery_apps) badges.push(`<span class="pcard-badge pcard-delivery">${escapeHtml(r.delivery_apps.split(',')[0].trim())}</span>`);
-    return `<div class="pcard ${rank ? 'popular-card' : ''}" onclick="openDetail(${r.id})"${img ? ` style="background-image:url('${escapeHtml(img)}')"` : ''}>
-        ${img ? '' : `<div class="pcard-placeholder">${escapeHtml(r.name.charAt(0))}</div>`}
+    const ariaLabel = escapeHtml(`${r.name} — ${count > 0 ? `nota ${avg}` : 'sem avaliações'}`);
+    return `<div class="pcard ${rank ? 'popular-card' : ''}" onclick="openDetail(${r.id})" tabindex="0" role="button" aria-label="${ariaLabel}" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();openDetail(${r.id})}">
+        ${img ? `<img class="pcard-img" src="${escapeHtml(img)}" alt="" loading="lazy">` : `<div class="pcard-placeholder">${escapeHtml(r.name.charAt(0))}</div>`}
         <div class="pcard-top">
             <span class="pcard-badges">${badges.join('')}</span>
-            <button class="pcard-fav fav-btn ${isFavorited(r.id) ? 'active' : ''}" data-place-id="${r.id}" onclick="event.stopPropagation();toggleFavorite(${r.id})" aria-label="Curtir" title="Curtir">${heartSVG}</button>
+            <button class="pcard-fav fav-btn ${isFavorited(r.id) ? 'active' : ''}" data-place-id="${r.id}" onclick="event.stopPropagation();toggleFavorite(${r.id})" aria-label="Curtir ${escapeHtml(r.name)}" title="Curtir">${heartSVG}</button>
         </div>
         <div class="pcard-info">
             <div class="pcard-name">${name}</div>
