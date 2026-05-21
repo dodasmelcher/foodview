@@ -286,11 +286,18 @@ async function submitEditPlace(e) {
     } finally { unlock(); }
 }
 
+// The header search is redundant on Início (which has its own search), so hide
+// it there and show it everywhere else. Reads whichever tab is active.
+function toggleHeaderSearch() {
+    const w = document.querySelector('.header-search');
+    if (w) w.style.display = document.getElementById('tab-inicio')?.classList.contains('active') ? 'none' : '';
+}
 // Tabs
 function switchTab(tab) {
     document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
     document.getElementById('tab-' + tab).classList.add('active');
     document.querySelectorAll('.nav-links a').forEach(a => a.classList.toggle('active', a.dataset.tab === tab));
+    toggleHeaderSearch();
     renderPageHeader(tab);
     // Render the target tab so changes made from other tabs show up immediately
     if (tab === 'inicio') renderHome();
@@ -1015,6 +1022,7 @@ function openProfile(userId) {
     document.getElementById('tab-profile').classList.add('active');
     document.querySelectorAll('.nav-links a').forEach(a => a.classList.remove('active'));
     renderPageHeader('profile'); // hides the editorial header on the profile page
+    toggleHeaderSearch();
     if (favsWithCoords.length) renderProfileMap(favsWithCoords);
 }
 

@@ -410,9 +410,9 @@ a:hover { color: var(--accent-hover); }
 .feat-title { font-size:2.4rem; font-weight:700; letter-spacing:-.02em; color:#fff; line-height:1.05; }
 .feat-meta { color:rgba(255,255,255,.82); font-size:.9375rem; margin:8px 0 14px; }
 
-.coll-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:16px; }
-.coll { position:relative; border-radius:var(--radius-md); overflow:hidden; aspect-ratio:3/2; cursor:pointer; background-size:cover; background-position:center; background-color:var(--surface-alt); }
-.coll.feat { grid-column:span 2; aspect-ratio:2/1; }
+.coll-grid { display:grid; grid-template-columns:repeat(3,1fr); grid-auto-rows:188px; gap:16px; }
+.coll { position:relative; border-radius:var(--radius-md); overflow:hidden; cursor:pointer; background-size:cover; background-position:center; background-color:var(--surface-alt); }
+.coll.feat { grid-column:span 2; grid-row:span 2; }
 .coll::after { content:''; position:absolute; inset:0; background:linear-gradient(to top, rgba(0,0,0,.82) 0%, rgba(0,0,0,.15) 60%, rgba(0,0,0,0) 100%); transition:background .2s; }
 .coll:hover::after { background:linear-gradient(to top, rgba(0,0,0,.9) 0%, rgba(0,0,0,.35) 60%, rgba(0,0,0,.08) 100%); }
 .coll-inner { position:absolute; left:0; bottom:0; z-index:1; padding:14px 16px; }
@@ -443,9 +443,9 @@ a:hover { color: var(--accent-hover); }
 @media (max-width:760px){
     .rev-week{ grid-template-columns:1fr; }
     .feat-title{ font-size:1.9rem; } .feat-hero{ height:300px; }
-    .coll-grid{ grid-template-columns:1fr 1fr; } .coll.feat{ grid-column:span 2; aspect-ratio:16/9; }
+    .coll-grid{ grid-template-columns:1fr 1fr; grid-auto-rows:150px; } .coll.feat{ grid-column:span 2; grid-row:span 1; }
 }
-@media (max-width:460px){ .coll-grid{ grid-template-columns:1fr; } .coll.feat{ grid-column:span 1; aspect-ratio:3/2; } }
+@media (max-width:460px){ .coll-grid{ grid-template-columns:1fr; grid-auto-rows:150px; } .coll.feat{ grid-column:span 1; grid-row:span 1; } }
 .rank-badge {
     position: absolute; top: 10px; left: 10px; background: var(--accent); color: #fff;
     width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center;

@@ -239,6 +239,7 @@ function renderAmigos() {
 function render() {
     const active = document.querySelector('.tab-content.active')?.id?.replace('tab-', '') || 'inicio';
     renderPageHeader(active);
+    if (typeof toggleHeaderSearch === 'function') toggleHeaderSearch();
     if (active === 'inicio') renderHome();
     else if (active === 'restaurantes') renderRestaurantes();
     else if (active === 'bares') renderBares();
@@ -269,24 +270,17 @@ function renderHome() {
         : `Bem-vindo ao <span>FoodView</span>. O que você quer comer hoje?`;
     const topCats = topBy(p => p.category, 3);
     const topHoods = topBy(p => extractBairro(p.address), 2);
-    const chips = [
-        ...topCats.map(c => `<span class="hchip" onclick="goExplore({cozinha:'${escapeJs(c)}'})">${escapeHtml(c)}</span>`),
-        `<span class="hchip" onclick="goExplore({tab:'bares'})">Bares</span>`,
-        `<span class="hchip" onclick="goExplore({michelin:true})">★ Michelin</span>`,
-        `<span class="hchip" onclick="goExplore({delivery:true})">Delivery</span>`,
-        ...topHoods.map(b => `<span class="hchip" onclick="goExplore({bairro:'${escapeJs(b)}'})">${escapeHtml(b)}</span>`)
-    ].join('');
+    // Search first, then the Tudo/Restaurantes/Bares toggle beneath it.
     const launchpad = `<div class="home-greeting">${greeting}</div>
-        <div class="seg">
-            <button class="seg-btn active" onclick="goExplore({tab:'popular'})">Tudo</button>
-            <button class="seg-btn" onclick="goExplore({tab:'restaurantes'})">Restaurantes</button>
-            <button class="seg-btn" onclick="goExplore({tab:'bares'})">Bares</button>
-        </div>
         <div class="hsearch">
             <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
             <input type="text" id="home-search" placeholder="Buscar restaurante, cozinha ou bairro…" onkeydown="homeSearch(event)">
         </div>
-        <div class="hchips">${chips}</div>`;
+        <div class="seg">
+            <button class="seg-btn active" onclick="goExplore({tab:'popular'})">Tudo</button>
+            <button class="seg-btn" onclick="goExplore({tab:'restaurantes'})">Restaurantes</button>
+            <button class="seg-btn" onclick="goExplore({tab:'bares'})">Bares</button>
+        </div>`;
 
     // --- destaque da semana: most-liked place reviewed in the last 7 days ---
     const recent = reviewsLastDays(7);
@@ -312,20 +306,27 @@ function renderHome() {
     }
 
     // --- coleções ---
-    const colls = [];
     const michelin = withImg(p => michelinStars(p) > 0);
-    if (michelin.length) colls.push({ name: 'Estrelas Michelin', sub: `${michelin.length} lugares premiados`, cover: michelin[0], feat: true, go: 'goExplore({michelin:true})' });
+    const featColl = michelin.length
+        ? { name: 'Estrelas Michelin', sub: `${michelin.length} lugares premiados`, cover: michelin[0], feat: true, go: 'goExplore({michelin:true})' }
+        : null;
+    const normals = [];
     topCats.forEach(c => {
         const list = withImg(p => p.category === c);
-        if (list.length >= 3) colls.push({ name: c, sub: `${list.length} lugares`, cover: list[0], go: `goExplore({cozinha:'${escapeJs(c)}'})` });
+        if (list.length >= 3) normals.push({ name: c, sub: `${list.length} lugares`, cover: list[0], go: `goExplore({cozinha:'${escapeJs(c)}'})` });
     });
     if (topHoods[0]) {
         const list = withImg(p => extractBairro(p.address) === topHoods[0]);
-        if (list.length) colls.push({ name: 'Em ' + topHoods[0], sub: `${list.length} lugares`, cover: list[0], go: `goExplore({bairro:'${escapeJs(topHoods[0])}'})` });
+        if (list.length) normals.push({ name: 'Em ' + topHoods[0], sub: `${list.length} lugares`, cover: list[0], go: `goExplore({bairro:'${escapeJs(topHoods[0])}'})` });
     }
     const novos = placesCache.filter(p => p.image_url).slice().sort((a, b) => (b.created_at || '').localeCompare(a.created_at || ''));
-    if (novos.length) colls.push({ name: 'Novos no FoodView', sub: `${novos.length} lugares`, cover: novos[0], go: `goExplore({sort:'recentes'})` });
-    const collCards = colls.slice(0, 5).map(c =>
+    if (novos.length) normals.push({ name: 'Novos no FoodView', sub: `${novos.length} lugares`, cover: novos[0], go: `goExplore({sort:'recentes'})` });
+    // The featured spans 2×2 of a 3-col grid; gap-free counts of normal cards are
+    // then 2 or 5, so cap to whichever fits (no featured → just up to 6 uniform).
+    const ordered = featColl
+        ? [featColl, ...normals.slice(0, normals.length >= 5 ? 5 : 2)]
+        : normals.slice(0, 6);
+    const collCards = ordered.map(c =>
         `<div class="coll ${c.feat ? 'feat' : ''}" onclick="${c.go}" style="background-image:url('${escapeHtml(imgSrc(c.cover.image_url, c.feat ? 900 : 500, c.feat ? 450 : 334))}')">
             <div class="coll-inner"><div class="coll-name">${escapeHtml(c.name)}</div><div class="coll-count">${escapeHtml(c.sub)}</div></div>
         </div>`).join('');
