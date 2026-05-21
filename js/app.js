@@ -508,12 +508,14 @@ function updateHeader() {
             <button class="btn btn-ghost btn-sm" onclick="openModal('account')">Criar conta</button>
             <button class="btn btn-outline btn-sm" onclick="openModal('account-login')">Entrar</button>`;
     }
+    // Only the admin sees the "+ Restaurante / + Bar" actions.
+    document.querySelectorAll('.admin-add').forEach(eln => eln.classList.toggle('is-admin', isAdmin()));
 }
 
 // Place
 let placeImageFile = null;
 function openAddPlace(type) {
-    if (!getUser()) { openModal('account'); return; }
+    if (!isAdmin()) return; // only the admin can add places
     document.getElementById('p-type').value = type;
     document.getElementById('place-modal-title').textContent = type === 'bar' ? 'Novo bar' : 'Novo restaurante';
     document.getElementById('p-category').placeholder = type === 'bar' ? 'Ex: Cervejaria, Coquetelaria' : 'Ex: Italiana, Japonesa';
@@ -530,6 +532,7 @@ function previewPlaceImage(input) {
 function removePlaceImage() { placeImageFile = null; document.getElementById('p-image').value = ''; document.getElementById('p-image-preview').innerHTML = ''; }
 async function addPlace(e) {
     e.preventDefault();
+    if (!isAdmin()) return; // only the admin can add places
     const unlock = lockSubmit(e.target, 'Salvando...');
     if (!unlock) return;
     try {

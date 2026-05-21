@@ -108,7 +108,7 @@ drop policy if exists insert_places on public.places;
 drop policy if exists update_places on public.places;
 drop policy if exists delete_places on public.places;
 create policy read_places   on public.places for select using (true);
-create policy insert_places on public.places for insert with check (auth.uid() is not null);
+create policy insert_places on public.places for insert with check (auth.email() = 'diogo.melcher@gmail.com');
 create policy update_places on public.places for update
   using (auth.uid() = user_id or auth.email() = 'diogo.melcher@gmail.com');
 create policy delete_places on public.places for delete

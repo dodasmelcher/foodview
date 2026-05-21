@@ -340,6 +340,9 @@ a:hover { color: var(--accent-hover); }
 .section-header h2 { color: var(--heading); font-size: 1.25rem; font-weight: 700; }
 .section-actions { display: flex; gap: 8px; }
 .tab-actions { display: flex; justify-content: flex-end; gap: 8px; margin-bottom: 16px; }
+/* Add-place actions are admin-only; shown when js toggles .is-admin */
+.tab-actions.admin-add { display: none; }
+.tab-actions.admin-add.is-admin { display: flex; }
 
 /* Grid */
 .restaurant-grid {
