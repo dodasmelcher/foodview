@@ -249,6 +249,7 @@ function topBy(keyFn, n) {
     placesCache.forEach(p => { const k = keyFn(p); if (k) count[k] = (count[k] || 0) + 1; });
     return Object.entries(count).sort((a, b) => b[1] - a[1]).slice(0, n).map(([k]) => k);
 }
+let _heroPlace = null; // chosen once per load so the hero photo doesn't flicker
 function renderHome() {
     const el = document.getElementById('tab-inicio');
     if (!el) return;
@@ -268,17 +269,27 @@ function renderHome() {
         `<span class="hchip" onclick="goExplore({delivery:true})">Delivery</span>`,
         ...topHoods.map(b => `<span class="hchip" onclick="goExplore({bairro:'${escapeJs(b)}'})">${escapeHtml(b)}</span>`)
     ].join('');
-    const launchpad = `<div class="home-greeting">${greeting}</div>
-        <div class="seg">
-            <button class="seg-btn active" onclick="goExplore({tab:'popular'})">Tudo</button>
-            <button class="seg-btn" onclick="goExplore({tab:'restaurantes'})">Restaurantes</button>
-            <button class="seg-btn" onclick="goExplore({tab:'bares'})">Bares</button>
+    // Full-bleed hero: the launchpad sits over a photo. Pick the background once
+    // per page load so it doesn't flicker on re-renders.
+    if (!_heroPlace) { const pool = pickPopularThumbs(() => true, 8); _heroPlace = pool[Math.floor(Math.random() * pool.length)] || null; }
+    const heroStyle = _heroPlace
+        ? `style="background-image:linear-gradient(rgba(18,15,11,.5),rgba(18,15,11,.82)),url('${escapeHtml(imgSrc(_heroPlace.image_url, 1400, 900))}')"`
+        : '';
+    const launchpad = `<div class="home-hero" ${heroStyle}>
+        <div class="home-hero-inner">
+            <div class="home-greeting">${greeting}</div>
+            <div class="seg">
+                <button class="seg-btn active" onclick="goExplore({tab:'popular'})">Tudo</button>
+                <button class="seg-btn" onclick="goExplore({tab:'restaurantes'})">Restaurantes</button>
+                <button class="seg-btn" onclick="goExplore({tab:'bares'})">Bares</button>
+            </div>
+            <div class="hsearch">
+                <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+                <input type="text" id="home-search" placeholder="Buscar restaurante, cozinha ou bairro…" onkeydown="homeSearch(event)">
+            </div>
+            <div class="hchips">${chips}</div>
         </div>
-        <div class="hsearch">
-            <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
-            <input type="text" id="home-search" placeholder="Buscar restaurante, cozinha ou bairro…" onkeydown="homeSearch(event)">
-        </div>
-        <div class="hchips">${chips}</div>`;
+    </div>`;
 
     // --- destaque da semana: most-liked place reviewed in the last 7 days ---
     const recent = reviewsLastDays(7);
