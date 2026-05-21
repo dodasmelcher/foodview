@@ -291,8 +291,10 @@ async function submitEditPlace(e) {
 // The header search is redundant on Início (which has its own search), so hide
 // it there and show it everywhere else. Reads whichever tab is active.
 function toggleHeaderSearch() {
+    // Hide with visibility (not display) so the search keeps its space and the
+    // nav links stay in the same position as on the other tabs.
     const w = document.querySelector('.header-search');
-    if (w) w.style.display = document.getElementById('tab-inicio')?.classList.contains('active') ? 'none' : '';
+    if (w) w.style.visibility = document.getElementById('tab-inicio')?.classList.contains('active') ? 'hidden' : '';
 }
 // Tabs
 function switchTab(tab) {
