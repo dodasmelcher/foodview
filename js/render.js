@@ -94,9 +94,17 @@ function renderCard(r, options = {}) {
     </div>`;
 }
 
+// Accent-insensitive, multi-word search across name/category/address/badge.
+// Every word in the query must match somewhere (so "japonesa pinheiros" narrows).
+function matchesSearch(p, query) {
+    const tokens = normalizeText(query).split(/\s+/).filter(Boolean);
+    if (!tokens.length) return true;
+    const hay = normalizeText([p.name, p.category, p.address, p.badge].filter(Boolean).join(' '));
+    return tokens.every(t => hay.includes(t));
+}
 function filterByType(type) {
     let list = placesCache.filter(p => p.type === type);
-    if (searchQuery) list = list.filter(p => p.name.toLowerCase().includes(searchQuery) || (p.category && p.category.toLowerCase().includes(searchQuery)) || (p.address && p.address.toLowerCase().includes(searchQuery)));
+    if (searchQuery) list = list.filter(p => matchesSearch(p, searchQuery));
     const cat = categoryFilter[type];
     if (cat && cat !== 'Todas') list = list.filter(p => p.category === cat);
     const bairro = bairroFilter[type];
@@ -148,7 +156,7 @@ function renderBares() {
 }
 
 function renderPopular() {
-    let all = searchQuery ? placesCache.filter(p => p.name.toLowerCase().includes(searchQuery) || (p.category && p.category.toLowerCase().includes(searchQuery)) || (p.address && p.address.toLowerCase().includes(searchQuery))) : placesCache;
+    let all = searchQuery ? placesCache.filter(p => matchesSearch(p, searchQuery)) : placesCache;
     if (extraFilter.michelin) all = all.filter(p => michelinStars(p) > 0);
     if (extraFilter.delivery) all = all.filter(p => p.delivery_apps);
     const ranked = all.map(r => ({ ...r, ...getPlaceRating(r.id) })).filter(r => r.count > 0).sort((a, b) => b.count - a.count || parseFloat(b.avg) - parseFloat(a.avg));

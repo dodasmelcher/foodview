@@ -17,6 +17,11 @@ function escapeJs(s) {
     return String(s == null ? '' : s).replace(/\\/g, '\\\\').replace(/'/g, "\\'");
 }
 
+// Lowercase + strip accents, so search is accent-insensitive ("arabe" ⇒ "Árabe").
+function normalizeText(s) {
+    return String(s == null ? '' : s).toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+}
+
 function safeUrl(u) {
     if (!u) return '';
     const s = String(u).trim();
