@@ -84,13 +84,13 @@ function renderCard(r, options = {}) {
         ${img ? '' : `<div class="pcard-placeholder">${escapeHtml(r.name.charAt(0))}</div>`}
         <div class="pcard-top">
             <span class="pcard-badges">${badges.join('')}</span>
-            <span class="pcard-rate ${count > 0 ? '' : 'novo'}">${count > 0 ? `<span class="star">★</span>${avg}` : 'novo'}</span>
+            <button class="pcard-fav fav-btn ${isFavorited(r.id) ? 'active' : ''}" data-place-id="${r.id}" onclick="event.stopPropagation();toggleFavorite(${r.id})" aria-label="Curtir" title="Curtir">${heartSVG}</button>
         </div>
         <div class="pcard-info">
             <div class="pcard-name">${name}</div>
             ${sub ? `<div class="pcard-sub">${sub}</div>` : ''}
         </div>
-        <button class="pcard-fav fav-btn ${isFavorited(r.id) ? 'active' : ''}" data-place-id="${r.id}" onclick="event.stopPropagation();toggleFavorite(${r.id})" aria-label="Curtir" title="Curtir">${heartSVG}</button>
+        <span class="pcard-rate ${count > 0 ? '' : 'novo'}">${count > 0 ? `<span class="star">★</span>${avg}` : 'novo'}</span>
     </div>`;
 }
 
