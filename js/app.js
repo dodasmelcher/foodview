@@ -583,18 +583,39 @@ function updateReviewAvg() {
     const el = document.getElementById('rv-avg');
     if (el) el.innerHTML = s ? `Média: <b>${((s.food + s.ambiance + s.service + s.price) / 4).toFixed(1)}</b>` : 'Média: —';
 }
-function openReviewModal(placeId) {
-    if (!getUser()) { openModal('account'); return; }
-    // Reset radios/textarea first, then set the place id (reset() would clear it).
+function resetReviewForm() {
     document.getElementById('form-review').reset();
-    document.getElementById('rv-place-id').value = placeId;
-    updateReviewAvg();
-    // Reset preview so leftover files from a previously-cancelled review on
-    // another place don't leak into this one.
     reviewImageFiles = [];
     document.getElementById('rv-image-previews').innerHTML = '';
     const fileInput = document.getElementById('rv-images');
     if (fileInput) fileInput.value = '';
+}
+function openReviewModal(placeId) {
+    if (!getUser()) { openModal('account'); return; }
+    // Reset first; reset() clears the hidden fields, so set them after.
+    resetReviewForm();
+    document.getElementById('review-modal-title').textContent = 'Nova avaliação';
+    document.getElementById('rv-place-id').value = placeId;
+    document.getElementById('rv-edit-id').value = '';
+    updateReviewAvg();
+    closeModal('detail');
+    openModal('review');
+}
+// Author edits their own review: pre-fill the modal and switch it to update mode.
+function editReview(reviewId, placeId) {
+    if (!getUser()) { openModal('account'); return; }
+    const rv = reviewsCache.find(r => r.id === reviewId);
+    if (!rv) return;
+    resetReviewForm();
+    document.getElementById('review-modal-title').textContent = 'Editar avaliação';
+    document.getElementById('rv-place-id').value = placeId;
+    document.getElementById('rv-edit-id').value = reviewId;
+    // Pre-fill the 4 categories (old single-rating reviews seed all four from `rating`).
+    const base = (v) => (typeof v === 'number' ? v : rv.rating);
+    const setStar = (name, val) => { const el = val && document.querySelector(`input[name="${name}"][value="${val}"]`); if (el) el.checked = true; };
+    setStar('r-food', base(rv.food)); setStar('r-amb', base(rv.ambiance)); setStar('r-svc', base(rv.service)); setStar('r-price', base(rv.price));
+    document.getElementById('rv-text').value = rv.text || '';
+    updateReviewAvg();
     closeModal('detail');
     openModal('review');
 }
@@ -620,27 +641,37 @@ async function addReview(e) {
     try {
         const scores = readReviewScores();
         if (!scores) { showToast('Dê nota nas 4 categorias', 'error'); return; }
-        const urls = [];
+        const placeId = parseInt(document.getElementById('rv-place-id').value);
+        const newUrls = [];
         for (const f of reviewImageFiles) {
             const url = await uploadPhoto(f);
-            if (url) urls.push(url);
+            if (url) newUrls.push(url);
         }
-        const { error } = await sb.from('reviews').insert({
-            place_id: parseInt(document.getElementById('rv-place-id').value),
-            user_id: currentUser.id,
-            author_name: currentUser.name,
+        const editId = parseInt(document.getElementById('rv-edit-id').value) || null;
+        const fields = {
             rating: scores.rating,
             food: scores.food, ambiance: scores.ambiance, service: scores.service, price: scores.price,
-            text: document.getElementById('rv-text').value,
-            images: urls
-        });
+            text: document.getElementById('rv-text').value
+        };
+        let error;
+        if (editId) {
+            const existing = reviewsCache.find(r => r.id === editId);
+            const images = [...(existing && Array.isArray(existing.images) ? existing.images : []), ...newUrls];
+            ({ error } = await sb.from('reviews').update({ ...fields, images }).eq('id', editId));
+        } else {
+            ({ error } = await sb.from('reviews').insert({
+                ...fields,
+                place_id: placeId,
+                user_id: currentUser.id,
+                author_name: currentUser.name,
+                images: newUrls
+            }));
+        }
         if (error) { showToast(error.message, 'error'); return; }
-        document.getElementById('form-review').reset();
-        reviewImageFiles = []; document.getElementById('rv-image-previews').innerHTML = '';
+        resetReviewForm();
         closeModal('review');
         await reloadReviews();
-        const dm = document.getElementById('modal-detail');
-        if (dm.classList.contains('active')) openDetail(parseInt(document.getElementById('rv-place-id').value));
+        if (Number.isFinite(placeId)) openDetail(placeId); // back to the place
     } finally { unlock(); }
 }
 
@@ -806,6 +837,7 @@ function openDetail(id) {
         const authorName = rv.author_name || '';
         const authorProfile = getProfile(rv.user_id) || { name: authorName };
         const canDel = user && (rv.user_id === user.id || admin);
+        const canEditReview = user && rv.user_id === user.id;
         return `<div class="detail-review">
             <div class="detail-review-top">${avatarMarkup(authorProfile, 'detail-review-avatar')}
                 <div><span class="detail-review-author" style="cursor:pointer" onclick="event.stopPropagation();closeModal('detail');openProfile('${escapeHtml(rv.user_id)}')">${escapeHtml(authorName)}</span><span class="detail-review-date"> · ${formatDate(rv.created_at)}</span></div>
@@ -814,7 +846,7 @@ function openDetail(id) {
             ${typeof rv.food === 'number' ? `<div class="rev-subscores">Comida ${rv.food} · Ambiente ${rv.ambiance} · Atend. ${rv.service} · Preços ${rv.price}</div>` : ''}
             <div class="detail-review-text">${escapeHtml(rv.text || '')}</div>
             ${rv.images?.length ? `<div class="detail-review-images">${rv.images.map(i => `<img class="detail-review-img" src="${escapeHtml(imgSrc(i, 200, 140))}" loading="lazy">`).join('')}</div>` : ''}
-            <div class="rev-likes-row">${reviewLikeHTML(rv.id)}${canDel ? `<span class="rev-remove" onclick="deleteReview(${rv.id},${r.id})">remover</span>` : ''}</div>
+            <div class="rev-likes-row">${reviewLikeHTML(rv.id)}${canEditReview ? `<span class="rev-edit" onclick="editReview(${rv.id},${r.id})">editar</span>` : ''}${canDel ? `<span class="rev-remove" onclick="deleteReview(${rv.id},${r.id})">remover</span>` : ''}</div>
         </div>`;
     }).join('') : `<div class="detail-empty review-cta"><p>Ainda sem avaliação — seja o primeiro a avaliar <strong>${escapeHtml(r.name)}</strong>.</p><button class="btn btn-primary btn-sm" onclick="openReviewModal(${r.id})">Avaliar</button></div>`;
 
@@ -923,11 +955,11 @@ async function renderDetailMiniMap(r) {
     if (!el) return;
     if (_detailMap) { try { _detailMap.remove(); } catch (_) {} _detailMap = null; }
     _detailMap = L.map(el, { scrollWheelZoom: false, zoomControl: true }).setView([r.lat, r.lng], 16);
-    L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+    L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
         maxZoom: 19, subdomains: 'abcd',
         attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OSM</a> · &copy; <a href="https://carto.com/attributions">CARTO</a>'
     }).addTo(_detailMap);
-    L.marker([r.lat, r.lng], { title: r.name }).addTo(_detailMap);
+    L.circleMarker([r.lat, r.lng], { radius: 8, color: '#fff', weight: 2, fillColor: '#D4593A', fillOpacity: .95 }).addTo(_detailMap);
     keepLeafletSized(_detailMap, el);
 }
 
@@ -1045,7 +1077,7 @@ async function renderProfileMap(places) {
     if (!_profileMap || _profileMap.getContainer() !== el) {
         if (_profileMap) { try { _profileMap.remove(); } catch (_) {} }
         _profileMap = L.map(el, { scrollWheelZoom: false }).setView([-23.5613, -46.6562], 13);
-        L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+        L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
             maxZoom: 19,
             subdomains: 'abcd',
             attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OSM</a> · &copy; <a href="https://carto.com/attributions">CARTO</a>'
@@ -1056,7 +1088,7 @@ async function renderProfileMap(places) {
     _profileMarkers = [];
     if (!places.length) return;
     places.forEach(p => {
-        const marker = L.marker([p.lat, p.lng], { title: p.name }).addTo(_profileMap);
+        const marker = L.circleMarker([p.lat, p.lng], { radius: 8, color: '#fff', weight: 2, fillColor: '#D4593A', fillOpacity: .95 }).addTo(_profileMap);
         const html = `<div class="map-popup">
             <div class="map-popup-name">${escapeHtml(p.name)}</div>
             ${p.category ? `<div class="map-popup-cat">${escapeHtml(p.category)}</div>` : ''}

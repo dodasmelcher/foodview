@@ -145,7 +145,7 @@
     </div>
 
     <!-- Modal: Confirm -->
-    <div class="modal-overlay" id="modal-confirm" style="z-index:220">
+    <div class="modal-overlay" id="modal-confirm" style="z-index:1000">
         <div class="modal" style="max-width:380px">
             <h3 id="confirm-title" style="margin-bottom:8px;color:var(--heading);font-size:1.0625rem;font-weight:700">Confirmar</h3>
             <p id="confirm-message" style="color:var(--body);font-size:.9375rem;margin-bottom:20px;line-height:1.5"></p>
@@ -183,11 +183,12 @@
     </div>
 
     <!-- Modal: Add Review -->
-    <div class="modal-overlay" id="modal-review" style="z-index:210">
+    <div class="modal-overlay" id="modal-review" style="z-index:810">
         <div class="modal">
-            <h2>Nova avaliação</h2>
+            <h2 id="review-modal-title">Nova avaliação</h2>
             <form id="form-review" onsubmit="addReview(event)">
                 <input type="hidden" id="rv-place-id" value="">
+                <input type="hidden" id="rv-edit-id" value="">
                 <div class="form-group">
                     <label>Notas</label>
                     <div class="rating-rows">
@@ -230,7 +231,7 @@
                     </div>
                     <div class="rating-avg" id="rv-avg">Média: —</div>
                 </div>
-                <div class="form-group"><label>Comentário</label><textarea id="rv-text" required placeholder="O que achou?"></textarea></div>
+                <div class="form-group"><label>Comentário <span style="color:var(--metadata);font-weight:400">(opcional)</span></label><textarea id="rv-text" placeholder="O que achou? (opcional)"></textarea></div>
                 <div class="form-group">
                     <label>Fotos (opcional)</label>
                     <div class="image-upload-area" onclick="document.getElementById('rv-images').click()">
@@ -249,7 +250,7 @@
 
     <!-- Modal: Add Photos to place (hidden file input, triggered directly) -->
     <input type="file" id="ap-file-hidden" accept="image/*" multiple style="display:none" onchange="handleAddPhotoFiles(this)">
-    <div class="modal-overlay" id="modal-addphoto" style="z-index:210">
+    <div class="modal-overlay" id="modal-addphoto" style="z-index:810">
         <div class="modal" style="max-width:440px">
             <h2>Adicionar fotos</h2>
             <form id="form-addphoto" onsubmit="submitAddPhoto(event)">
@@ -272,7 +273,7 @@
     </div>
 
     <!-- Modal: Edit Place -->
-    <div class="modal-overlay" id="modal-editplace" style="z-index:210">
+    <div class="modal-overlay" id="modal-editplace" style="z-index:810">
         <div class="modal" style="max-width:440px">
             <h3>Editar informações</h3>
             <form id="form-editplace" onsubmit="submitEditPlace(event)">
@@ -339,7 +340,7 @@
     </div>
 
     <!-- Modal: Forgot Password -->
-    <div class="modal-overlay" id="modal-forgot" style="z-index:210">
+    <div class="modal-overlay" id="modal-forgot" style="z-index:810">
         <div class="modal" style="max-width:400px">
             <h2>Redefinir senha</h2>
             <p style="color:var(--body-light);font-size:.875rem;margin-bottom:16px">Informe o email da sua conta e enviaremos um link para você criar uma nova senha.</p>
@@ -354,7 +355,7 @@
     </div>
 
     <!-- Modal: Edit Profile -->
-    <div class="modal-overlay" id="modal-editprofile" style="z-index:210">
+    <div class="modal-overlay" id="modal-editprofile" style="z-index:810">
         <div class="modal" style="max-width:440px">
             <h2>Editar perfil</h2>
             <form id="form-editprofile" onsubmit="submitEditProfile(event)">
@@ -378,7 +379,7 @@
     </div>
 
     <!-- Modal: Reset Password (after clicking recovery link) -->
-    <div class="modal-overlay" id="modal-reset" style="z-index:210">
+    <div class="modal-overlay" id="modal-reset" style="z-index:810">
         <div class="modal" style="max-width:400px">
             <h2>Escolha uma nova senha</h2>
             <form id="form-reset" onsubmit="submitResetPassword(event)">

@@ -394,7 +394,8 @@ a:hover { color: var(--accent-hover); }
 .rev-like-btn:hover svg { transform:scale(1.15); }
 .rev-like-btn.liked { color:var(--accent); }
 .rev-like-btn.liked svg { fill:var(--accent); stroke:var(--accent); }
-.rev-remove { color:var(--metadata); font-size:.75rem; cursor:pointer; }
+.rev-remove, .rev-edit { color:var(--metadata); font-size:.75rem; cursor:pointer; }
+.rev-edit:hover { color:var(--accent); }
 .rev-remove:hover { color:#e0928a; }
 
 @media (max-width:760px){
@@ -549,8 +550,14 @@ a:hover { color: var(--accent-hover); }
 .map-popup-name { font-weight: 700; color: var(--heading); font-size: .9375rem; margin-bottom: 2px; }
 .map-popup-cat { font-size: .8125rem; color: var(--metadata); margin-bottom: 8px; }
 .map-popup .btn { padding: 4px 12px; font-size: .8125rem; }
-.leaflet-popup-content-wrapper { border-radius: var(--radius-md); }
+.leaflet-popup-content-wrapper, .leaflet-popup-tip { background: var(--surface); color: var(--body); }
+.leaflet-popup-content-wrapper { border-radius: var(--radius-md); box-shadow: var(--shadow-lg); }
 .leaflet-popup-content { margin: 12px 14px; }
+.leaflet-container a.leaflet-popup-close-button { color: var(--metadata); }
+.leaflet-control-attribution { background: rgba(0,0,0,.55) !important; color: var(--metadata) !important; }
+.leaflet-control-attribution a { color: var(--body-light) !important; }
+.leaflet-bar a { background: var(--surface); color: var(--body); border-color: var(--divider); }
+.leaflet-bar a:hover { background: var(--surface-alt); }
 /* Detail mini-map */
 .detail-mini-map { height: 220px; border-radius: var(--radius-sm); overflow: hidden; background: var(--surface-alt); margin: 12px 0 4px; }
 .detail-map-header { font-size: .9375rem; font-weight: 700; color: var(--heading); margin-top: 16px; }
