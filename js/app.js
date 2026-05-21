@@ -658,7 +658,6 @@ async function deleteReview(id, placeId) {
 }
 
 // Categories
-let drawerType = 'restaurante';
 function getCategories(type) {
     const cats = new Set();
     placesCache.forEach(p => { if (p.type === type && p.category) cats.add(p.category); });
@@ -701,22 +700,7 @@ function toggleExtraFilter(key) {
     renderBares();
     renderPopular();
 }
-function openCatDrawer(type) {
-    drawerType = type;
-    const cats = getCategories(type);
-    const el = document.getElementById('cat-drawer-list');
-    el.dataset.type = type;
-    el.innerHTML = cats.map(c =>
-        `<li><a class="${categoryFilter[type] === c ? 'active' : ''}" data-cat="${escapeHtml(c)}">${escapeHtml(c)}</a></li>`
-    ).join('');
-    document.getElementById('cat-drawer').classList.add('open');
-    document.getElementById('cat-drawer-overlay').classList.add('open');
-}
-function closeCatDrawer() {
-    document.getElementById('cat-drawer').classList.remove('open');
-    document.getElementById('cat-drawer-overlay').classList.remove('open');
-}
-const SORT_OPTIONS = [['avaliados', 'Mais avaliados'], ['nota', 'Melhor nota'], ['az', 'A–Z'], ['recentes', 'Recentes']];
+const SORT_OPTIONS =[['avaliados', 'Mais avaliados'], ['nota', 'Melhor nota'], ['az', 'A–Z'], ['recentes', 'Recentes']];
 function fOption(v, label, selected) {
     return `<option value="${escapeHtml(v)}"${v === selected ? ' selected' : ''}>${escapeHtml(label)}</option>`;
 }
@@ -1225,9 +1209,6 @@ async function fetchGoogleExtras(placeId) {
             hours: d.regularOpeningHours || null
         };
     } catch (_) { return empty; }
-}
-async function fetchGooglePhotos(placeId) {
-    return (await fetchGoogleExtras(placeId)).photos;
 }
 async function applyBulkMatch(btn) {
     const p = _bulkQueue[_bulkIndex];

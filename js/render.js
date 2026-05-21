@@ -81,7 +81,7 @@ function renderCard(r, options = {}) {
     if (r.badge) badges.push(`<span class="pcard-badge">${escapeHtml(r.badge)}</span>`);
     if (r.delivery_apps) badges.push(`<span class="pcard-badge pcard-delivery">${escapeHtml(r.delivery_apps.split(',')[0].trim())}</span>`);
     const ariaLabel = escapeHtml(`${r.name} — ${count > 0 ? `nota ${avg}` : 'sem avaliações'}`);
-    return `<div class="pcard ${rank ? 'popular-card' : ''}" onclick="openDetail(${r.id})" tabindex="0" role="button" aria-label="${ariaLabel}" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();openDetail(${r.id})}">
+    return `<div class="pcard" onclick="openDetail(${r.id})" tabindex="0" role="button" aria-label="${ariaLabel}" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();openDetail(${r.id})}">
         ${img ? `<img class="pcard-img" src="${escapeHtml(img)}" alt="" loading="lazy">` : `<div class="pcard-placeholder">${escapeHtml(r.name.charAt(0))}</div>`}
         <div class="pcard-top">
             <span class="pcard-badges">${badges.join('')}</span>
