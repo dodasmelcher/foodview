@@ -73,25 +73,24 @@ function renderCard(r, options = {}) {
     const { avg, count } = getPlaceRating(r.id);
     const rank = options.rank;
     const name = escapeHtml(r.name);
-    const img = imgSrc(r.image_url, 400, 267); // 3:2
-    return `<div class="restaurant-card ${rank ? 'popular-card' : ''}" onclick="openDetail(${r.id})">
-        ${rank ? `<div class="rank-badge">#${rank}</div>` : ''}
-        ${img ? `<img class="card-image" src="${escapeHtml(img)}" alt="${name}" loading="lazy" width="300" height="200">` : `<div class="card-image-placeholder">${escapeHtml(r.name.charAt(0))}</div>`}
-        <div class="card-body">
-            ${options.hideType ? '' : `<span class="card-type-tag ${r.type === 'bar' ? 'tag-bar' : 'tag-restaurante'}">${escapeHtml(r.type)}</span>`}
-            ${r.badge ? `<span class="card-badge">${escapeHtml(r.badge)}</span>` : ''}
-            ${r.delivery_apps ? r.delivery_apps.split(',').map(a => `<span class="card-badge badge-delivery">${escapeHtml(a.trim())}</span>`).join('') : ''}
-            <h3>${name}</h3>
-            ${(r.category || r.address) ? `<div class="card-cuisine">${[r.category, formatAddress(r.address)].filter(Boolean).map(escapeHtml).join(' · ')}</div>` : ''}
-            <div class="card-rating">
-                ${count > 0 ? `<span class="card-stars">${starsHTML(parseFloat(avg))}</span><span class="card-rating-num">${avg}</span><span class="card-reviews-count">(${count})</span>` : `<span class="card-reviews-count card-noreviews">Sem avaliações</span>`}
-            </div>
-            ${rank ? `<div class="popular-stats"><span class="popular-stat">${count} avaliações</span><span class="popular-stat">${avg} média</span></div>` : ''}
-            <div style="display:flex;justify-content:space-between;align-items:center;margin-top:4px">
-                <button class="fav-btn ${isFavorited(r.id) ? 'active' : ''}" data-place-id="${r.id}" onclick="event.stopPropagation();toggleFavorite(${r.id})" title="Curtir" aria-label="Curtir">${heartSVG}</button>
-                <span style="font-size:.75rem;color:var(--metadata)" data-fav-count="${r.id}">${getFavCount(r.id)}</span>
-            </div>
+    const img = imgSrc(r.image_url, 480, 600); // 4:5 poster
+    const sub = [options.hideType ? null : (r.type === 'bar' ? 'Bar' : 'Restaurante'), r.category, extractBairro(r.address)]
+        .filter(Boolean).map(escapeHtml).join(' · ');
+    const badges = [];
+    if (rank) badges.push(`<span class="pcard-rank">#${rank}</span>`);
+    if (r.badge) badges.push(`<span class="pcard-badge">${escapeHtml(r.badge)}</span>`);
+    if (r.delivery_apps) badges.push(`<span class="pcard-badge pcard-delivery">${escapeHtml(r.delivery_apps.split(',')[0].trim())}</span>`);
+    return `<div class="pcard ${rank ? 'popular-card' : ''}" onclick="openDetail(${r.id})"${img ? ` style="background-image:url('${escapeHtml(img)}')"` : ''}>
+        ${img ? '' : `<div class="pcard-placeholder">${escapeHtml(r.name.charAt(0))}</div>`}
+        <div class="pcard-top">
+            <span class="pcard-badges">${badges.join('')}</span>
+            <span class="pcard-rate ${count > 0 ? '' : 'novo'}">${count > 0 ? `<span class="star">★</span>${avg}` : 'novo'}</span>
         </div>
+        <div class="pcard-info">
+            <div class="pcard-name">${name}</div>
+            ${sub ? `<div class="pcard-sub">${sub}</div>` : ''}
+        </div>
+        <button class="pcard-fav fav-btn ${isFavorited(r.id) ? 'active' : ''}" data-place-id="${r.id}" onclick="event.stopPropagation();toggleFavorite(${r.id})" aria-label="Curtir" title="Curtir">${heartSVG}</button>
     </div>`;
 }
 
