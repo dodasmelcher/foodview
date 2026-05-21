@@ -108,7 +108,9 @@ function goExplore(opts = {}) {
 }
 function homeSearch(e) {
     if (e && e.key && e.key !== 'Enter') return;
-    goExplore({ tab: 'restaurantes', search: document.getElementById('home-search')?.value || '' });
+    // Populares shows the whole catalogue, so searching there covers both
+    // restaurants and bars (the old target, Restaurantes, missed bars).
+    goExplore({ tab: 'popular', search: document.getElementById('home-search')?.value || '' });
 }
 // Re-render the home greeting once auth resolves (session may land after the
 // first render, when the cache is already populated).
