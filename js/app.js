@@ -770,6 +770,25 @@ function attachFilterHandlers() {
     });
 }
 
+// Share a place via the per-place URL (/lugar/123), which renders a rich preview
+// (photo + rating) on WhatsApp etc. Native share sheet on mobile; copy link else.
+async function sharePlace(id) {
+    const p = getPlaceById(id);
+    if (!p) return;
+    const url = `${location.origin}/lugar/${id}`;
+    const data = { title: `${p.name} — FoodView`, text: `${p.name}${p.category ? ' · ' + p.category : ''} no FoodView`, url };
+    if (navigator.share) {
+        try { await navigator.share(data); } catch (_) { /* user dismissed */ }
+        return;
+    }
+    try {
+        await navigator.clipboard.writeText(url);
+        showToast('Link copiado!', 'success');
+    } catch (_) {
+        showToast(url, 'info', 6000);
+    }
+}
+
 // Detail
 function openDetail(id) {
     const r = getPlaceById(id); if (!r) return;
@@ -861,6 +880,7 @@ function openDetail(id) {
                     <button class="fav-btn ${isFavorited(r.id) ? 'active' : ''}" data-place-id="${r.id}" onclick="toggleFavorite(${r.id})" title="Curtir" aria-label="Curtir">${heartSVG}</button>
                     <button class="btn btn-primary btn-sm" onclick="openReviewModal(${r.id})">Avaliar</button>
                     <button class="btn btn-outline btn-sm" onclick="openAddPhotoModal(${r.id})">Adicionar fotos</button>
+                    <button class="btn btn-ghost btn-sm" onclick="sharePlace(${r.id})">Compartilhar</button>
                 </div>
                 ${canEdit ? `<div class="detail-actions-admin">
                     <button class="btn btn-ghost btn-sm" onclick="editPlaceImage(${r.id})">Editar capa</button>
