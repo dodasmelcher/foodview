@@ -576,6 +576,8 @@ a:hover { color: var(--accent-hover); }
 .detail-review-images { display: flex; gap: 6px; margin-top: 8px; flex-wrap: wrap; }
 .detail-review-img { width: 100px; height: 70px; object-fit: cover; border-radius: 4px; background: var(--surface-alt); }
 .detail-empty { text-align: center; padding: 24px; color: var(--metadata); font-size: .875rem; }
+.review-cta p { margin-bottom: 12px; }
+.review-cta strong { color: var(--heading); }
 .detail-actions { display: flex; gap: 10px; margin-top: 8px; flex-wrap: wrap; }
 .detail-photos { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 16px; }
 .detail-photo { width: 100%; max-width: 280px; aspect-ratio: 16/10; object-fit: cover; border-radius: var(--radius-sm); }

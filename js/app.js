@@ -830,7 +830,7 @@ function openDetail(id) {
             ${rv.images?.length ? `<div class="detail-review-images">${rv.images.map(i => `<img class="detail-review-img" src="${escapeHtml(imgSrc(i, 200, 140))}" loading="lazy">`).join('')}</div>` : ''}
             <div class="rev-likes-row">${reviewLikeHTML(rv.id)}${canDel ? `<span class="rev-remove" onclick="deleteReview(${rv.id},${r.id})">remover</span>` : ''}</div>
         </div>`;
-    }).join('') : `<div class="detail-empty">Nenhuma avaliação ainda.</div>`;
+    }).join('') : `<div class="detail-empty review-cta"><p>Ainda sem avaliação — seja o primeiro a avaliar <strong>${escapeHtml(r.name)}</strong>.</p><button class="btn btn-primary btn-sm" onclick="openReviewModal(${r.id})">Avaliar</button></div>`;
 
     const coverUrl = imgSrc(r.image_url, 1200, 520); // 21:9 hero banner
     const phone = r.phone || '';
