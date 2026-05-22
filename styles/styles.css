@@ -59,6 +59,7 @@ a:hover { color: var(--accent-hover); }
     display: flex; align-items: center; gap: 0;
     cursor: pointer; flex-shrink: 0;
 }
+.logo-mark { width: 30px; height: 30px; margin-right: 10px; flex-shrink: 0; }
 .logo span.food {
     font-size: 1.5rem; font-weight: 700; color: var(--accent);
     letter-spacing: -.03em; text-transform: uppercase;
@@ -756,12 +757,13 @@ img.profile-avatar, img.user-badge-avatar, img.detail-review-avatar { object-fit
     .main-container { padding: 24px 16px; }
 }
 
-/* Skeleton loading — matches the photo-poster card (4:5) */
-.skeleton-card {
-    aspect-ratio: 4/5; border-radius: var(--radius-md);
-    background: var(--surface-alt); position: relative; overflow: hidden;
+/* Skeleton loading — .skel is a generic shimmer block; cards are 4:5 */
+.skel, .skeleton-card {
+    border-radius: var(--radius-md); background: var(--surface-alt);
+    position: relative; overflow: hidden;
 }
-.skeleton-card::after {
+.skeleton-card { aspect-ratio: 4/5; }
+.skel::after, .skeleton-card::after {
     content: ''; position: absolute; inset: 0;
     background: linear-gradient(90deg, transparent, rgba(255,255,255,.06), transparent);
     background-size: 400px 100%; background-repeat: no-repeat;

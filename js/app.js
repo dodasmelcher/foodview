@@ -571,6 +571,7 @@ async function addPlace(e) {
 
 // Review
 let reviewImageFiles = [];
+let editExistingImages = []; // existing review photo URLs kept while editing
 function reviewSel(name) {
     const el = document.querySelector(`input[name="${name}"]:checked`);
     return el ? parseInt(el.value) : null;
@@ -588,9 +589,12 @@ function updateReviewAvg() {
 function resetReviewForm() {
     document.getElementById('form-review').reset();
     reviewImageFiles = [];
+    editExistingImages = [];
     document.getElementById('rv-image-previews').innerHTML = '';
     const fileInput = document.getElementById('rv-images');
     if (fileInput) fileInput.value = '';
+    const subBtn = document.querySelector('#form-review .btn-submit');
+    if (subBtn) subBtn.textContent = 'Publicar';
 }
 function openReviewModal(placeId) {
     if (!getUser()) { openModal('account'); return; }
@@ -617,6 +621,10 @@ function editReview(reviewId, placeId) {
     const setStar = (name, val) => { const el = val && document.querySelector(`input[name="${name}"][value="${val}"]`); if (el) el.checked = true; };
     setStar('r-food', base(rv.food)); setStar('r-amb', base(rv.ambiance)); setStar('r-svc', base(rv.service)); setStar('r-price', base(rv.price));
     document.getElementById('rv-text').value = rv.text || '';
+    editExistingImages = Array.isArray(rv.images) ? [...rv.images] : [];
+    renderReviewPreviews();
+    const subBtn = document.querySelector('#form-review .btn-submit');
+    if (subBtn) subBtn.textContent = 'Salvar';
     updateReviewAvg();
     closeModal('detail');
     openModal('review');
@@ -628,10 +636,13 @@ function previewReviewImages(input) {
 }
 function renderReviewPreviews() {
     const c = document.getElementById('rv-image-previews');
-    c.innerHTML = reviewImageFiles.map((f, i) =>
-        `<div class="image-preview"><img src="${URL.createObjectURL(f)}"><button type="button" class="remove-img" onclick="removeReviewImage(${i})" aria-label="Remover foto">&times;</button></div>`
-    ).join('');
+    const existing = editExistingImages.map((url, i) =>
+        `<div class="image-preview"><img src="${escapeHtml(imgSrc(url, 160, 120))}"><button type="button" class="remove-img" onclick="removeExistingReviewImage(${i})" aria-label="Remover foto">&times;</button></div>`).join('');
+    const news = reviewImageFiles.map((f, i) =>
+        `<div class="image-preview"><img src="${URL.createObjectURL(f)}"><button type="button" class="remove-img" onclick="removeReviewImage(${i})" aria-label="Remover foto">&times;</button></div>`).join('');
+    c.innerHTML = existing + news;
 }
+function removeExistingReviewImage(i) { editExistingImages.splice(i, 1); renderReviewPreviews(); }
 function removeReviewImage(i) {
     reviewImageFiles.splice(i, 1);
     renderReviewPreviews();
@@ -657,8 +668,7 @@ async function addReview(e) {
         };
         let error;
         if (editId) {
-            const existing = reviewsCache.find(r => r.id === editId);
-            const images = [...(existing && Array.isArray(existing.images) ? existing.images : []), ...newUrls];
+            const images = [...editExistingImages, ...newUrls];
             ({ error } = await sb.from('reviews').update({ ...fields, images }).eq('id', editId));
         } else {
             ({ error } = await sb.from('reviews').insert({
@@ -1412,6 +1422,7 @@ async function importFromFoursquare(btn) {
 async function init() {
     attachFilterHandlers();
     renderSkeletons();
+    renderHomeSkeleton();
     // Load public data first so anonymous users always see content even if the
     // Supabase auth layer is hanging or misbehaving on the client.
     withTimeout(loadData(), 10000, 'loadData')

@@ -58,6 +58,18 @@ function renderSkeletons() {
         if (el && !el.children.length) el.innerHTML = html;
     });
 }
+// Placeholder for the Início tab (the default landing) while data loads, so it
+// doesn't flash blank. Replaced wholesale by renderHome() once data arrives.
+function renderHomeSkeleton() {
+    const el = document.getElementById('tab-inicio');
+    if (!el || el.children.length) return;
+    el.innerHTML =
+        '<div class="skel" style="height:32px;width:55%;max-width:480px;border-radius:8px;margin:6px 0 16px"></div>'
+        + '<div class="skel" style="height:50px;max-width:620px;border-radius:50px"></div>'
+        + '<div class="skel" style="height:34px;width:240px;border-radius:50px;margin-top:14px"></div>'
+        + '<div class="skel" style="height:300px;margin-top:40px"></div>'
+        + `<div class="coll-grid" style="margin-top:24px">${'<div class="skel"></div>'.repeat(6)}</div>`;
+}
 
 // ===== Cards & grids =====
 function renderCard(r, options = {}) {
@@ -86,13 +98,23 @@ function renderCard(r, options = {}) {
     </div>`;
 }
 
-// Accent-insensitive, multi-word search across name/category/address/badge.
-// Every word in the query must match somewhere (so "japonesa pinheiros" narrows).
+// Synonyms so e.g. "sushi" finds Japonesa, "drink" finds Coquetelaria. Keys are
+// normalized tokens; values are normalized terms expected in name/category.
+const SEARCH_SYNONYMS = {
+    sushi: ['japonesa'], sashimi: ['japonesa'], omakase: ['japonesa'], temaki: ['japonesa'], nigiri: ['japonesa'], ramen: ['japonesa'], izakaya: ['japonesa'],
+    drink: ['coquetelaria', 'bar'], drinks: ['coquetelaria', 'bar'], cocktail: ['coquetelaria'], coquetel: ['coquetelaria'], coqueteis: ['coquetelaria'],
+    cerveja: ['cervejaria'], cervejas: ['cervejaria'], chopp: ['cervejaria'], chope: ['cervejaria'], breja: ['cervejaria'],
+    pizza: ['italiana', 'pizzaria'], pizzas: ['italiana', 'pizzaria'], massa: ['italiana'], massas: ['italiana'], nhoque: ['italiana'], risoto: ['italiana'],
+    hamburguer: ['hamburgueria'], burger: ['hamburgueria'], lanche: ['hamburgueria'],
+    churrasco: ['carnes', 'brasileira'], vegano: ['vegetariana'], veggie: ['vegetariana']
+};
+// Accent-insensitive, multi-word search across name/category/address/badge, with
+// synonyms. Every word in the query must match (so "japonesa pinheiros" narrows).
 function matchesSearch(p, query) {
     const tokens = normalizeText(query).split(/\s+/).filter(Boolean);
     if (!tokens.length) return true;
     const hay = normalizeText([p.name, p.category, p.address, p.badge].filter(Boolean).join(' '));
-    return tokens.every(t => hay.includes(t));
+    return tokens.every(t => hay.includes(t) || (SEARCH_SYNONYMS[t] || []).some(s => hay.includes(s)));
 }
 function filterByType(type) {
     let list = placesCache.filter(p => p.type === type);
