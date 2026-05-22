@@ -76,7 +76,7 @@ function renderCard(r, options = {}) {
     const { avg, count } = getPlaceRating(r.id);
     const rank = options.rank;
     const name = escapeHtml(r.name);
-    const img = imgSrc(r.image_url, 480, 600); // 4:5 poster
+    const img = imgSrc(r.image_url, 600, 600); // square crop; covers both ratios
     const sub = [options.hideType ? null : (r.type === 'bar' ? 'Bar' : 'Restaurante'), r.category, extractBairro(r.address)]
         .filter(Boolean).map(escapeHtml).join(' · ');
     const badges = [];

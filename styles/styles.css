@@ -600,7 +600,7 @@ a:hover { color: var(--accent-hover); }
 .fav-btn.active svg { stroke: #e53935; fill: #e53935; }
 
 /* Place card — photo poster with overlaid info */
-.pcard { position:relative; border-radius:var(--radius-md); overflow:hidden; aspect-ratio:4/5; cursor:pointer; background:var(--surface-alt); box-shadow:var(--shadow-sm); transition:transform .2s, box-shadow .2s; }
+.pcard { position:relative; border-radius:var(--radius-md); overflow:hidden; aspect-ratio:1/1; cursor:pointer; background:var(--surface-alt); box-shadow:var(--shadow-sm); transition:transform .2s, box-shadow .2s; }
 .pcard:hover { transform:translateY(-4px); box-shadow:var(--shadow-lg); }
 .pcard:focus-visible { outline:2px solid var(--accent); outline-offset:2px; }
 .pcard-img { position:absolute; inset:0; width:100%; height:100%; object-fit:cover; display:block; z-index:0; }
@@ -734,6 +734,7 @@ img.profile-avatar, img.user-badge-avatar, img.detail-review-avatar { object-fit
     .nav-links { display: none !important; }
     .hamburger { display: flex; }
     .restaurant-grid { grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); }
+    .pcard { aspect-ratio: 4/5; } /* taller poster on phones (looks great in 2 cols) */
     .modal { padding: 24px; width: 95%; }
     .detail-header { flex-direction: column; }
     .detail-image, .detail-image-placeholder { width: 100%; min-width: auto; }
