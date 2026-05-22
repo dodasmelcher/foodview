@@ -756,27 +756,14 @@ img.profile-avatar, img.user-badge-avatar, img.detail-review-avatar { object-fit
     .main-container { padding: 24px 16px; }
 }
 
-/* Skeleton loading */
+/* Skeleton loading — matches the photo-poster card (4:5) */
 .skeleton-card {
-    background: var(--surface); border-radius: var(--radius-md);
-    overflow: hidden; box-shadow: var(--shadow-sm);
+    aspect-ratio: 4/5; border-radius: var(--radius-md);
+    background: var(--surface-alt); position: relative; overflow: hidden;
 }
-.skeleton-img {
-    aspect-ratio: 3/2; background: var(--surface-alt);
-    position: relative; overflow: hidden;
-}
-.skeleton-body { padding: 14px 16px 16px; }
-.skeleton-line {
-    height: 12px; border-radius: 4px; background: var(--surface-alt);
-    margin-bottom: 8px; position: relative; overflow: hidden;
-}
-.skeleton-line-sm { width: 30%; }
-.skeleton-line-md { width: 55%; }
-.skeleton-line-lg { width: 80%; }
-.skeleton-img::after,
-.skeleton-line::after {
+.skeleton-card::after {
     content: ''; position: absolute; inset: 0;
-    background: linear-gradient(90deg, transparent, rgba(255,255,255,.08), transparent);
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,.06), transparent);
     background-size: 400px 100%; background-repeat: no-repeat;
     animation: shimmer 1.3s infinite linear;
 }

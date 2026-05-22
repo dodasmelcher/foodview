@@ -52,16 +52,7 @@ function attachLoadMoreObserver(containerEl) {
 
 // ===== Skeletons =====
 function renderSkeletons() {
-    const card = `
-        <div class="skeleton-card">
-            <div class="skeleton-img"></div>
-            <div class="skeleton-body">
-                <div class="skeleton-line skeleton-line-sm"></div>
-                <div class="skeleton-line skeleton-line-lg"></div>
-                <div class="skeleton-line skeleton-line-md"></div>
-            </div>
-        </div>`;
-    const html = card.repeat(8);
+    const html = '<div class="skeleton-card"></div>'.repeat(8);
     ['grid-restaurantes', 'grid-bares', 'popular-grid'].forEach(id => {
         const el = document.getElementById(id);
         if (el && !el.children.length) el.innerHTML = html;
