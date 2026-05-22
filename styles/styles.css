@@ -116,7 +116,7 @@ a:hover { color: var(--accent-hover); }
 .ud-email { color: var(--metadata); font-size: .8125rem; margin-bottom: 12px; display: block; }
 
 /* Search (now lives in the header) */
-.search-wrapper { position: relative; flex: 1; max-width: 360px; margin: 0 16px; }
+.search-wrapper { position: relative; flex: 1; min-width: 0; max-width: 360px; margin: 0 16px; }
 .header-search { min-width: 0; }
 .search-input {
     width: 100%; padding: 8px 36px 8px 36px;
@@ -302,14 +302,6 @@ a:hover { color: var(--accent-hover); }
     background-repeat: no-repeat; background-position: right 13px center;
 }
 .fselect:hover { border-color: var(--body-light); }
-.fchip {
-    background: var(--surface-alt); color: var(--body-light);
-    border: 1px solid var(--divider); border-radius: 50px;
-    padding: 8px 14px; font-size: .8125rem; font-family: inherit; cursor: pointer; transition: all .15s;
-}
-.fchip:hover { color: var(--heading); border-color: var(--body-light); }
-.fchip.active { background: var(--accent); border-color: var(--accent); color: #fff; }
-.fsep { width: 1px; height: 22px; background: var(--divider); }
 .fbar-right { margin-left: auto; display: flex; align-items: center; gap: 14px; }
 .fbar-count { color: var(--metadata); font-size: .8125rem; }
 .fbar-count b { color: var(--body-light); }
@@ -755,6 +747,17 @@ img.profile-avatar, img.user-badge-avatar, img.detail-review-avatar { object-fit
     .profile-stat strong { font-size: 1rem; }
     .profile-stat span { font-size: .65rem; }
     .main-container { padding: 24px 16px; }
+    .hide-on-mobile { display: none !important; }
+}
+
+/* Installed app (PWA): drop the recommendation thumbs and compact the header,
+   keeping them on the website. */
+@media (display-mode: standalone) {
+    .page-header-thumbs { display: none; }
+    .page-header { min-height: 0; padding: 28px 40px; }
+}
+@media (display-mode: standalone) and (max-width: 700px) {
+    .page-header { padding: 22px 16px; }
 }
 
 /* Skeleton loading — .skel is a generic shimmer block; cards are 4:5 */

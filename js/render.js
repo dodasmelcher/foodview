@@ -170,18 +170,17 @@ function renderBares() {
 }
 
 function renderPopular() {
-    let all = searchQuery ? placesCache.filter(p => matchesSearch(p, searchQuery)) : placesCache;
-    if (extraFilter.michelin) all = all.filter(p => michelinStars(p) > 0);
-    if (extraFilter.delivery) all = all.filter(p => p.delivery_apps);
-    // Show the whole catalogue, reviewed/most-popular first (so "Tudo" lands on a
-    // full page); rank badges go only on reviewed places.
+    // Searching spans both types; browsing uses the Restaurante/Bar toggle.
+    // Ranked reviewed/most-popular first; rank badges only on reviewed places.
+    const all = searchQuery
+        ? placesCache.filter(p => matchesSearch(p, searchQuery))
+        : placesCache.filter(p => p.type === popularType);
     const ranked = all.map(r => ({ ...r, ...getPlaceRating(r.id) }))
         .sort((a, b) => b.count - a.count || parseFloat(b.avg) - parseFloat(a.avg) || michelinStars(b) - michelinStars(a) || a.name.localeCompare(b.name, 'pt-BR'));
-    const active = searchQuery || extraFilter.michelin || extraFilter.delivery;
     buildPopularFilterBar(ranked.length);
     const el = document.getElementById('popular-grid');
     if (!ranked.length) {
-        el.innerHTML = `<div class="empty-state" style="grid-column:1/-1"><p>${active ? 'Nenhum resultado com esses filtros.' : 'Nenhum lugar ainda.'}</p></div>`;
+        el.innerHTML = `<div class="empty-state" style="grid-column:1/-1"><p>${searchQuery ? 'Nenhum resultado.' : 'Nenhum lugar ainda.'}</p></div>`;
         return;
     }
     const shown = Math.min(visibleCount.popular, ranked.length);

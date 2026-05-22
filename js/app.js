@@ -4,6 +4,7 @@ let categoryFilter = { restaurante: 'Todas', bar: 'Todas' };
 let bairroFilter = { restaurante: 'Todos', bar: 'Todos' };
 let sortBy = 'avaliados';
 let extraFilter = { michelin: false, delivery: false };
+let popularType = 'restaurante'; // Populares tab: Restaurantes (default) / Bares
 
 // Pagination (PAGE_SIZE, visibleCount, resetPage, loadMore, _loadMoreIO,
 // loadMoreHTML, attachLoadMoreObserver) and rendering (renderSkeletons,
@@ -516,7 +517,7 @@ function updateHeader() {
             </div>`;
     } else {
         el.innerHTML = `
-            <button class="btn btn-ghost btn-sm" onclick="openModal('account')">Criar conta</button>
+            <button class="btn btn-ghost btn-sm hide-on-mobile" onclick="openModal('account')">Criar conta</button>
             <button class="btn btn-outline btn-sm" onclick="openModal('account-login')">Entrar</button>`;
     }
     // Only the admin sees the "+ Restaurante / + Bar" actions.
@@ -738,11 +739,15 @@ function clearFilters(type) {
     resetPage('restaurantes', 'bares', 'popular');
     renderRestaurantes(); renderBares(); renderPopular();
 }
-function toggleExtraFilter(key) {
-    extraFilter[key] = !extraFilter[key];
-    resetPage('restaurantes', 'bares', 'popular');
-    renderRestaurantes();
-    renderBares();
+function setOutros(v) {
+    extraFilter.michelin = (v === 'michelin');
+    extraFilter.delivery = (v === 'delivery');
+    resetPage('restaurantes', 'bares');
+    renderRestaurantes(); renderBares();
+}
+function setPopularType(t) {
+    popularType = t;
+    resetPage('popular');
     renderPopular();
 }
 const SORT_OPTIONS =[['avaliados', 'Mais avaliados'], ['nota', 'Melhor nota'], ['az', 'A–Z'], ['recentes', 'Recentes']];
@@ -753,9 +758,14 @@ function fBarRight(count, active) {
     return `<div class="fbar-right"><span class="fbar-count"><b>${count}</b> ${count === 1 ? 'resultado' : 'resultados'}</span>`
         + `${active ? `<button class="fclear" data-action="clear">✕ Limpar (${active})</button>` : ''}</div>`;
 }
-function fChips() {
-    return `<button class="fchip ${extraFilter.michelin ? 'active' : ''}" data-extra="michelin">★ Michelin</button>`
-        + `<button class="fchip ${extraFilter.delivery ? 'active' : ''}" data-extra="delivery">🛵 Delivery</button>`;
+// Michelin / Delivery as one compact dropdown (cleaner than chips on mobile).
+function fOutrosSelect() {
+    const v = extraFilter.michelin ? 'michelin' : (extraFilter.delivery ? 'delivery' : 'tudo');
+    return `<select class="fselect" data-filter="outros">`
+        + fOption('tudo', 'Outros: todos', v)
+        + fOption('michelin', '★ Michelin', v)
+        + fOption('delivery', '🛵 Delivery', v)
+        + `</select>`;
 }
 function buildFilterBar(type, count = 0) {
     const el = document.getElementById('filter-' + (type === 'restaurante' ? 'restaurantes' : 'bares'));
@@ -770,12 +780,15 @@ function buildFilterBar(type, count = 0) {
         `<select class="fselect" data-filter="cozinha">${cats}</select>`
         + `<select class="fselect" data-filter="bairro">${bairros}</select>`
         + `<select class="fselect" data-filter="sort">${sorts}</select>`
-        + `<span class="fsep"></span>` + fChips() + fBarRight(count, active);
+        + fOutrosSelect() + fBarRight(count, active);
 }
 function buildPopularFilterBar(count = 0) {
     const el = document.getElementById('filter-popular');
     if (!el) return;
-    el.innerHTML = fChips() + fBarRight(count, extraFilter.michelin + extraFilter.delivery);
+    el.innerHTML =
+        `<div class="seg"><button class="seg-btn ${popularType === 'restaurante' ? 'active' : ''}" data-ptype="restaurante">Restaurantes</button>`
+        + `<button class="seg-btn ${popularType === 'bar' ? 'active' : ''}" data-ptype="bar">Bares</button></div>`
+        + fBarRight(count, 0);
 }
 function attachFilterHandlers() {
     ['filter-restaurantes', 'filter-bares', 'filter-popular'].forEach(id => {
@@ -789,11 +802,12 @@ function attachFilterHandlers() {
             if (sel.dataset.filter === 'cozinha') setCategory(typeOf(), sel.value);
             else if (sel.dataset.filter === 'bairro') setBairro(typeOf(), sel.value);
             else if (sel.dataset.filter === 'sort') setSort(sel.value);
+            else if (sel.dataset.filter === 'outros') setOutros(sel.value);
         });
         el.addEventListener('click', (e) => {
             const btn = e.target.closest('button');
             if (!btn) return;
-            if (btn.dataset.extra) toggleExtraFilter(btn.dataset.extra);
+            if (btn.dataset.ptype) setPopularType(btn.dataset.ptype);
             else if (btn.dataset.action === 'clear') clearFilters(typeOf());
         });
     });
