@@ -9,7 +9,7 @@ let addPhotoFiles = [];
 let addPhotoPlaceId = null;
 
 function openAddPhotoModal(placeId) {
-    if (!getUser()) { openModal('account'); return; }
+    if (!isAdmin()) return; // place gallery is curated by the admin
     addPhotoPlaceId = placeId;
     addPhotoFiles = [];
     document.getElementById('ap-preview').innerHTML = '';

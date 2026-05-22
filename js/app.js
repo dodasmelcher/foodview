@@ -832,6 +832,13 @@ async function sharePlace(id) {
     }
 }
 
+// Clean line icons for the detail contact bar (monochrome, no emoji).
+const C_ICON = {
+    site: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="12" cy="12" r="9"/><line x1="3" y1="12" x2="21" y2="12"/><path d="M12 3c2.5 2.6 2.5 15.4 0 18M12 3c-2.5 2.6-2.5 15.4 0 18"/></svg>',
+    phone: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"><path d="M6.5 4h-2A1.5 1.5 0 0 0 3 5.5 16.5 16.5 0 0 0 18.5 21 1.5 1.5 0 0 0 20 19.5v-2.3a1.4 1.4 0 0 0-1.1-1.37l-2.7-.55-1.2 1.2a12.5 12.5 0 0 1-5-5l1.2-1.2-.55-2.7A1.4 1.4 0 0 0 7.3 4z"/></svg>',
+    wa: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"><path d="M20.5 11.5a8.5 8.5 0 0 1-12.6 7.4L3 20.5l1.7-4.8A8.5 8.5 0 1 1 20.5 11.5z"/></svg>',
+    bag: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"><path d="M6 8h12l-1 11.5H7z"/><path d="M9 8V6.5a3 3 0 0 1 6 0V8"/></svg>'
+};
 // Detail
 function openDetail(id) {
     const r = getPlaceById(id); if (!r) return;
@@ -844,20 +851,9 @@ function openDetail(id) {
     const icon = r.name.charAt(0);
 
     const photos = r.photos || [];
-    let photosHTML = '';
-    if (photos.length > 0) {
-        const show = photos.slice(0, 3);
-        const remaining = photos.length - 3;
-        photosHTML = `<div class="detail-photo-grid" onclick="openLightbox(${r.id}, 0)">
-            ${show.map((p, i) => {
-                const src = escapeHtml(imgSrc(p, 400, 400)); // detail photo grid is square
-                if (i === 2 && remaining > 0) {
-                    return `<div class="photo-more"><img src="${src}" loading="lazy" width="200" height="200"><span>+${remaining}</span></div>`;
-                }
-                return `<img src="${src}" loading="lazy" width="200" height="200">`;
-            }).join('')}
-        </div>`;
-    }
+    const photosHTML = photos.length
+        ? `<div class="dt-photos">${photos.map((p, i) => `<img src="${escapeHtml(imgSrc(p, 220, 165))}" loading="lazy" onclick="openLightbox(${r.id}, ${i})" alt="">`).join('')}</div>`
+        : '';
 
     const reviewsHTML = rvs.length ? rvs.map(rv => {
         const authorName = rv.author_name || '';
@@ -876,7 +872,7 @@ function openDetail(id) {
         </div>`;
     }).join('') : `<div class="detail-empty review-cta"><p>Ainda sem avaliação — seja o primeiro a avaliar <strong>${escapeHtml(r.name)}</strong>.</p><button class="btn btn-primary btn-sm" onclick="openReviewModal(${r.id})">Avaliar</button></div>`;
 
-    const coverUrl = imgSrc(r.image_url, 1200, 520); // 21:9 hero banner
+    const coverUrl = imgSrc(r.image_url, 1200, 676); // 16:9 hero
     const phone = r.phone || '';
     const wa = waLink(phone);
     const openState = isPlaceOpenNow(r.hours); // true / false / null (unknown)
@@ -902,45 +898,52 @@ function openDetail(id) {
         .filter(([, k]) => cats[k] != null)
         .map(([label, k]) => `<div class="cat-item"><span class="cat-label">${label}</span><span class="cat-bar"><i style="width:${(cats[k] / 5 * 100).toFixed(0)}%"></i></span><span class="cat-val">${cats[k].toFixed(1)}</span></div>`).join('');
     const catHTML = catItems ? `<div class="cat-breakdown">${catItems}</div>` : '';
+    const siteUrl = r.website && safeUrl(r.website);
+    const contact = [];
+    if (siteUrl) contact.push(`<a class="dt-c" href="${escapeHtml(siteUrl)}" target="_blank" rel="noopener noreferrer">${C_ICON.site}Site</a>`);
+    if (phone) contact.push(`<a class="dt-c" href="tel:${escapeHtml(phone.replace(/\s/g, ''))}">${C_ICON.phone}Ligar</a>`);
+    if (wa) contact.push(`<a class="dt-c" href="${escapeHtml(wa)}" target="_blank" rel="noopener noreferrer">${C_ICON.wa}WhatsApp</a>`);
+    if (r.delivery_apps) contact.push(`<span class="dt-c" title="${escapeHtml(r.delivery_apps)}">${C_ICON.bag}Delivery</span>`);
+    const contactHTML = contact.length ? `<div class="dt-contact">${contact.join('')}</div>` : '';
+    const metaParts = [];
+    if (count > 0) metaParts.push(`<span class="dt-star">★</span> ${avg}`);
+    if (r.category) metaParts.push(escapeHtml(r.category));
+    const heroBairro = extractBairro(r.address);
+    if (heroBairro) metaParts.push(escapeHtml(heroBairro));
     document.getElementById('detail-content').innerHTML = `
         <button class="detail-close" onclick="closeModal('detail')" aria-label="Fechar">&times;</button>
-        <div class="detail-header">
-            ${coverUrl ? `<img class="detail-image" src="${escapeHtml(coverUrl)}" alt="${escapeHtml(r.name)}" loading="lazy" width="1200" height="520">` : `<div class="detail-image-placeholder">${escapeHtml(icon)}</div>`}
-            <div class="detail-info">
-                <span class="card-type-tag ${r.type === 'bar' ? 'tag-bar' : 'tag-restaurante'}">${escapeHtml(r.type)}</span>
-                ${r.badge ? `<span class="card-badge">${escapeHtml(r.badge)}</span>` : ''}
-                <h2>${escapeHtml(r.name)}</h2>
-                ${(r.category || r.address) ? `<div class="detail-cuisine">${[r.category, formatAddress(r.address)].filter(Boolean).map(escapeHtml).join(' · ')}</div>` : ''}
-                ${count > 0 ? `<div class="detail-rating-row"><span class="detail-avg">${avg}</span><span class="detail-stars">${starsHTML(parseFloat(avg))}</span><span class="detail-count">(${count} ${count === 1 ? 'avaliação' : 'avaliações'})</span></div>` : `<div class="detail-count" style="margin-top:4px">Sem avaliações ainda</div>`}
-                ${catHTML}
-                <div class="detail-tags">
-                    ${r.website && safeUrl(r.website) ? `<span class="detail-tag detail-tag-blue"><a href="${escapeHtml(safeUrl(r.website))}" target="_blank" rel="noopener noreferrer" style="color:inherit">Site oficial</a></span>` : ''}
-                    ${phone ? `<span class="detail-tag detail-tag-gray"><a href="tel:${escapeHtml(phone.replace(/\s/g, ''))}" style="color:inherit">Ligar</a></span>` : ''}
-                    ${wa ? `<span class="detail-tag detail-tag-green"><a href="${escapeHtml(wa)}" target="_blank" rel="noopener noreferrer" style="color:inherit">WhatsApp</a></span>` : ''}
-                    ${r.delivery_apps ? r.delivery_apps.split(',').map(a => `<span class="card-badge badge-delivery">${escapeHtml(a.trim())}</span>`).join('') : ''}
-                    <span class="detail-tag detail-tag-gray" data-fav-count-label="${r.id}">${getFavCount(r.id)} curtida${getFavCount(r.id) !== 1 ? 's' : ''}</span>
-                </div>
-                <div class="detail-actions">
-                    <button class="fav-btn ${isFavorited(r.id) ? 'active' : ''}" data-place-id="${r.id}" onclick="toggleFavorite(${r.id})" title="Curtir" aria-label="Curtir">${heartSVG}</button>
-                    <button class="btn btn-primary btn-sm" onclick="openReviewModal(${r.id})">Avaliar</button>
-                    <button class="btn btn-outline btn-sm" onclick="openAddPhotoModal(${r.id})">Adicionar fotos</button>
-                    <button class="btn btn-ghost btn-sm" onclick="sharePlace(${r.id})">Compartilhar</button>
-                </div>
-                ${canEdit ? `<div class="detail-actions-admin">
-                    <button class="btn btn-ghost btn-sm" onclick="editPlaceImage(${r.id})">Editar capa</button>
-                    ${admin ? `<button class="btn btn-ghost btn-sm" onclick="openEditPlace(${r.id})">Editar info</button>` : ''}
-                    <button class="btn btn-ghost btn-sm detail-remove" onclick="deletePlace(${r.id})">Remover</button>
-                </div>` : ''}
+        <div class="dt-hero" ${coverUrl ? `style="background-image:url('${escapeHtml(coverUrl)}')"` : ''}>
+            ${coverUrl ? '' : `<div class="dt-hero-ph">${escapeHtml(icon)}</div>`}
+            <div class="dt-hero-top">${r.badge ? `<span class="dt-hero-badge">${escapeHtml(r.badge)}</span>` : ''}</div>
+            <div class="dt-hero-info">
+                <h2 class="dt-hero-name">${escapeHtml(r.name)}</h2>
+                ${metaParts.length ? `<div class="dt-hero-meta">${metaParts.join(' · ')}</div>` : ''}
             </div>
         </div>
-        ${hoursHTML}
-        ${photosHTML}
-        <hr class="detail-divider">
-        <div class="detail-reviews-header"><span class="detail-reviews-title">Avaliações (${count})</span></div>
-        ${reviewsHTML}
-        ${(typeof r.lat === 'number' && typeof r.lng === 'number') ? `
-            <div class="detail-map-header">Localização</div>
-            <div id="detail-mini-map" class="detail-mini-map"></div>` : ''}`;
+        <div class="dt-body">
+            ${hoursHTML}
+            ${catHTML}
+            ${contactHTML}
+            <div class="dt-likes">${heartSVG}<span data-fav-count-label="${r.id}">${getFavCount(r.id)} curtida${getFavCount(r.id) !== 1 ? 's' : ''}</span></div>
+            <div class="detail-actions">
+                <button class="fav-btn ${isFavorited(r.id) ? 'active' : ''}" data-place-id="${r.id}" onclick="toggleFavorite(${r.id})" title="Curtir" aria-label="Curtir">${heartSVG}</button>
+                <button class="btn btn-primary btn-sm" onclick="openReviewModal(${r.id})">Avaliar</button>
+                <button class="btn btn-outline btn-sm" onclick="sharePlace(${r.id})">Compartilhar</button>
+            </div>
+            ${canEdit ? `<div class="detail-actions-admin">
+                ${admin ? `<button class="btn btn-ghost btn-sm" onclick="openAddPhotoModal(${r.id})">Adicionar fotos</button>` : ''}
+                <button class="btn btn-ghost btn-sm" onclick="editPlaceImage(${r.id})">Editar capa</button>
+                ${admin ? `<button class="btn btn-ghost btn-sm" onclick="openEditPlace(${r.id})">Editar info</button>` : ''}
+                <button class="btn btn-ghost btn-sm detail-remove" onclick="deletePlace(${r.id})">Remover</button>
+            </div>` : ''}
+            ${photosHTML}
+            <hr class="detail-divider">
+            <div class="detail-reviews-header"><span class="detail-reviews-title">Avaliações (${count})</span></div>
+            ${reviewsHTML}
+            ${(typeof r.lat === 'number' && typeof r.lng === 'number') ? `
+                <div class="detail-map-header">Localização</div>
+                <div id="detail-mini-map" class="detail-mini-map"></div>` : ''}
+        </div>`;
     document.getElementById('modal-detail').classList.add('active');
     routeToPlace(id);
     if (typeof r.lat === 'number' && typeof r.lng === 'number') {
