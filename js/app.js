@@ -1242,7 +1242,7 @@ async function rehostPhotos(urls) {
     const list = (urls || []).filter(u => typeof u === 'string' && u);
     if (!list.length) return [];
     try {
-        const res = await fetch('/api/rehost-photos', {
+        const res = await fetch(`${API_BASE}/api/rehost-photos`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ urls: list })

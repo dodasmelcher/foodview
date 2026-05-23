@@ -1,0 +1,8 @@
+{
+  "appId": "com.foodview.app",
+  "appName": "FoodView",
+  "webDir": "www",
+  "ios": {
+    "contentInset": "always"
+  }
+}

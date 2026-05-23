@@ -4,6 +4,19 @@
 const SUPABASE_URL = 'https://jspxkdhqhjjvtepomkir.supabase.co';
 const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpzcHhrZGhxaGpqdnRlcG9ta2lyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYzNzkxNjEsImV4cCI6MjA5MTk1NTE2MX0.tABf7mPKoC4JEvUdJsO1-pjOcIARdgg2XwLb-WE6FlY';
 const ADMIN_EMAIL = 'diogo.melcher@gmail.com';
+
+// --- Native app (Capacitor) awareness -------------------------------------
+// In the native shell the page origin is capacitor://localhost, so our
+// serverless endpoints and OAuth redirects must point at the live site
+// explicitly. On the web everything stays relative/origin-based, so the web
+// behavior is byte-for-byte unchanged (IS_NATIVE is false in a browser).
+const SITE_ORIGIN = 'https://foodview-gules.vercel.app';
+const IS_NATIVE = !!(window.Capacitor && typeof window.Capacitor.isNativePlatform === 'function' && window.Capacitor.isNativePlatform());
+const API_BASE = IS_NATIVE ? SITE_ORIGIN : '';
+// Custom URL scheme the native app registers for the OAuth round-trip; must be
+// added to Supabase Auth → URL Configuration → Redirect URLs.
+const OAUTH_REDIRECT = IS_NATIVE ? 'foodview://login-callback' : (window.location.origin + window.location.pathname);
+
 const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
 let placesCache = [];

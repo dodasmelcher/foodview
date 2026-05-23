@@ -13,3 +13,14 @@ preview.html
 README.md
 *.bak
 *.tmp
+
+# Native app (Capacitor) — keep the Vercel deploy a pure static site.
+# Excluding package.json stops Vercel from treating this as a build project.
+package.json
+package-lock.json
+capacitor.config.json
+SETUP-IOS.md
+node_modules/
+www/
+ios/
+resources/

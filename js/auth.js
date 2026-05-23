@@ -88,24 +88,54 @@ async function logout() {
     // onAuthStateChange clears currentUser and re-renders
 }
 
-async function loginWithGoogle() {
-    const { error } = await sb.auth.signInWithOAuth({
-        provider: 'google',
-        options: { redirectTo: window.location.origin + window.location.pathname }
+// Shared OAuth entrypoint. On the web it's the normal Supabase redirect flow
+// (unchanged). In the native app the WebView can't do a top-level redirect, so
+// we open the provider in the system browser and finish via a deep link back
+// into the app (handled by initNativeAuth below).
+async function signInOAuth(provider) {
+    if (!IS_NATIVE) {
+        const { error } = await sb.auth.signInWithOAuth({
+            provider,
+            options: { redirectTo: OAUTH_REDIRECT }
+        });
+        if (error) showToast(error.message, 'error');
+        return;
+    }
+    const { data, error } = await sb.auth.signInWithOAuth({
+        provider,
+        options: { redirectTo: OAUTH_REDIRECT, skipBrowserRedirect: true }
     });
-    if (error) showToast(error.message, 'error');
+    if (error) { showToast(error.message, 'error'); return; }
+    await window.Capacitor.Plugins.Browser.open({ url: data.url });
 }
+
+function loginWithGoogle() { return signInOAuth('google'); }
 
 // Required by the App Store when a third-party login (Google) is offered.
 // Needs the Apple provider enabled in Supabase (Apple Developer Service ID + key).
-async function loginWithApple() {
+function loginWithApple() {
     if (!APPLE_SIGNIN_ENABLED) { showToast('Login com Apple ainda não está disponível.', 'error'); return; }
-    const { error } = await sb.auth.signInWithOAuth({
-        provider: 'apple',
-        options: { redirectTo: window.location.origin + window.location.pathname }
-    });
-    if (error) showToast(error.message, 'error');
+    return signInOAuth('apple');
 }
+
+// Native only: catch the foodview://login-callback deep link, exchange the code
+// for a session, and close the in-app browser. No-op (and not wired) on the web.
+function initNativeAuth() {
+    if (!IS_NATIVE) return;
+    const { App, Browser } = window.Capacitor.Plugins;
+    App.addListener('appUrlOpen', async ({ url }) => {
+        if (!url || !url.includes('login-callback')) return;
+        try {
+            const code = new URL(url).searchParams.get('code');
+            if (code) await sb.auth.exchangeCodeForSession(code);
+        } catch (e) {
+            showToast('Não foi possível concluir o login.', 'error');
+        } finally {
+            Browser.close().catch(() => {});
+        }
+    });
+}
+document.addEventListener('DOMContentLoaded', initNativeAuth);
 
 // Permanently delete the signed-in user's account and personal data. The client
 // can't remove an auth user, so a serverless endpoint does it with the service
@@ -120,7 +150,7 @@ async function deleteAccount() {
     const { data: { session } } = await sb.auth.getSession();
     if (!session) { showToast('Sessão expirada. Entre novamente e tente de novo.', 'error'); return; }
     try {
-        const res = await fetch('/api/delete-account', {
+        const res = await fetch(`${API_BASE}/api/delete-account`, {
             method: 'POST',
             headers: { Authorization: `Bearer ${session.access_token}` }
         });

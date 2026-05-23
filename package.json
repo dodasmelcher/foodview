@@ -1,0 +1,23 @@
+{
+  "name": "foodview",
+  "version": "1.0.0",
+  "private": true,
+  "description": "FoodView — diário gastronômico de São Paulo (web estático + app iOS via Capacitor)",
+  "scripts": {
+    "build:www": "bash scripts/build-www.sh",
+    "ios:add": "npm run build:www && npx cap add ios",
+    "ios:sync": "npm run build:www && npx cap sync ios",
+    "ios:open": "npx cap open ios",
+    "assets": "npx @capacitor/assets generate --ios"
+  },
+  "dependencies": {
+    "@capacitor/app": "^8.1.0",
+    "@capacitor/browser": "^8.0.3",
+    "@capacitor/core": "^8.3.4",
+    "@capacitor/ios": "^8.3.4"
+  },
+  "devDependencies": {
+    "@capacitor/assets": "^3.0.5",
+    "@capacitor/cli": "^8.3.4"
+  }
+}

@@ -23,3 +23,10 @@ Thumbs.db
 
 # Node (caso introduzido)
 node_modules/
+
+# Capacitor — generated web bundle + native build artifacts
+www/
+ios/App/Pods/
+ios/App/build/
+ios/App/App/public/
+DerivedData/
