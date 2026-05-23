@@ -704,6 +704,9 @@ img.profile-avatar, img.user-badge-avatar, img.detail-review-avatar { object-fit
     border-top: 1px solid var(--divider); padding: 28px 24px;
     text-align: center; color: var(--metadata); font-size: .8125rem; margin-top: 20px;
 }
+.footer-links { display: block; margin-top: 8px; }
+.footer-links a { color: var(--body-light); }
+.footer-links a:hover { color: var(--accent); }
 
 /* Toasts */
 .toast-container {

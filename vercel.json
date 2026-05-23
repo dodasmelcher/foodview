@@ -1,6 +1,8 @@
 {
   "rewrites": [
-    { "source": "/lugar/:id(\\d+)", "destination": "/api/place-page?id=:id" }
+    { "source": "/lugar/:id(\\d+)", "destination": "/api/place-page?id=:id" },
+    { "source": "/privacidade", "destination": "/privacidade.html" },
+    { "source": "/termos", "destination": "/privacidade.html" }
   ],
   "headers": [
     {
