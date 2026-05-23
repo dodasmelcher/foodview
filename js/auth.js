@@ -3,6 +3,15 @@
 // openModal). Cross-file refs (showToast, lockSubmit, closeModal, openModal)
 // resolve at call-time.
 
+// Sign in with Apple is wired up but the provider isn't enabled yet in Supabase
+// (needs an Apple Developer Service ID + key). Flip this to true after enabling
+// it there — the button reveals itself and loginWithApple() starts working.
+const APPLE_SIGNIN_ENABLED = false;
+
+document.addEventListener('DOMContentLoaded', () => {
+    if (APPLE_SIGNIN_ENABLED) document.getElementById('btn-apple')?.removeAttribute('hidden');
+});
+
 function showAccountTab(tab, btn) {
     document.getElementById('form-register').style.display = tab === 'register' ? 'block' : 'none';
     document.getElementById('form-login').style.display = tab === 'login' ? 'block' : 'none';
@@ -90,6 +99,7 @@ async function loginWithGoogle() {
 // Required by the App Store when a third-party login (Google) is offered.
 // Needs the Apple provider enabled in Supabase (Apple Developer Service ID + key).
 async function loginWithApple() {
+    if (!APPLE_SIGNIN_ENABLED) { showToast('Login com Apple ainda não está disponível.', 'error'); return; }
     const { error } = await sb.auth.signInWithOAuth({
         provider: 'apple',
         options: { redirectTo: window.location.origin + window.location.pathname }

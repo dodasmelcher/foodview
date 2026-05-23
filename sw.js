@@ -5,7 +5,7 @@
 //   • Supabase REST/Auth + /api/*: never cached (always network — data/sessions)
 //   • navigations: network-first, fall back to the cached shell when offline
 // Bump VERSION to force a refresh of the precached shell on the next visit.
-const VERSION = 'v2';
+const VERSION = 'v3';
 const SHELL_CACHE = `foodview-shell-${VERSION}`;
 const ASSET_CACHE = `foodview-assets-${VERSION}`;
 
