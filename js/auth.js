@@ -87,6 +87,43 @@ async function loginWithGoogle() {
     if (error) showToast(error.message, 'error');
 }
 
+// Required by the App Store when a third-party login (Google) is offered.
+// Needs the Apple provider enabled in Supabase (Apple Developer Service ID + key).
+async function loginWithApple() {
+    const { error } = await sb.auth.signInWithOAuth({
+        provider: 'apple',
+        options: { redirectTo: window.location.origin + window.location.pathname }
+    });
+    if (error) showToast(error.message, 'error');
+}
+
+// Permanently delete the signed-in user's account and personal data. The client
+// can't remove an auth user, so a serverless endpoint does it with the service
+// key (verifies the caller's token first).
+async function deleteAccount() {
+    if (!currentUser) return;
+    const ok = await customConfirm(
+        'Isso apaga sua conta, avaliações, favoritos e perfil para sempre. Não dá pra desfazer.',
+        { title: 'Excluir conta?', okText: 'Excluir conta', danger: true }
+    );
+    if (!ok) return;
+    const { data: { session } } = await sb.auth.getSession();
+    if (!session) { showToast('Sessão expirada. Entre novamente e tente de novo.', 'error'); return; }
+    try {
+        const res = await fetch('/api/delete-account', {
+            method: 'POST',
+            headers: { Authorization: `Bearer ${session.access_token}` }
+        });
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok) { showToast(data.error || 'Não foi possível excluir a conta.', 'error'); return; }
+        await sb.auth.signOut();
+        showToast('Conta excluída.', 'success');
+        setTimeout(() => location.reload(), 900);
+    } catch (e) {
+        showToast('Erro ao excluir: ' + e.message, 'error');
+    }
+}
+
 function openForgotPassword() {
     closeModal('account');
     document.getElementById('forgot-email').value = document.getElementById('login-email').value || '';
