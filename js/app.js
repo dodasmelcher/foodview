@@ -1440,6 +1440,9 @@ async function init() {
     attachFilterHandlers();
     renderSkeletons();
     renderHomeSkeleton();
+    if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => navigator.serviceWorker.register('/sw.js').catch(() => {}));
+    }
     // Load public data first so anonymous users always see content even if the
     // Supabase auth layer is hanging or misbehaving on the client.
     withTimeout(loadData(), 10000, 'loadData')
