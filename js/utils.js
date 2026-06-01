@@ -27,12 +27,6 @@ function safeUrl(u) {
 function imgSrc(u, width, height) {
     const s = safeUrl(u);
     if (!s) return '';
-    if (s.includes('/storage/v1/object/public/')) {
-        const t = s.replace('/storage/v1/object/public/', '/storage/v1/render/image/public/');
-        const sep = t.includes('?') ? '&' : '?';
-        const h = height || width; // square default when caller doesn't say
-        return `${t}${sep}width=${width}&height=${h}&resize=cover&quality=75`;
-    }
     return s;
 }
 
