@@ -28,22 +28,15 @@ function safeUrl(u) {
     return /^https?:\/\//i.test(s) ? s : '';
 }
 
-// Returns a safe URL routed through Supabase's image-transform endpoint when
-// the source is a Supabase Storage public URL — significantly smaller bytes.
-// Width/height are the *intended pixel dimensions* including DPR; pass ~2× the
-// CSS pixels. Both must be given (Supabase keeps the original height when
-// width alone is passed, which produces vertical-strip thumbnails).
-// Non-Supabase URLs (Google photos, external) pass through untouched.
-function imgSrc(u, width, height) {
-    const s = safeUrl(u);
-    if (!s) return '';
-    if (s.includes('/storage/v1/object/public/')) {
-        const t = s.replace('/storage/v1/object/public/', '/storage/v1/render/image/public/');
-        const sep = t.includes('?') ? '&' : '?';
-        const h = height || width; // square default when caller doesn't say
-        return `${t}${sep}width=${width}&height=${h}&resize=cover&quality=75`;
-    }
-    return s;
+// Returns a safe image URL. We used to route Supabase Storage URLs through the
+// /storage/v1/render/image/public/ transform endpoint to get smaller, resized
+// bytes — but that's a paid feature ("Image Transformation") that the project
+// no longer has, so the endpoint now returns 403 FeatureNotEnabled and every
+// image on the site breaks. Until/unless that's re-enabled in Supabase, serve
+// the original objects directly. Width/height params are accepted for callers
+// but ignored.
+function imgSrc(u, _width, _height) {
+    return safeUrl(u) || '';
 }
 
 function formatDate(iso) {
