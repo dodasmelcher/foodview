@@ -154,6 +154,7 @@ function openEditPlace(id) {
     const del = (p.delivery_apps || '').toLowerCase();
     document.getElementById('ep-delivery-rappi').checked = del.includes('rappi');
     document.getElementById('ep-delivery-ifood').checked = del.includes('ifood');
+    document.getElementById('ep-delivery-url').value = p.delivery_url || '';
     document.getElementById('ep-fsq-results').innerHTML = '';
     updateFsqStatus(p);
     closeModal('detail');
@@ -279,6 +280,7 @@ async function submitEditPlace(e) {
             badge: document.getElementById('ep-badge').value,
             website: document.getElementById('ep-website').value.trim() || null,
             delivery_apps: [document.getElementById('ep-delivery-rappi').checked ? 'Rappi' : '', document.getElementById('ep-delivery-ifood').checked ? 'iFood' : ''].filter(Boolean).join(','),
+            delivery_url: document.getElementById('ep-delivery-url').value.trim() || null,
             lat: Number.isFinite(lat) ? lat : null,
             lng: Number.isFinite(lng) ? lng : null,
             fsq_id: fsqId
