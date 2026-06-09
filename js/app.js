@@ -903,7 +903,12 @@ function openDetail(id) {
     if (siteUrl) contact.push(`<a class="dt-c" href="${escapeHtml(siteUrl)}" target="_blank" rel="noopener noreferrer">${C_ICON.site}Site</a>`);
     if (phone) contact.push(`<a class="dt-c" href="tel:${escapeHtml(phone.replace(/\s/g, ''))}">${C_ICON.phone}Ligar</a>`);
     if (wa) contact.push(`<a class="dt-c" href="${escapeHtml(wa)}" target="_blank" rel="noopener noreferrer">${C_ICON.wa}WhatsApp</a>`);
-    if (r.delivery_apps) contact.push(`<span class="dt-c" title="${escapeHtml(r.delivery_apps)}">${C_ICON.bag}Delivery</span>`);
+    if (r.delivery_apps) {
+        const deliveryUrl = r.delivery_url && safeUrl(r.delivery_url);
+        contact.push(deliveryUrl
+            ? `<a class="dt-c" href="${escapeHtml(deliveryUrl)}" target="_blank" rel="noopener noreferrer" title="${escapeHtml(r.delivery_apps)}">${C_ICON.bag}Delivery</a>`
+            : `<span class="dt-c" title="${escapeHtml(r.delivery_apps)}">${C_ICON.bag}Delivery</span>`);
+    }
     const contactHTML = contact.length ? `<div class="dt-contact">${contact.join('')}</div>` : '';
     const metaParts = [];
     if (count > 0) metaParts.push(`<span class="dt-star">★</span> ${avg}`);
