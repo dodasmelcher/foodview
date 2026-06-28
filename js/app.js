@@ -321,6 +321,18 @@ let _searchDebounce = null;
 function handleSearch() {
     const q = document.getElementById('search-input').value.toLowerCase().trim();
     document.getElementById('search-clear')?.classList.toggle('visible', q.length > 0);
+    // Search spans both types — when starting to type from a type-scoped tab,
+    // jump to Populares (which already mixes restaurantes + bares on search).
+    // The header input keeps focus across the tab switch (it lives outside
+    // .tab-content), so the user just keeps typing.
+    if (q && (document.getElementById('tab-restaurantes')?.classList.contains('active')
+           || document.getElementById('tab-bares')?.classList.contains('active'))) {
+        clearTimeout(_searchDebounce);
+        searchQuery = q;
+        resetPage('restaurantes', 'bares', 'popular');
+        switchTab('popular');
+        return;
+    }
     clearTimeout(_searchDebounce);
     _searchDebounce = setTimeout(() => {
         searchQuery = q;
