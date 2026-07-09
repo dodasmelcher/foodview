@@ -147,14 +147,17 @@ const SEARCH_SYNONYMS = {
     doce: ['patisserie', 'sobremesa', 'confeitaria'], sobremesa: ['patisserie', 'confeitaria'],
     sorvete: ['gelato', 'sorveteria'],
     // Café
-    cafe: ['cafeteria', 'padaria'], cafeteria: ['cafe'], cappuccino: ['cafe'], espresso: ['cafe']
+    cafe: ['cafeteria', 'padaria'], cafeteria: ['cafe'], cappuccino: ['cafe'], espresso: ['cafe'],
+    // Delivery — buscar "delivery"/"entrega" bate nos lugares com iFood ou Rappi
+    // (o próprio "ifood" e "rappi" batem direto porque delivery_apps entra no hay).
+    delivery: ['ifood', 'rappi'], entrega: ['ifood', 'rappi'],
 };
 // Accent-insensitive, multi-word search across name/category/address/badge, with
 // synonyms. Every word in the query must match (so "japonesa pinheiros" narrows).
 function matchesSearch(p, query) {
     const tokens = normalizeText(query).split(/\s+/).filter(Boolean);
     if (!tokens.length) return true;
-    const hay = normalizeText([p.name, p.category, p.address, p.badge].filter(Boolean).join(' '));
+    const hay = normalizeText([p.name, p.category, p.address, p.badge, p.delivery_apps].filter(Boolean).join(' '));
     return tokens.every(t => hay.includes(t) || (SEARCH_SYNONYMS[t] || []).some(s => hay.includes(s)));
 }
 // Wraps the parts of `text` that match the active search (and its synonyms)
