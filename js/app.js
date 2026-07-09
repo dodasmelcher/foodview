@@ -321,6 +321,7 @@ let _searchDebounce = null;
 function handleSearch() {
     const q = document.getElementById('search-input').value.toLowerCase().trim();
     document.getElementById('search-clear')?.classList.toggle('visible', q.length > 0);
+    updateSuggest(q);
     // Search spans both types — when starting to type from a type-scoped tab,
     // jump to Populares (which already mixes restaurantes + bares on search).
     // The header input keeps focus across the tab switch (it lives outside
@@ -342,6 +343,99 @@ function handleSearch() {
         renderPopular();
     }, 200);
 }
+
+// ===== Header search autocomplete =====
+// Client-side: reuses matchesSearch() over placesCache, so it works offline,
+// respects the synonym map, and never hits the network. Ranked by review count.
+let _suggestIdx = -1;
+let _suggestItems = [];
+const SUGGEST_MAX = 5;
+
+function suggestCandidates(q) {
+    if (!q || !placesCache.length) return [];
+    return placesCache
+        .filter(p => matchesSearch(p, q))
+        .map(p => ({ p, r: getPlaceRating(p.id) }))
+        .sort((a, b) => b.r.count - a.r.count
+            || parseFloat(b.r.avg) - parseFloat(a.r.avg)
+            || a.p.name.localeCompare(b.p.name, 'pt-BR'))
+        .slice(0, SUGGEST_MAX)
+        .map(x => x.p);
+}
+
+function updateSuggest(q) {
+    const box = document.getElementById('search-suggest');
+    if (!box) return;
+    const items = suggestCandidates(q);
+    _suggestItems = items;
+    _suggestIdx = -1;
+    if (!items.length) { box.hidden = true; box.innerHTML = ''; return; }
+    const total = placesCache.filter(p => matchesSearch(p, q)).length;
+    box.innerHTML = items.map((p, i) => {
+        const thumb = imgSrc(p.image_url, 80, 80);
+        const bairro = extractBairro(p.address);
+        const subBits = [p.type === 'bar' ? 'Bar' : 'Restaurante', p.category, bairro].filter(Boolean);
+        return `<div class="search-suggest-item" role="option" data-id="${p.id}" data-idx="${i}" onmousedown="event.preventDefault();pickSuggest(${p.id})">
+            ${thumb ? `<img class="search-suggest-thumb" src="${escapeHtml(thumb)}" alt="" loading="lazy">` : '<div class="search-suggest-thumb"></div>'}
+            <div class="search-suggest-body">
+                <div class="search-suggest-name">${highlightTerms(p.name, q)}</div>
+                <div class="search-suggest-sub">${subBits.map(s => highlightTerms(s, q)).join(' · ')}</div>
+            </div>
+        </div>`;
+    }).join('') + (total > items.length
+        ? `<div class="search-suggest-more" onmousedown="event.preventDefault();closeSuggest();document.getElementById('search-input').blur()">Ver todos os ${total} resultados</div>`
+        : '');
+    box.hidden = false;
+}
+
+function pickSuggest(id) {
+    closeSuggest();
+    const el = document.getElementById('search-input');
+    if (el) el.blur();
+    openDetail(id);
+}
+
+function reopenSuggest() {
+    const q = document.getElementById('search-input')?.value.toLowerCase().trim();
+    if (q) updateSuggest(q);
+}
+
+// Delay on blur so a mousedown on an item still registers before we hide.
+function closeSuggest(delay) {
+    const box = document.getElementById('search-suggest');
+    if (!box) return;
+    const hide = () => { box.hidden = true; _suggestIdx = -1; _suggestItems = []; };
+    if (delay) setTimeout(hide, 150); else hide();
+}
+
+function handleSearchKey(e) {
+    const box = document.getElementById('search-suggest');
+    if (!box || box.hidden || !_suggestItems.length) return;
+    if (e.key === 'ArrowDown') {
+        e.preventDefault();
+        _suggestIdx = (_suggestIdx + 1) % _suggestItems.length;
+        applySuggestHighlight();
+    } else if (e.key === 'ArrowUp') {
+        e.preventDefault();
+        _suggestIdx = (_suggestIdx - 1 + _suggestItems.length) % _suggestItems.length;
+        applySuggestHighlight();
+    } else if (e.key === 'Enter' && _suggestIdx >= 0) {
+        e.preventDefault();
+        pickSuggest(_suggestItems[_suggestIdx].id);
+    } else if (e.key === 'Escape') {
+        closeSuggest();
+    }
+}
+
+function applySuggestHighlight() {
+    const box = document.getElementById('search-suggest');
+    if (!box) return;
+    box.querySelectorAll('.search-suggest-item').forEach(el => {
+        el.classList.toggle('active', Number(el.dataset.idx) === _suggestIdx);
+    });
+    const active = box.querySelector('.search-suggest-item.active');
+    if (active) active.scrollIntoView({ block: 'nearest' });
+}
 function clearSearch() {
     const el = document.getElementById('search-input');
     el.value = '';
@@ -349,6 +443,7 @@ function clearSearch() {
     clearTimeout(_searchDebounce);
     searchQuery = '';
     document.getElementById('search-clear')?.classList.remove('visible');
+    closeSuggest();
     resetPage('restaurantes', 'bares', 'popular');
     renderRestaurantes();
     renderBares();

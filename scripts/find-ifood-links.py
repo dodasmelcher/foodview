@@ -61,11 +61,25 @@ def slugify(s: str) -> str:
 
 
 def extract_neighborhood(address: str) -> str:
-    """Pega o bairro de um endereço estilo 'Rua X, 123 - Bairro - São Paulo - SP, CEP'."""
+    """Bairro de 'Rua X, 123 - Bairro, Cidade - UF, CEP'. Só o bairro, sem cidade."""
     if not address:
         return ""
     parts = [p.strip() for p in re.split(r"\s*-\s*", address) if p.strip()]
-    return parts[1] if len(parts) >= 2 else ""
+    if len(parts) < 2:
+        return ""
+    # parts[1] é tipicamente "Bairro, Cidade" — pega só o bairro (antes da vírgula).
+    return parts[1].split(",")[0].strip()
+
+
+def extract_city(address: str) -> str:
+    """Cidade de 'Rua X, 123 - Bairro, Cidade - UF, CEP'."""
+    if not address:
+        return ""
+    parts = [p.strip() for p in re.split(r"\s*-\s*", address) if p.strip()]
+    if len(parts) < 2:
+        return ""
+    segs = [s.strip() for s in parts[1].split(",")]
+    return segs[-1] if len(segs) >= 2 else ""
 
 
 def extract_street(address: str) -> str:
@@ -129,36 +143,70 @@ BROWSER_UA = (
 )
 
 
-def fetch_page_text(url: str, session: requests.Session) -> str:
+EMPTY_META = {"text": "", "og_name": "", "og_city": "", "og_desc": ""}
+# iFood monta og:title como "Nome | CIDADE | iFood" — extrai nome e cidade.
+IFOOD_TITLE_RE = re.compile(r"^\s*(.+?)\s*\|\s*(.+?)\s*\|\s*iFood\s*$", re.I)
+
+
+def fetch_page_meta(url: str, session: requests.Session) -> dict:
+    """Baixa a página do iFood e extrai og:title (nome + cidade), og:description
+    (cozinha) e o texto normalizado da página como fallback."""
     try:
         r = session.get(url, timeout=15, headers={"User-Agent": BROWSER_UA, "Accept-Language": "pt-BR,pt;q=0.9"})
         if not r.ok:
-            return ""
-        return normalize(BeautifulSoup(r.text, "html.parser").get_text(" ", strip=True))
+            return dict(EMPTY_META)
     except Exception:
-        return ""
+        return dict(EMPTY_META)
+    soup = BeautifulSoup(r.text, "html.parser")
+
+    def meta(prop: str) -> str:
+        el = soup.find("meta", attrs={"property": prop}) or soup.find("meta", attrs={"name": prop})
+        return (el.get("content") or "").strip() if el and el.get("content") else ""
+
+    title = meta("og:title")
+    og_name, og_city = "", ""
+    m = IFOOD_TITLE_RE.match(title)
+    if m:
+        og_name = m.group(1).strip()
+        og_city = m.group(2).strip()
+
+    return {
+        "text": normalize(soup.get_text(" ", strip=True)),
+        "og_name": og_name,
+        "og_city": og_city,
+        "og_desc": meta("og:description"),
+    }
 
 
-def confidence(name: str, address: str, url: str, page_norm: str) -> int:
-    """Score 0–100. Sem confirmação de endereço, fica capado em 70."""
+def confidence(name: str, address: str, url: str, meta: dict) -> int:
+    """Score 0–100. Combina slug do URL, endereço e meta tags do iFood.
+    City mismatch (endereço em SP, iFood diz outra cidade) leva penalidade
+    forte — isso pega os falsos positivos do tipo 'Rubaiyat Brasília'."""
+    meta = meta or EMPTY_META
     slug = url_slug(url).replace("-", " ")
     name_norm = slugify(name).replace("-", " ")
-    name_score = fuzz.token_set_ratio(name_norm, slug)  # 0..100
+
+    # Nome-alvo: prefere og:title (limpo) sobre o slug (sujo com bairro no fim).
+    og_name_norm = slugify(meta.get("og_name") or "").replace("-", " ")
+    target = og_name_norm or slug
+    name_score = fuzz.token_set_ratio(name_norm, target)  # 0..100
 
     bairro = slugify(extract_neighborhood(address)).replace("-", " ")
     street = slugify(extract_street(address)).replace("-", " ")
+    city = slugify(extract_city(address)).replace("-", " ")
+    og_city = slugify(meta.get("og_city") or "").replace("-", " ")
+    page_text = meta.get("text") or ""
 
     bairro_in_slug = bool(bairro) and bairro in slug
-    bairro_in_page = bool(bairro) and bairro in page_norm
-    street_in_page = bool(street) and len(street) > 6 and street in page_norm
+    bairro_in_text = bool(bairro) and bairro in page_text
+    street_in_text = bool(street) and len(street) > 6 and street in page_text
+    city_mismatch = bool(og_city and city and city not in og_city and og_city not in city)
 
     score = int(round(name_score * 0.7))  # nome sozinho → até 70
-    if bairro_in_slug:
-        score += 15
-    if bairro_in_page:
-        score += 12
-    if street_in_page:
-        score += 8
+    if bairro_in_slug: score += 15
+    if bairro_in_text: score += 12
+    if street_in_text: score += 8
+    if city_mismatch:  score -= 40  # ex.: SP vs Brasília → derruba forte
     return max(0, min(100, score))
 
 
@@ -233,8 +281,8 @@ def main():
         chosen = pick_ifood(urls)
         conf = 0
         if chosen:
-            page_norm = "" if args.no_verify else fetch_page_text(chosen, session)
-            conf = confidence(nome, end, chosen, page_norm)
+            meta = dict(EMPTY_META) if args.no_verify else fetch_page_meta(chosen, session)
+            conf = confidence(nome, end, chosen, meta)
             ws.cell(row=row, column=link_c, value=chosen)
             ws.cell(row=row, column=conf_c, value=conf)
             found += 1
