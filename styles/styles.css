@@ -639,6 +639,7 @@ a:hover { color: var(--accent-hover); }
 .pcard-info { position:absolute; left:0; right:0; bottom:0; z-index:2; padding:14px 66px 14px 14px; }
 .pcard-name { color:#fff; font-weight:700; font-size:1.0625rem; letter-spacing:-.01em; line-height:1.15; }
 .pcard-sub { color:rgba(255,255,255,.78); font-size:.8125rem; margin-top:3px; }
+mark.hl { background:rgba(212,89,58,.28); color:inherit; padding:0 2px; border-radius:3px; }
 .pcard-fav { flex-shrink:0; width:32px; height:32px; padding:0; background:rgba(0,0,0,.42); border-radius:50%; display:flex; align-items:center; justify-content:center; -webkit-backdrop-filter:blur(4px); backdrop-filter:blur(4px); }
 .pcard-fav svg { width:16px; height:16px; fill:none; stroke:#fff; stroke-width:2; }
 .pcard-fav.active svg { fill:var(--accent); stroke:var(--accent); }

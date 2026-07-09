@@ -75,9 +75,16 @@ function renderHomeSkeleton() {
 function renderCard(r, options = {}) {
     const { avg, count } = getPlaceRating(r.id);
     const rank = options.rank;
-    const name = escapeHtml(r.name);
+    const name = highlightTerms(r.name, searchQuery);
     const img = imgSrc(r.image_url, 600, 600); // square crop; covers both ratios
-    const sub = [r.category, extractBairro(r.address)].filter(Boolean).map(escapeHtml).join(' · ');
+    // showType: prefix the sub with "Restaurante"/"Bar" — used by Populares when
+    // searching, so the user can tell a bar apart from a restaurant in a grid
+    // that mixes both. The type label is NOT highlighted (it's not the match).
+    const typeLabel = options.showType ? (r.type === 'bar' ? 'Bar' : 'Restaurante') : null;
+    const subParts = [r.category, extractBairro(r.address)].filter(Boolean)
+        .map(s => highlightTerms(s, searchQuery));
+    if (typeLabel) subParts.unshift(escapeHtml(typeLabel));
+    const sub = subParts.join(' · ');
     const badges = [];
     if (rank) badges.push(`<span class="pcard-rank">#${rank}</span>`);
     if (r.badge) badges.push(`<span class="pcard-badge">${escapeHtml(r.badge)}</span>`);
@@ -100,12 +107,47 @@ function renderCard(r, options = {}) {
 // Synonyms so e.g. "sushi" finds Japonesa, "drink" finds Coquetelaria. Keys are
 // normalized tokens; values are normalized terms expected in name/category.
 const SEARCH_SYNONYMS = {
-    sushi: ['japonesa'], sashimi: ['japonesa'], omakase: ['japonesa'], temaki: ['japonesa'], nigiri: ['japonesa'], ramen: ['japonesa'], izakaya: ['japonesa'],
-    drink: ['coquetelaria', 'bar'], drinks: ['coquetelaria', 'bar'], cocktail: ['coquetelaria'], coquetel: ['coquetelaria'], coqueteis: ['coquetelaria'],
-    cerveja: ['cervejaria'], cervejas: ['cervejaria'], chopp: ['cervejaria'], chope: ['cervejaria'], breja: ['cervejaria'],
-    pizza: ['italiana', 'pizzaria'], pizzas: ['italiana', 'pizzaria'], massa: ['italiana'], massas: ['italiana'], nhoque: ['italiana'], risoto: ['italiana'],
+    // Japonesa
+    sushi: ['japonesa'], sashimi: ['japonesa'], omakase: ['japonesa'], temaki: ['japonesa'], uramaki: ['japonesa'],
+    nigiri: ['japonesa'], ramen: ['japonesa'], izakaya: ['japonesa'], tonkotsu: ['japonesa'], yakisoba: ['japonesa'],
+    teppanyaki: ['japonesa'], tartare: ['japonesa'],
+    // Bar / drinks
+    drink: ['coquetelaria', 'bar'], drinks: ['coquetelaria', 'bar'], cocktail: ['coquetelaria'],
+    coquetel: ['coquetelaria'], coqueteis: ['coquetelaria'], taca: ['bar'],
+    // Cerveja
+    cerveja: ['cervejaria'], cervejas: ['cervejaria'], chopp: ['cervejaria'], chope: ['cervejaria'],
+    breja: ['cervejaria'], ipa: ['cervejaria'],
+    // Vinho
+    vinho: ['enoteca', 'italiana', 'bar'], vinhos: ['enoteca', 'italiana'], enoteca: ['italiana', 'bar'],
+    // Italiana
+    pizza: ['italiana', 'pizzaria'], pizzas: ['italiana', 'pizzaria'], pizzaria: ['italiana'],
+    massa: ['italiana'], massas: ['italiana'], nhoque: ['italiana'], gnocchi: ['italiana'],
+    risoto: ['italiana'], ravioli: ['italiana'], lasanha: ['italiana'], gelato: ['italiana'],
+    trattoria: ['italiana'], cantina: ['italiana'],
+    // Hambúrguer / lanche
     hamburguer: ['hamburgueria'], burger: ['hamburgueria'], lanche: ['hamburgueria'],
-    churrasco: ['carnes', 'brasileira'], vegano: ['vegetariana'], veggie: ['vegetariana']
+    // Carnes / churrasco
+    churrasco: ['carnes', 'brasileira'], parrilla: ['carnes'], picanha: ['carnes', 'brasileira'],
+    bife: ['carnes'], steak: ['carnes'],
+    // Brasileira regional
+    moqueca: ['brasileira'], feijoada: ['brasileira'], baiana: ['brasileira'], mineira: ['brasileira'],
+    // Vegana / vegetariana
+    vegano: ['vegetariana'], vegana: ['vegetariana'], veggie: ['vegetariana'], plant: ['vegetariana'],
+    // Peruana / mexicana
+    ceviche: ['peruana'], tiradito: ['peruana'], taco: ['mexicana'], tacos: ['mexicana'],
+    burrito: ['mexicana'], guacamole: ['mexicana'],
+    // Asian outros
+    pad: ['tailandesa'], thai: ['tailandesa'], dimsum: ['chinesa'], dim: ['chinesa'],
+    pho: ['vietnamita'], bibimbap: ['coreana'], kimchi: ['coreana'],
+    // Árabe / mediterrânea
+    kebab: ['arabe'], shawarma: ['arabe'], falafel: ['arabe'], hummus: ['arabe'], esfiha: ['arabe'],
+    // Francesa / padaria / doces
+    croissant: ['padaria', 'francesa'], brioche: ['padaria', 'francesa'], baguete: ['padaria', 'francesa'],
+    bistro: ['francesa'], brasserie: ['francesa'],
+    doce: ['patisserie', 'sobremesa', 'confeitaria'], sobremesa: ['patisserie', 'confeitaria'],
+    sorvete: ['gelato', 'sorveteria'],
+    // Café
+    cafe: ['cafeteria', 'padaria'], cafeteria: ['cafe'], cappuccino: ['cafe'], espresso: ['cafe']
 };
 // Accent-insensitive, multi-word search across name/category/address/badge, with
 // synonyms. Every word in the query must match (so "japonesa pinheiros" narrows).
@@ -114,6 +156,47 @@ function matchesSearch(p, query) {
     if (!tokens.length) return true;
     const hay = normalizeText([p.name, p.category, p.address, p.badge].filter(Boolean).join(' '));
     return tokens.every(t => hay.includes(t) || (SEARCH_SYNONYMS[t] || []).some(s => hay.includes(s)));
+}
+// Wraps the parts of `text` that match the active search (and its synonyms)
+// in <mark class="hl">. Returns safe HTML — non-matched chunks are escaped.
+// Position mapping works because normalizeText preserves character count for
+// the Portuguese set we use (NFD-strip-marks is 1:1 per visible char).
+function highlightTerms(text, query) {
+    if (!text) return '';
+    if (!query) return escapeHtml(text);
+    const tokens = normalizeText(query).split(/\s+/).filter(Boolean);
+    if (!tokens.length) return escapeHtml(text);
+    const needles = new Set();
+    for (const t of tokens) {
+        if (t) needles.add(t);
+        for (const s of (SEARCH_SYNONYMS[t] || [])) needles.add(s);
+    }
+    const norm = normalizeText(text);
+    const ranges = [];
+    for (const n of needles) {
+        if (!n) continue;
+        let i = 0;
+        while ((i = norm.indexOf(n, i)) !== -1) {
+            ranges.push([i, i + n.length]);
+            i += n.length;
+        }
+    }
+    if (!ranges.length) return escapeHtml(text);
+    ranges.sort((a, b) => a[0] - b[0]);
+    const merged = [ranges[0].slice()];
+    for (let k = 1; k < ranges.length; k++) {
+        const last = merged[merged.length - 1];
+        if (ranges[k][0] <= last[1]) last[1] = Math.max(last[1], ranges[k][1]);
+        else merged.push(ranges[k].slice());
+    }
+    let out = '', pos = 0;
+    for (const [s, e] of merged) {
+        out += escapeHtml(text.slice(pos, s));
+        out += '<mark class="hl">' + escapeHtml(text.slice(s, e)) + '</mark>';
+        pos = e;
+    }
+    out += escapeHtml(text.slice(pos));
+    return out;
 }
 function filterByType(type) {
     let list = placesCache.filter(p => p.type === type);
@@ -183,7 +266,10 @@ function renderPopular() {
         return;
     }
     const shown = Math.min(visibleCount.popular, ranked.length);
-    el.innerHTML = ranked.slice(0, shown).map((r, i) => renderCard(r, { rank: r.count > 0 ? i + 1 : null })).join('') + loadMoreHTML('popular', ranked.length, shown);
+    el.innerHTML = ranked.slice(0, shown).map((r, i) => renderCard(r, {
+        rank: r.count > 0 ? i + 1 : null,
+        showType: !!searchQuery,
+    })).join('') + loadMoreHTML('popular', ranked.length, shown);
     attachLoadMoreObserver(el);
 }
 
