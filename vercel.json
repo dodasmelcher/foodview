@@ -1,4 +1,7 @@
 {
+  "crons": [
+    { "path": "/api/keepalive", "schedule": "0 6 * * *" }
+  ],
   "rewrites": [
     { "source": "/lugar/:id(\\d+)", "destination": "/api/place-page?id=:id" },
     { "source": "/privacidade", "destination": "/privacidade.html" },
