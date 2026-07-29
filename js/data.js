@@ -33,7 +33,7 @@ async function loadData() {
         sb.from('reviews').select('*').order('created_at', { ascending: false }),
         sb.from('favorites').select('*'),
         sb.from('follows').select('*'),
-        sb.from('profiles').select('*'),
+        sb.from('profiles').select('id,name,avatar_url,bio,created_at'), // never fetch email: it's PII and only auth.users needs it
         sb.from('review_likes').select('*') // tolerant: null until the table exists
     ]);
     placesCache = places || [];

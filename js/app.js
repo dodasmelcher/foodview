@@ -576,7 +576,7 @@ async function submitEditProfile(e) {
         currentUser.name = name;
 
         // Refresh cache and UI
-        const { data: profiles } = await sb.from('profiles').select('*');
+        const { data: profiles } = await sb.from('profiles').select('id,name,avatar_url,bio,created_at');
         profilesCache = profiles || [];
         editProfileAvatarFile = null;
         editProfileAvatarRemove = false;
@@ -1178,7 +1178,10 @@ function openProfile(userId) {
         ? `<button class="btn btn-outline btn-sm" onclick="openEditProfile()">Editar perfil</button>`
         : (currentUser ? `<button class="follow-btn ${isFollowing(userId) ? 'follow-btn-following' : 'follow-btn-follow'}" onclick="toggleFollow('${escapeHtml(userId)}')">${isFollowing(userId) ? 'Seguindo' : 'Seguir'}</button>` : '');
     const bioHTML = profile.bio ? `<p style="color:var(--body);font-size:.9375rem;margin:0 0 16px">${escapeHtml(profile.bio)}</p>` : '';
-    const nameHTML = `<div style="display:flex;align-items:baseline;gap:8px;margin-bottom:6px"><h2 style="font-size:1.25rem;color:var(--heading)">${escapeHtml(profile.name)}</h2><span style="color:var(--metadata);font-size:.8125rem">${escapeHtml(profile.email || '')}</span></div>`;
+    // Only show the email on your own profile (sourced from auth, not the
+    // profiles cache) — never expose another user's email in the UI.
+    const emailHTML = isMe ? escapeHtml(currentUser.email || '') : '';
+    const nameHTML = `<div style="display:flex;align-items:baseline;gap:8px;margin-bottom:6px"><h2 style="font-size:1.25rem;color:var(--heading)">${escapeHtml(profile.name)}</h2><span style="color:var(--metadata);font-size:.8125rem">${emailHTML}</span></div>`;
     document.getElementById('profile-content').innerHTML = `
         <div class="profile-header">
             ${avatarMarkup(profile, 'profile-avatar')}
