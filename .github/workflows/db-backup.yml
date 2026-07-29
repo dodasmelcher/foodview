@@ -43,7 +43,10 @@ jobs:
             echo "::error::Missing SUPABASE_DB_URL or BACKUP_PASSPHRASE secret."; exit 1
           fi
           ts=$(date -u +%Y%m%d-%H%M)
-          pg_dump "$SUPABASE_DB_URL" --no-owner --no-privileges -Fc -f "foodview-$ts.dump"
+          # The runner ships an older pg_dump on PATH (/usr/bin) that refuses to
+          # dump a newer server. Use the highest client we installed explicitly.
+          PG_BIN=$(ls -d /usr/lib/postgresql/*/bin | sort -V | tail -1)
+          "$PG_BIN/pg_dump" "$SUPABASE_DB_URL" --no-owner --no-privileges -Fc -f "foodview-$ts.dump"
           gpg --batch --yes --symmetric --cipher-algo AES256 \
               --passphrase "$BACKUP_PASSPHRASE" -o "foodview-$ts.dump.gpg" "foodview-$ts.dump"
           rm -f "foodview-$ts.dump"
