@@ -827,7 +827,7 @@ img.profile-avatar, img.user-badge-avatar, img.detail-review-avatar { object-fit
         border-top: 1px solid var(--divider);
     }
     .main-container { padding-bottom: 104px; }
-    .bnav { border: none; background: none; font-family: inherit; cursor: pointer; color: var(--metadata);
+    .bnav { border: none; background: none; font-family: inherit; cursor: pointer; color: var(--body-light);
         display: flex; flex-direction: column; align-items: center; gap: 3px; flex: 1; padding-top: 6px; -webkit-tap-highlight-color: transparent; }
     .bnav span { font-size: .62rem; font-weight: 600; }
     .bnav:not(.add) svg { padding: 5px 16px; border-radius: 50px; transition: background .16s; }
