@@ -816,9 +816,14 @@ img.profile-avatar, img.user-badge-avatar, img.detail-review-avatar { object-fit
     .modal-wide { max-width: 95%; }
     .filter-bar { gap: 6px; }
     .filter-btn { font-size: .75rem; padding: 5px 12px; }
-    .header-inner { padding: 0 12px; gap: 8px; }
+    .header-inner { padding: 8px 12px; gap: 8px; height: auto; flex-wrap: wrap; row-gap: 8px; }
     .logo span.food, .logo span.view { font-size: 1.2rem; }
-    .header-search { margin: 0 8px; max-width: none; }
+    /* Give the search its own full-width row on phones so it isn't crushed
+       between the logo and the account buttons. */
+    .header-search { order: 10; flex-basis: 100%; width: 100%; max-width: none; margin: 0; }
+    /* 16px font stops iOS from auto-zooming when the field gains focus; a bit
+       more padding makes it a comfortable tap target. */
+    .search-input { font-size: 16px; padding: 10px 40px; }
     .profile-header { gap: 12px; padding: 16px; }
     .profile-stat strong { font-size: 1rem; }
     .profile-stat span { font-size: .65rem; }
