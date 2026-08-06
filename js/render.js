@@ -378,7 +378,7 @@ function renderHome() {
     const launchpad = `<div class="home-greeting">${greeting}</div>
         <div class="hsearch">
             <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
-            <input type="text" id="home-search" placeholder="Buscar restaurante, cozinha ou bairro…" onkeydown="homeSearch(event)">
+            <input type="text" id="home-search" placeholder="Buscar nome, cozinha ou bairro" onkeydown="homeSearch(event)">
         </div>
         <div class="seg">
             <button class="seg-btn active" onclick="goExplore({tab:'popular'})">Tudo</button>

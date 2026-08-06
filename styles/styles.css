@@ -330,6 +330,7 @@ a:hover { color: var(--accent-hover); }
     padding: 8px 32px 8px 14px; font-size: .8125rem; font-family: inherit; cursor: pointer; max-width: 230px;
     background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="10" height="6" viewBox="0 0 10 6"><path d="M1 1l4 4 4-4" stroke="%23a89e8f" stroke-width="1.5" fill="none"/></svg>');
     background-repeat: no-repeat; background-position: right 13px center;
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
 }
 .fselect:hover { border-color: var(--body-light); }
 /* An applied filter stands out from the untouched ones. */

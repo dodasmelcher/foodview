@@ -859,7 +859,7 @@ function setPopularType(t) {
     resetPage('popular');
     renderPopular();
 }
-const SORT_OPTIONS =[['avaliados', 'Mais avaliados'], ['nota', 'Melhor nota'], ['az', 'A–Z'], ['recentes', 'Recentes']];
+const SORT_OPTIONS =[['avaliados', 'Avaliados'], ['nota', 'Nota'], ['az', 'A–Z'], ['recentes', 'Recentes']];
 function fOption(v, label, selected) {
     return `<option value="${escapeHtml(v)}"${v === selected ? ' selected' : ''}>${escapeHtml(label)}</option>`;
 }
