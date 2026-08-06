@@ -64,10 +64,12 @@ function renderHomeSkeleton() {
     const el = document.getElementById('tab-inicio');
     if (!el || el.children.length) return;
     el.innerHTML =
-        '<div class="skel" style="height:32px;width:55%;max-width:480px;border-radius:8px;margin:6px 0 16px"></div>'
+        '<div class="home-skel-top">'
+        + '<div class="skel" style="height:32px;width:55%;max-width:480px;border-radius:8px;margin:6px 0 16px"></div>'
         + '<div class="skel" style="height:50px;max-width:620px;border-radius:50px"></div>'
         + '<div class="skel" style="height:34px;width:240px;border-radius:50px;margin-top:14px"></div>'
-        + '<div class="skel" style="height:300px;margin-top:40px"></div>'
+        + '</div>'
+        + '<div class="skel" style="height:300px;margin-top:24px"></div>'
         + `<div class="coll-grid" style="margin-top:24px">${'<div class="skel"></div>'.repeat(6)}</div>`;
 }
 

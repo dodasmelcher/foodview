@@ -892,6 +892,11 @@ img.profile-avatar, img.user-badge-avatar, img.detail-review-avatar { object-fit
        search, so drop the launchpad's search box and Tudo/Restaurantes/Bares
        toggle on phones (they were duplicating the new nav). */
     #tab-inicio .home-greeting, #tab-inicio .hsearch, #tab-inicio .seg { display: none; }
+    /* Hide the legacy header search and the old launchpad skeleton up front (in
+       CSS, not just via JS at runtime) so they don't flash the old layout while
+       the app loads — search lives in the Buscar destination on mobile. */
+    .header-search { display: none !important; }
+    .home-skel-top { display: none; }
     /* Compact editorial headers: drop the "em alta" thumbnail strip on phones
        and the tall min-height it reserved, so the title sits right above the
        content instead of leaving a big empty band. */
