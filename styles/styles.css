@@ -814,6 +814,11 @@ img.profile-avatar, img.user-badge-avatar, img.detail-review-avatar { object-fit
 
 /* Install (Add to Home Screen) prompt — mobile web only, above the bottom nav */
 .install-banner { display: none; }
+.install-steps { display: flex; flex-direction: column; gap: 14px; }
+.install-step { display: flex; gap: 12px; align-items: flex-start; color: var(--body); font-size: .9rem; line-height: 1.5; }
+.install-step-n { flex: 0 0 auto; width: 26px; height: 26px; border-radius: 50%; background: var(--accent); color: #fff; display: grid; place-items: center; font-weight: 700; font-size: .85rem; }
+.install-step svg { vertical-align: -3px; color: var(--accent); }
+.install-step b { color: var(--heading); }
 @media (max-width: 700px) {
     .install-banner {
         position: fixed; left: 12px; right: 12px; bottom: calc(94px + env(safe-area-inset-bottom, 0px));
@@ -825,7 +830,9 @@ img.profile-avatar, img.user-badge-avatar, img.detail-review-avatar { object-fit
     .install-body { flex: 1; min-width: 0; }
     .install-title { color: var(--heading); font-weight: 700; font-size: .95rem; margin-bottom: 2px; }
     .install-ios { color: var(--body-light); font-size: .8rem; line-height: 1.4; }
+    .install-ios { cursor: pointer; }
     .install-ios .ios-share { vertical-align: -2px; color: var(--accent); }
+    .install-more { color: var(--accent); font-weight: 600; white-space: nowrap; }
     .install-android { display: none; margin-top: 8px; }
     .install-close { flex: 0 0 auto; background: none; border: none; color: var(--body-light); font-size: 1.5rem; line-height: 1; cursor: pointer; align-self: flex-start; padding: 0 2px; }
 }
