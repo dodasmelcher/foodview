@@ -401,7 +401,6 @@ function renderHome() {
         featHTML = `<div class="home-section"><div class="home-section-head"><h2>Destaque da semana</h2></div>
             <div class="feat-hero" onclick="openDetail(${featured.id})" style="background-image:url('${escapeHtml(imgSrc(featured.image_url, 1200, 480))}')">
                 <div class="feat-inner">
-                    <span class="feat-eyebrow">Destaque da semana</span>
                     <h2 class="feat-title">${escapeHtml(featured.name)}</h2>
                     ${meta ? `<div class="feat-meta">${escapeHtml(meta)}</div>` : ''}
                     <button class="btn btn-primary btn-sm">Ver detalhes</button>

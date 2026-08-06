@@ -294,10 +294,16 @@ async function submitEditPlace(e) {
 // The header search is redundant on Início (which has its own search), so hide
 // it there and show it everywhere else. Reads whichever tab is active.
 function toggleHeaderSearch() {
-    // Hide with visibility (not display) so the search keeps its space and the
-    // nav links stay in the same position as on the other tabs.
     const w = document.querySelector('.header-search');
-    if (w) w.style.visibility = document.getElementById('tab-inicio')?.classList.contains('active') ? 'hidden' : '';
+    if (!w) return;
+    const onHome = document.getElementById('tab-inicio')?.classList.contains('active');
+    // On phones the search sits on its own full-width row, so hiding it with
+    // `visibility` would leave an empty band above the hero — remove it with
+    // `display` instead. On desktop it shares the header row with the nav, so
+    // keep its space (visibility) to avoid shifting the links around.
+    const mobile = window.matchMedia('(max-width: 700px)').matches;
+    w.style.display = onHome && mobile ? 'none' : '';
+    w.style.visibility = onHome && !mobile ? 'hidden' : '';
 }
 // Tabs
 function switchTab(tab) {
@@ -864,8 +870,11 @@ function fOption(v, label, selected) {
     return `<option value="${escapeHtml(v)}"${v === selected ? ' selected' : ''}>${escapeHtml(label)}</option>`;
 }
 function fBarRight(count, active) {
+    // With no filter applied the page header already shows the total, so the
+    // count here would just repeat it — only surface it once filtering narrows.
+    if (!active) return '';
     return `<div class="fbar-right"><span class="fbar-count"><b>${count}</b> ${count === 1 ? 'resultado' : 'resultados'}</span>`
-        + `${active ? `<button class="fclear" data-action="clear">✕ Limpar (${active})</button>` : ''}</div>`;
+        + `<button class="fclear" data-action="clear">✕ Limpar (${active})</button></div>`;
 }
 // Michelin / Delivery as one compact dropdown (cleaner than chips on mobile).
 function fOutrosSelect() {
