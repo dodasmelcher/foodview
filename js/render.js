@@ -337,6 +337,43 @@ function renderAmigos() {
     attachLoadMoreObserver(amigosEl);
 }
 
+// Reviews tab: every review in the app, newest first (dataset is small, so no
+// pagination). Reuses the same review-item layout as the Amigos feed.
+function renderReviews() {
+    const el = document.getElementById('reviews-feed');
+    if (!el) return;
+    const all = [...reviewsCache].sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+    if (!all.length) {
+        el.innerHTML = `<div class="empty-state"><p>Nenhuma avaliação ainda.</p></div>`;
+        return;
+    }
+    el.innerHTML = all.map(rv => {
+        const place = getPlaceById(rv.place_id);
+        const profile = getProfile(rv.user_id);
+        const displayName = profile?.name || rv.author_name || '';
+        const authorProfile = profile || { name: displayName };
+        const nameEsc = escapeHtml(displayName);
+        const userIdEsc = escapeHtml(rv.user_id);
+        const placeImg = imgSrc(place?.image_url, 200, 200);
+        const text = rv.text || '';
+        const textTrimmed = text.length > 120 ? text.slice(0, 120) + '...' : text;
+        return `<div style="display:flex;gap:12px;padding:16px;background:var(--surface);border-radius:var(--radius-md);margin-bottom:12px;cursor:pointer" onclick="openDetail(${rv.place_id})">
+            ${avatarMarkup(authorProfile, 'detail-review-avatar', `onclick="event.stopPropagation();openProfile('${userIdEsc}')" style="cursor:pointer;flex-shrink:0"`)}
+            <div style="flex:1;min-width:0">
+                <div style="display:flex;justify-content:space-between;align-items:center">
+                    <span style="font-weight:600;color:var(--heading);cursor:pointer" onclick="event.stopPropagation();openProfile('${userIdEsc}')">${nameEsc}</span>
+                    <span style="font-size:.75rem;color:var(--metadata)">${formatDate(rv.created_at)}</span>
+                </div>
+                <div style="font-size:.8125rem;color:var(--metadata);margin:2px 0">avaliou <strong style="color:var(--heading)">${escapeHtml(place ? place.name : '?')}</strong></div>
+                <div class="detail-review-stars">${starsHTML(reviewScore(rv))}</div>
+                ${text ? `<div style="font-size:.875rem;color:var(--body);margin-top:4px">${escapeHtml(textTrimmed)}</div>` : ''}
+                <div class="rev-likes-row">${reviewLikeHTML(rv.id)}</div>
+            </div>
+            ${placeImg ? `<img src="${escapeHtml(placeImg)}" style="width:60px;height:60px;object-fit:cover;border-radius:var(--radius-sm);flex-shrink:0" loading="lazy">` : ''}
+        </div>`;
+    }).join('');
+}
+
 // Repaint only the visible tab — switchTab re-renders whichever tab the user
 // opens next, so the hidden grids don't need to be rebuilt on every refresh.
 // The profile tab is rendered by openProfile, not here.
@@ -350,6 +387,7 @@ function render() {
     else if (active === 'popular') renderPopular();
     else if (active === 'favoritos') renderFavoritos();
     else if (active === 'amigos') renderAmigos();
+    else if (active === 'reviews') renderReviews();
 }
 
 // ===== Início (home) =====
@@ -555,6 +593,13 @@ function renderPageHeader(tab) {
             subtitle = 'Faça login pra acompanhar quem você segue.';
             thumbs = emAlta(() => true);
         }
+    } else if (tab === 'reviews') {
+        const reviewedIds = new Set(reviewsCache.map(r => r.place_id));
+        const reviewedCount = placesCache.filter(p => reviewedIds.has(p.id)).length;
+        eyebrow = 'Comunidade';
+        title = 'Reviews';
+        subtitle = `<b>${reviewsCache.length}</b> avaliações · <b>${reviewedCount}</b> lugares`;
+        thumbs = emAlta(() => true);
     } else {
         target.innerHTML = '';
         return;

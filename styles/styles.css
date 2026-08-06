@@ -812,8 +812,28 @@ img.profile-avatar, img.user-badge-avatar, img.detail-review-avatar { object-fit
 }
 .mobile-sidebar ul li a .sidebar-icon { font-size: 1.1rem; width: 24px; text-align: center; }
 
-/* Bottom navigation bar — mobile only */
+/* Top tabs (mobile feed) + bottom navigation bar — mobile only */
+.top-tabs { display: none; }
 .bottom-nav { display: none; }
+
+@media (max-width: 700px) {
+    .top-tabs {
+        display: flex; gap: 2px; overflow-x: auto; scrollbar-width: none;
+        padding: 4px 10px 0; background: var(--surface); border-bottom: 1px solid var(--divider);
+    }
+    .top-tabs::-webkit-scrollbar { display: none; }
+    .top-tab {
+        flex: 0 0 auto; border: none; background: none; font-family: inherit; cursor: pointer;
+        position: relative; color: var(--body-light); font-size: .95rem; font-weight: 600;
+        padding: 10px 13px 12px; white-space: nowrap; -webkit-tap-highlight-color: transparent;
+    }
+    .top-tab[aria-selected="true"] { color: var(--heading); }
+    .top-tab[aria-selected="true"]::after {
+        content: ""; position: absolute; left: 13px; right: 13px; bottom: -1px; height: 3px;
+        border-radius: 3px 3px 0 0; background: var(--tc, var(--accent));
+    }
+    .top-tab:focus-visible { outline: 2px solid var(--accent); outline-offset: -3px; border-radius: 6px; }
+}
 
 @media (max-width: 700px) {
     .nav-links { display: none !important; }

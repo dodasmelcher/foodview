@@ -319,8 +319,10 @@ function switchTab(tab) {
     else if (tab === 'popular') renderPopular();
     else if (tab === 'favoritos') renderFavoritos();
     else if (tab === 'amigos') renderAmigos();
-    const bnDest = { inicio: 'inicio', restaurantes: 'inicio', bares: 'inicio', popular: 'inicio', favoritos: 'perfil', amigos: 'amigos' }[tab];
+    else if (tab === 'reviews') renderReviews();
+    const bnDest = { inicio: 'inicio', restaurantes: 'inicio', bares: 'inicio', popular: 'buscar', reviews: 'inicio', favoritos: 'perfil', amigos: 'amigos' }[tab];
     if (typeof setBottomNavActive === 'function') setBottomNavActive(bnDest || '');
+    if (typeof updateTopTabs === 'function') updateTopTabs(tab);
 }
 
 // ===== Bottom navigation (mobile) =====
@@ -330,6 +332,19 @@ function switchTab(tab) {
 function setBottomNavActive(dest) {
     document.querySelectorAll('#bottom-nav .bnav').forEach(b =>
         b.setAttribute('aria-selected', String(b.dataset.dest === dest)));
+}
+// The top tabs belong to the Início destination only. On the feed tabs they
+// show and highlight the active one; on Buscar/Amigos/Perfil they're hidden.
+const FEED_TABS = ['inicio', 'restaurantes', 'bares', 'reviews'];
+function updateTopTabs(tab) {
+    const bar = document.getElementById('top-tabs');
+    if (!bar) return;
+    const onFeed = FEED_TABS.includes(tab);
+    bar.style.display = onFeed ? '' : 'none'; // '' lets the mobile-only CSS decide
+    if (onFeed) {
+        bar.querySelectorAll('.top-tab').forEach(b =>
+            b.setAttribute('aria-selected', String(b.dataset.feed === tab)));
+    }
 }
 function navTo(dest) {
     if (dest === 'inicio') switchTab('inicio');
@@ -1245,6 +1260,7 @@ function openProfile(userId) {
     document.querySelectorAll('.nav-links a').forEach(a => a.classList.remove('active'));
     renderPageHeader('profile'); // hides the editorial header on the profile page
     toggleHeaderSearch();
+    if (typeof updateTopTabs === 'function') updateTopTabs('profile');
     if (favsWithCoords.length) renderProfileMap(favsWithCoords);
 }
 

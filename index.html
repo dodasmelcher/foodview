@@ -69,6 +69,14 @@
         </div>
     </header>
 
+    <!-- Top tabs — mobile feed navigation (Início destination) -->
+    <div class="top-tabs" id="top-tabs" role="tablist">
+        <button class="top-tab" role="tab" data-feed="inicio" aria-selected="true" style="--tc:var(--accent)" onclick="switchTab('inicio')">Início</button>
+        <button class="top-tab" role="tab" data-feed="restaurantes" aria-selected="false" style="--tc:var(--accent)" onclick="switchTab('restaurantes')">Restaurantes</button>
+        <button class="top-tab" role="tab" data-feed="bares" aria-selected="false" style="--tc:var(--tab-color-bares)" onclick="switchTab('bares')">Bares</button>
+        <button class="top-tab" role="tab" data-feed="reviews" aria-selected="false" style="--tc:var(--star)" onclick="switchTab('reviews')">Reviews</button>
+    </div>
+
     <div class="page-header" id="page-header"></div>
 
     <main class="main-container">
@@ -86,6 +94,9 @@
         <div class="tab-content" id="tab-popular">
             <div class="filter-bar" id="filter-popular"></div>
             <div class="restaurant-grid" id="popular-grid"></div>
+        </div>
+        <div class="tab-content" id="tab-reviews">
+            <div id="reviews-feed"></div>
         </div>
         <div class="tab-content" id="tab-favoritos">
             <div class="restaurant-grid" id="fav-grid"></div>
