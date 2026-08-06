@@ -475,6 +475,17 @@
         </button>
     </nav>
 
+    <!-- Install (Add to Home Screen) prompt — mobile web only -->
+    <div class="install-banner" id="install-banner">
+        <div class="install-icon"><svg viewBox="0 0 28 28" width="26" height="26" aria-hidden="true"><rect width="28" height="28" rx="8" fill="#D4593A"/><g stroke="#fff" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" fill="none"><line x1="11" y1="12.4" x2="11" y2="22"/><line x1="9" y1="6" x2="9" y2="10"/><line x1="11" y1="6" x2="11" y2="10"/><line x1="13" y1="6" x2="13" y2="10"/><path d="M9 10c0 1.5 .9 2.4 2 2.4s2-.9 2-2.4"/><path d="M18.6 6c-1.5 1-1.5 5.6 0 7.1V22"/></g></svg></div>
+        <div class="install-body">
+            <div class="install-title">Instale o FoodView</div>
+            <div class="install-ios">Toque em <svg class="ios-share" viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 15V3m0 0L8 7m4-4l4 4"/><path d="M5 12v7a1 1 0 001 1h12a1 1 0 001-1v-7"/></svg> e depois em <b>“Adicionar à Tela de Início”</b>.</div>
+            <button class="install-android btn btn-primary btn-sm" onclick="doInstall()">Instalar app</button>
+        </div>
+        <button class="install-close" onclick="dismissInstall()" aria-label="Agora não">&times;</button>
+    </div>
+
     <!-- Mobile sidebar -->
     <div class="mobile-sidebar-overlay" id="mobile-sidebar-overlay" onclick="toggleMobileSidebar()"></div>
     <nav class="mobile-sidebar" id="mobile-sidebar">

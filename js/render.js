@@ -466,61 +466,21 @@ function renderHome() {
             </div></div>`;
     }
 
-    // --- coleções ---
-    const michelin = withImg(p => michelinStars(p) > 0);
-    const featColl = michelin.length
-        ? { name: 'Estrelas Michelin', sub: `${michelin.length} lugares premiados`, cover: michelin[0], feat: true, go: 'goExplore({michelin:true})' }
-        : null;
-    const normals = [];
-    topCats.forEach(c => {
-        const list = withImg(p => p.category === c);
-        if (list.length >= 3) normals.push({ name: c, sub: `${list.length} lugares`, cover: list[0], go: `goExplore({cozinha:'${escapeJs(c)}'})` });
-    });
-    if (topHoods[0]) {
-        const list = withImg(p => extractBairro(p.address) === topHoods[0]);
-        if (list.length) normals.push({ name: 'Em ' + topHoods[0], sub: `${list.length} lugares`, cover: list[0], go: `goExplore({bairro:'${escapeJs(topHoods[0])}'})` });
-    }
-    const novos = placesCache.filter(p => p.image_url).slice().sort((a, b) => (b.created_at || '').localeCompare(a.created_at || ''));
-    if (novos.length) normals.push({ name: 'Novos no FoodView', sub: `${novos.length} lugares`, cover: novos[0], go: `goExplore({sort:'recentes'})` });
-    // The featured spans 2×2 of a 3-col grid; gap-free counts of normal cards are
-    // then 2 or 5, so cap to whichever fits (no featured → just up to 6 uniform).
-    const ordered = featColl
-        ? [featColl, ...normals.slice(0, normals.length >= 5 ? 5 : 2)]
-        : normals.slice(0, 6);
-    const collCards = ordered.map(c =>
-        `<div class="coll ${c.feat ? 'feat' : ''}" onclick="${c.go}" style="background-image:url('${escapeHtml(imgSrc(c.cover.image_url, c.feat ? 900 : 500, c.feat ? 450 : 334))}')">
-            <div class="coll-inner"><div class="coll-name">${escapeHtml(c.name)}</div><div class="coll-count">${escapeHtml(c.sub)}</div></div>
-        </div>`).join('');
-    const collHTML = collCards
-        ? `<div class="home-section"><div class="home-section-head"><h2>Coleções</h2></div><div class="coll-grid">${collCards}</div></div>`
+    // --- populares: the most-reviewed places, shown right below the highlight
+    // (this is the home's main list, matching the approved draft) ---
+    const populares = placesCache
+        .filter(p => p.image_url)
+        .map(p => ({ p, r: getPlaceRating(p.id) }))
+        .sort((a, b) => b.r.count - a.r.count
+            || parseFloat(b.r.avg) - parseFloat(a.r.avg)
+            || a.p.name.localeCompare(b.p.name, 'pt-BR'))
+        .slice(0, 10)
+        .map(x => x.p);
+    const popHTML = populares.length
+        ? `<div class="home-section"><div class="home-section-head"><h2>Populares</h2></div><div class="restaurant-grid">${populares.map(p => renderCard(p)).join('')}</div></div>`
         : '';
 
-    // --- avaliações da semana ---
-    let week = reviewsLastDays(7).slice();
-    week.sort((a, b) => getReviewLikeCount(b.id) - getReviewLikeCount(a.id) || (b.created_at || '').localeCompare(a.created_at || ''));
-    if (week.length < 2) week = reviewsCache.slice(0, 6); // fallback when there's little recent activity
-    week = week.slice(0, 6);
-    const weekCards = week.map(rv => {
-        const place = getPlaceById(rv.place_id);
-        const prof = getProfile(rv.user_id) || { name: rv.author_name || '' };
-        const thumb = imgSrc(place?.image_url, 128, 168);
-        const text = (rv.text || '').length > 150 ? rv.text.slice(0, 150) + '…' : (rv.text || '');
-        return `<div class="rev-card" onclick="openDetail(${rv.place_id})">
-            ${thumb ? `<img class="rev-thumb" src="${escapeHtml(thumb)}" alt="" loading="lazy">` : ''}
-            <div class="rev-body">
-                <div class="rev-place">${escapeHtml(place ? place.name : '?')}</div>
-                <div class="rev-stars">${starsHTML(reviewScore(rv))}</div>
-                <div class="rev-by">${avatarMarkup(prof, 'rev-mini')}${escapeHtml(prof.name || '')} · ${formatDate(rv.created_at)}</div>
-                ${text ? `<div class="rev-text">${escapeHtml(text)}</div>` : ''}
-                <div class="rev-likes-row">${reviewLikeHTML(rv.id)}</div>
-            </div>
-        </div>`;
-    }).join('');
-    const weekHTML = weekCards
-        ? `<div class="home-section"><div class="home-section-head"><h2>Avaliações da semana</h2></div><div class="rev-week">${weekCards}</div></div>`
-        : '';
-
-    el.innerHTML = launchpad + featHTML + collHTML + weekHTML;
+    el.innerHTML = launchpad + featHTML + popHTML;
 }
 
 // ===== Editorial page header =====

@@ -812,6 +812,24 @@ img.profile-avatar, img.user-badge-avatar, img.detail-review-avatar { object-fit
 }
 .mobile-sidebar ul li a .sidebar-icon { font-size: 1.1rem; width: 24px; text-align: center; }
 
+/* Install (Add to Home Screen) prompt — mobile web only, above the bottom nav */
+.install-banner { display: none; }
+@media (max-width: 700px) {
+    .install-banner {
+        position: fixed; left: 12px; right: 12px; bottom: calc(94px + env(safe-area-inset-bottom, 0px));
+        z-index: 300; align-items: center; gap: 12px; padding: 12px 14px;
+        background: var(--surface); border: 1px solid var(--divider); border-radius: 16px; box-shadow: var(--shadow-lg);
+    }
+    .install-banner.show { display: flex; }
+    .install-icon { flex: 0 0 auto; display: flex; }
+    .install-body { flex: 1; min-width: 0; }
+    .install-title { color: var(--heading); font-weight: 700; font-size: .95rem; margin-bottom: 2px; }
+    .install-ios { color: var(--body-light); font-size: .8rem; line-height: 1.4; }
+    .install-ios .ios-share { vertical-align: -2px; color: var(--accent); }
+    .install-android { display: none; margin-top: 8px; }
+    .install-close { flex: 0 0 auto; background: none; border: none; color: var(--body-light); font-size: 1.5rem; line-height: 1; cursor: pointer; align-self: flex-start; padding: 0 2px; }
+}
+
 /* Dedicated search screen + place picker */
 .busca-search { margin-bottom: 16px; }
 .addpick-row { display: flex; gap: 12px; align-items: center; padding: 10px; border-radius: 10px; cursor: pointer; transition: background .12s; }

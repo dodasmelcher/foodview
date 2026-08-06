@@ -379,6 +379,43 @@ function pickPlaceReview(id) {
     openReviewModal(id); // handles the login check + opens the rating form
 }
 
+// ===== Install (Add to Home Screen) prompt =====
+// Encourages installing the PWA. Android/Chrome fire beforeinstallprompt so we
+// show a native "Instalar" button; iOS Safari can't, so we show the manual
+// Share → "Adicionar à Tela de Início" instructions. Hidden once installed or
+// dismissed (remembered), and only on phones.
+let _deferredInstall = null;
+function fvIsStandalone() {
+    return window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
+}
+function maybeShowInstall() {
+    const banner = document.getElementById('install-banner');
+    if (!banner || fvIsStandalone()) return;
+    try { if (localStorage.getItem('fv-install-dismissed')) return; } catch (_) {}
+    if (!window.matchMedia('(max-width: 700px)').matches) return;
+    const ios = /iphone|ipad|ipod/i.test(navigator.userAgent);
+    const iosEl = banner.querySelector('.install-ios');
+    const btnEl = banner.querySelector('.install-android');
+    if (ios) { iosEl.style.display = ''; btnEl.style.display = 'none'; }
+    else if (_deferredInstall) { iosEl.style.display = 'none'; btnEl.style.display = 'inline-block'; }
+    else return; // Android without an install prompt available yet
+    banner.classList.add('show');
+}
+function dismissInstall() {
+    document.getElementById('install-banner')?.classList.remove('show');
+    try { localStorage.setItem('fv-install-dismissed', '1'); } catch (_) {}
+}
+async function doInstall() {
+    if (!_deferredInstall) return;
+    _deferredInstall.prompt();
+    try { await _deferredInstall.userChoice; } catch (_) {}
+    _deferredInstall = null;
+    dismissInstall();
+}
+window.addEventListener('beforeinstallprompt', (e) => { e.preventDefault(); _deferredInstall = e; maybeShowInstall(); });
+window.addEventListener('appinstalled', dismissInstall);
+window.addEventListener('load', () => setTimeout(maybeShowInstall, 2500));
+
 // The top tabs belong to the Início destination only. On the feed tabs they
 // show and highlight the active one; on Buscar/Amigos/Perfil they're hidden.
 const FEED_TABS = ['inicio', 'restaurantes', 'bares', 'reviews'];
