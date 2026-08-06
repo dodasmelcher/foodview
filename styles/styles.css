@@ -812,9 +812,33 @@ img.profile-avatar, img.user-badge-avatar, img.detail-review-avatar { object-fit
 }
 .mobile-sidebar ul li a .sidebar-icon { font-size: 1.1rem; width: 24px; text-align: center; }
 
+/* Bottom navigation bar — mobile only */
+.bottom-nav { display: none; }
+
 @media (max-width: 700px) {
     .nav-links { display: none !important; }
     .hamburger { display: flex; }
+    /* fixed 5-item bottom nav */
+    .bottom-nav {
+        display: flex; position: fixed; left: 0; right: 0; bottom: 0; z-index: 200;
+        align-items: flex-start; justify-content: space-between;
+        padding: 8px 14px calc(10px + env(safe-area-inset-bottom, 0px));
+        background: rgba(31,28,24,.97); backdrop-filter: blur(12px);
+        border-top: 1px solid var(--divider);
+    }
+    .main-container { padding-bottom: 104px; }
+    .bnav { border: none; background: none; font-family: inherit; cursor: pointer; color: var(--metadata);
+        display: flex; flex-direction: column; align-items: center; gap: 3px; flex: 1; padding-top: 6px; -webkit-tap-highlight-color: transparent; }
+    .bnav span { font-size: .62rem; font-weight: 600; }
+    .bnav:not(.add) svg { padding: 5px 16px; border-radius: 50px; transition: background .16s; }
+    .bnav[aria-selected="true"] { color: var(--accent); }
+    .bnav[aria-selected="true"]:not(.add) svg { background: rgba(212,89,58,.15); }
+    .bnav:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+    .bnav.add { flex: 0 0 auto; }
+    .bnav-add { width: 48px; height: 48px; border-radius: 15px;
+        background: linear-gradient(150deg, var(--accent-hover), #b8472d);
+        display: grid; place-items: center; color: #fff; margin-top: -4px;
+        box-shadow: 0 8px 18px -6px rgba(212,89,58,.7), inset 0 1px 0 rgba(255,255,255,.28); }
     .restaurant-grid { grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); }
     .pcard { aspect-ratio: 4/5; } /* taller poster on phones (looks great in 2 cols) */
     .modal { padding: 24px; width: 95%; }

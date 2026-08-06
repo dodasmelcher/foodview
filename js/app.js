@@ -319,6 +319,35 @@ function switchTab(tab) {
     else if (tab === 'popular') renderPopular();
     else if (tab === 'favoritos') renderFavoritos();
     else if (tab === 'amigos') renderAmigos();
+    const bnDest = { inicio: 'inicio', restaurantes: 'inicio', bares: 'inicio', popular: 'inicio', favoritos: 'perfil', amigos: 'amigos' }[tab];
+    if (typeof setBottomNavActive === 'function') setBottomNavActive(bnDest || '');
+}
+
+// ===== Bottom navigation (mobile) =====
+// Maps the 5 bottom-bar destinations onto the app. Início/Amigos are existing
+// tabs; Buscar jumps to the mixed list with the search focused; + starts a
+// review (pick a place first); Perfil opens the logged-in user's own profile.
+function setBottomNavActive(dest) {
+    document.querySelectorAll('#bottom-nav .bnav').forEach(b =>
+        b.setAttribute('aria-selected', String(b.dataset.dest === dest)));
+}
+function navTo(dest) {
+    if (dest === 'inicio') switchTab('inicio');
+    else if (dest === 'amigos') switchTab('amigos');
+    else if (dest === 'buscar') {
+        switchTab('popular');
+        window.scrollTo({ top: 0 });
+        document.getElementById('search-input')?.focus();
+    } else if (dest === 'add') {
+        if (!getUser()) { openModal('account'); return; }
+        switchTab('popular');
+        document.getElementById('search-input')?.focus();
+        if (typeof showToast === 'function') showToast('Busque o lugar e toque nele para avaliar', 'info', 4000);
+    } else if (dest === 'perfil') {
+        if (!getUser()) { openModal('account-login'); return; }
+        openProfile(currentUser.id);
+    }
+    setBottomNavActive(dest);
 }
 
 // Cheap parts run immediately (X button toggle); expensive re-render of three
