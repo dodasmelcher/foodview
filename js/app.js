@@ -970,8 +970,8 @@ function fOutrosSelect() {
     const v = extraFilter.michelin ? 'michelin' : (extraFilter.delivery ? 'delivery' : 'tudo');
     return `<select class="fselect${v !== 'tudo' ? ' active' : ''}" data-filter="outros">`
         + fOption('tudo', 'Outros: todos', v)
-        + fOption('michelin', '★ Michelin', v)
-        + fOption('delivery', '🛵 Delivery', v)
+        + fOption('michelin', 'Michelin', v)
+        + fOption('delivery', 'Delivery', v)
         + `</select>`;
 }
 function buildFilterBar(type, count = 0) {
