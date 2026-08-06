@@ -870,7 +870,7 @@ function fBarRight(count, active) {
 // Michelin / Delivery as one compact dropdown (cleaner than chips on mobile).
 function fOutrosSelect() {
     const v = extraFilter.michelin ? 'michelin' : (extraFilter.delivery ? 'delivery' : 'tudo');
-    return `<select class="fselect" data-filter="outros">`
+    return `<select class="fselect${v !== 'tudo' ? ' active' : ''}" data-filter="outros">`
         + fOption('tudo', 'Outros: todos', v)
         + fOption('michelin', '★ Michelin', v)
         + fOption('delivery', '🛵 Delivery', v)
@@ -886,9 +886,9 @@ function buildFilterBar(type, count = 0) {
     const sorts = SORT_OPTIONS.map(([v, l]) => fOption(v, 'Ordenar: ' + l.toLowerCase(), sortBy)).join('');
     const active = (catVal !== 'Todas') + (bairroVal !== 'Todos') + extraFilter.michelin + extraFilter.delivery;
     el.innerHTML =
-        `<select class="fselect" data-filter="cozinha">${cats}</select>`
-        + `<select class="fselect" data-filter="bairro">${bairros}</select>`
-        + `<select class="fselect" data-filter="sort">${sorts}</select>`
+        `<select class="fselect${catVal !== 'Todas' ? ' active' : ''}" data-filter="cozinha">${cats}</select>`
+        + `<select class="fselect${bairroVal !== 'Todos' ? ' active' : ''}" data-filter="bairro">${bairros}</select>`
+        + `<select class="fselect${sortBy !== 'avaliados' ? ' active' : ''}" data-filter="sort">${sorts}</select>`
         + fOutrosSelect() + fBarRight(count, active);
 }
 function buildPopularFilterBar(count = 0) {

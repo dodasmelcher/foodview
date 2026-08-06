@@ -332,6 +332,12 @@ a:hover { color: var(--accent-hover); }
     background-repeat: no-repeat; background-position: right 13px center;
 }
 .fselect:hover { border-color: var(--body-light); }
+/* An applied filter stands out from the untouched ones. */
+.fselect.active {
+    border-color: var(--accent); color: var(--accent); font-weight: 600;
+    background-color: var(--surface);
+    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="10" height="6" viewBox="0 0 10 6"><path d="M1 1l4 4 4-4" stroke="%23D4593A" stroke-width="1.5" fill="none"/></svg>');
+}
 .fbar-right { margin-left: auto; display: flex; align-items: center; gap: 14px; }
 .fbar-count { color: var(--metadata); font-size: .8125rem; }
 .fbar-count b { color: var(--body-light); }
@@ -815,6 +821,8 @@ img.profile-avatar, img.user-badge-avatar, img.detail-review-avatar { object-fit
     .detail-image, .detail-image-placeholder { width: 100%; min-width: auto; }
     .modal-wide { max-width: 95%; }
     .filter-bar { gap: 6px; }
+    /* Two even columns instead of a ragged wrap (Cozinha/Bairro/Ordenar/Outros). */
+    .filter-bar .fselect { flex: 1 1 calc(50% - 3px); max-width: none; min-width: 0; }
     .filter-btn { font-size: .75rem; padding: 5px 12px; }
     .header-inner { padding: 8px 12px; gap: 8px; height: auto; flex-wrap: wrap; row-gap: 8px; }
     .logo span.food, .logo span.view { font-size: 1.2rem; }
