@@ -891,7 +891,7 @@ img.profile-avatar, img.user-badge-avatar, img.detail-review-avatar { object-fit
     /* Home: the top tabs + the Buscar destination already cover navigation and
        search, so drop the launchpad's search box and Tudo/Restaurantes/Bares
        toggle on phones (they were duplicating the new nav). */
-    #tab-inicio .hsearch, #tab-inicio .seg { display: none; }
+    #tab-inicio .home-greeting, #tab-inicio .hsearch, #tab-inicio .seg { display: none; }
     /* Compact editorial headers: drop the "em alta" thumbnail strip on phones
        and the tall min-height it reserved, so the title sits right above the
        content instead of leaving a big empty band. */
