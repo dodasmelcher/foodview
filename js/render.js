@@ -480,7 +480,32 @@ function renderHome() {
         ? `<div class="home-section"><div class="home-section-head"><h2>Populares</h2></div><div class="restaurant-grid">${populares.map(p => renderCard(p)).join('')}</div></div>`
         : '';
 
-    el.innerHTML = launchpad + featHTML + popHTML;
+    // --- avaliações da semana (below Populares) ---
+    let week = reviewsLastDays(7).slice();
+    week.sort((a, b) => getReviewLikeCount(b.id) - getReviewLikeCount(a.id) || (b.created_at || '').localeCompare(a.created_at || ''));
+    if (week.length < 2) week = reviewsCache.slice(0, 6); // fallback when there's little recent activity
+    week = week.slice(0, 6);
+    const weekCards = week.map(rv => {
+        const place = getPlaceById(rv.place_id);
+        const prof = getProfile(rv.user_id) || { name: rv.author_name || '' };
+        const thumb = imgSrc(place?.image_url, 128, 168);
+        const text = (rv.text || '').length > 150 ? rv.text.slice(0, 150) + '…' : (rv.text || '');
+        return `<div class="rev-card" onclick="openDetail(${rv.place_id})">
+            ${thumb ? `<img class="rev-thumb" src="${escapeHtml(thumb)}" alt="" loading="lazy">` : ''}
+            <div class="rev-body">
+                <div class="rev-place">${escapeHtml(place ? place.name : '?')}</div>
+                <div class="rev-stars">${starsHTML(reviewScore(rv))}</div>
+                <div class="rev-by">${avatarMarkup(prof, 'rev-mini')}${escapeHtml(prof.name || '')} · ${formatDate(rv.created_at)}</div>
+                ${text ? `<div class="rev-text">${escapeHtml(text)}</div>` : ''}
+                <div class="rev-likes-row">${reviewLikeHTML(rv.id)}</div>
+            </div>
+        </div>`;
+    }).join('');
+    const weekHTML = weekCards
+        ? `<div class="home-section"><div class="home-section-head"><h2>Avaliações da semana</h2></div><div class="rev-week">${weekCards}</div></div>`
+        : '';
+
+    el.innerHTML = launchpad + featHTML + popHTML + weekHTML;
 }
 
 // ===== Editorial page header =====
