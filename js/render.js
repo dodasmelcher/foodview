@@ -374,6 +374,23 @@ function renderReviews() {
     }).join('');
 }
 
+// Dedicated Buscar screen: filters every place by the query (name, cuisine,
+// address, delivery app — same matcher as the header search) and shows cards.
+function renderBusca() {
+    const el = document.getElementById('busca-results');
+    if (!el) return;
+    const q = (document.getElementById('busca-input')?.value || '').toLowerCase().trim();
+    document.getElementById('busca-clear')?.classList.toggle('visible', q.length > 0);
+    if (!q) {
+        el.innerHTML = `<div class="empty-state" style="grid-column:1/-1"><p>Busque por nome, cozinha ou bairro.</p><p style="font-size:.8125rem">Ex: japonesa · pinheiros · michelin · ifood</p></div>`;
+        return;
+    }
+    const matches = placesCache.filter(p => matchesSearch(p, q));
+    el.innerHTML = matches.length
+        ? matches.map(p => renderCard(p)).join('')
+        : `<div class="empty-state" style="grid-column:1/-1"><p>Nenhum resultado para "<b>${escapeHtml(q)}</b>".</p></div>`;
+}
+
 // Repaint only the visible tab — switchTab re-renders whichever tab the user
 // opens next, so the hidden grids don't need to be rebuilt on every refresh.
 // The profile tab is rendered by openProfile, not here.
@@ -388,6 +405,7 @@ function render() {
     else if (active === 'favoritos') renderFavoritos();
     else if (active === 'amigos') renderAmigos();
     else if (active === 'reviews') renderReviews();
+    else if (active === 'busca') renderBusca();
 }
 
 // ===== Início (home) =====

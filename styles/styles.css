@@ -812,6 +812,12 @@ img.profile-avatar, img.user-badge-avatar, img.detail-review-avatar { object-fit
 }
 .mobile-sidebar ul li a .sidebar-icon { font-size: 1.1rem; width: 24px; text-align: center; }
 
+/* Dedicated search screen + place picker */
+.busca-search { margin-bottom: 16px; }
+.addpick-row { display: flex; gap: 12px; align-items: center; padding: 10px; border-radius: 10px; cursor: pointer; transition: background .12s; }
+.addpick-row:hover { background: var(--surface-alt); }
+.addpick-thumb { width: 48px; height: 48px; border-radius: 8px; object-fit: cover; background: var(--surface-alt); flex: 0 0 auto; }
+
 /* Top tabs (mobile feed) + bottom navigation bar — mobile only */
 .top-tabs { display: none; }
 .bottom-nav { display: none; }

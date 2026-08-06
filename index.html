@@ -98,6 +98,16 @@
         <div class="tab-content" id="tab-reviews">
             <div id="reviews-feed"></div>
         </div>
+        <div class="tab-content" id="tab-busca">
+            <div class="busca-search">
+                <div class="search-wrapper" style="max-width:none;margin:0">
+                    <svg class="search-icon" style="width:16px;height:16px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+                    <input type="text" class="search-input" id="busca-input" placeholder="Buscar restaurante, bar ou cozinha" oninput="handleBusca()" autocomplete="off">
+                    <button type="button" class="search-clear" id="busca-clear" onclick="clearBusca()" aria-label="Limpar busca">&times;</button>
+                </div>
+            </div>
+            <div class="restaurant-grid" id="busca-results"></div>
+        </div>
         <div class="tab-content" id="tab-favoritos">
             <div class="restaurant-grid" id="fav-grid"></div>
         </div>
@@ -161,6 +171,21 @@
             <div class="modal-actions" style="margin-top:12px">
                 <button type="button" class="btn-cancel" onclick="closeModal('fsq')">Fechar</button>
             </div>
+        </div>
+    </div>
+
+    <!-- Modal: pick a place to review (from the + bottom button) -->
+    <div class="modal-overlay" id="modal-addpick" style="z-index:820">
+        <div class="modal" style="max-width:520px">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
+                <h3 style="color:var(--heading);font-size:1.0625rem;font-weight:700">Avaliar um lugar</h3>
+                <button type="button" onclick="closeModal('addpick')" aria-label="Fechar" style="background:none;border:none;color:var(--body-light);font-size:1.6rem;line-height:1;cursor:pointer">&times;</button>
+            </div>
+            <div class="search-wrapper" style="max-width:none;margin:0 0 14px">
+                <svg class="search-icon" style="width:16px;height:16px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+                <input type="text" class="search-input" id="addpick-input" placeholder="Busque o restaurante ou bar" oninput="renderAddPick()" autocomplete="off">
+            </div>
+            <div id="addpick-results" style="max-height:52vh;overflow-y:auto"></div>
         </div>
     </div>
 

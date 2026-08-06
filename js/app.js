@@ -296,14 +296,14 @@ async function submitEditPlace(e) {
 function toggleHeaderSearch() {
     const w = document.querySelector('.header-search');
     if (!w) return;
-    const onHome = document.getElementById('tab-inicio')?.classList.contains('active');
-    // On phones the search sits on its own full-width row, so hiding it with
-    // `visibility` would leave an empty band above the hero — remove it with
-    // `display` instead. On desktop it shares the header row with the nav, so
-    // keep its space (visibility) to avoid shifting the links around.
+    // On phones, search lives in its own bottom-nav destination (Buscar), so the
+    // header search is always hidden there. On desktop it shares the header row
+    // with the nav; hide it only on Home (via visibility, to keep the layout).
     const mobile = window.matchMedia('(max-width: 700px)').matches;
-    w.style.display = onHome && mobile ? 'none' : '';
-    w.style.visibility = onHome && !mobile ? 'hidden' : '';
+    if (mobile) { w.style.display = 'none'; return; }
+    const onHome = document.getElementById('tab-inicio')?.classList.contains('active');
+    w.style.display = '';
+    w.style.visibility = onHome ? 'hidden' : '';
 }
 // Tabs
 function switchTab(tab) {
@@ -320,7 +320,8 @@ function switchTab(tab) {
     else if (tab === 'favoritos') renderFavoritos();
     else if (tab === 'amigos') renderAmigos();
     else if (tab === 'reviews') renderReviews();
-    const bnDest = { inicio: 'inicio', restaurantes: 'inicio', bares: 'inicio', popular: 'buscar', reviews: 'inicio', favoritos: 'perfil', amigos: 'amigos' }[tab];
+    else if (tab === 'busca') renderBusca();
+    const bnDest = { inicio: 'inicio', restaurantes: 'inicio', bares: 'inicio', popular: 'buscar', busca: 'buscar', reviews: 'inicio', favoritos: 'perfil', amigos: 'amigos' }[tab];
     if (typeof setBottomNavActive === 'function') setBottomNavActive(bnDest || '');
     if (typeof updateTopTabs === 'function') updateTopTabs(tab);
 }
@@ -333,6 +334,51 @@ function setBottomNavActive(dest) {
     document.querySelectorAll('#bottom-nav .bnav').forEach(b =>
         b.setAttribute('aria-selected', String(b.dataset.dest === dest)));
 }
+// ---- Dedicated Buscar screen ----
+function handleBusca() { renderBusca(); }
+function clearBusca() {
+    const el = document.getElementById('busca-input');
+    if (el) el.value = '';
+    renderBusca();
+    el?.focus();
+}
+
+// ---- "+" place picker: find a place, then jump straight into its review form ----
+function openAddPicker() {
+    const inp = document.getElementById('addpick-input');
+    if (inp) inp.value = '';
+    renderAddPick();
+    openModal('addpick');
+}
+function renderAddPick() {
+    const el = document.getElementById('addpick-results');
+    if (!el) return;
+    const q = (document.getElementById('addpick-input')?.value || '').toLowerCase().trim();
+    // Default to the most recently added places so the list isn't empty.
+    const list = q
+        ? placesCache.filter(p => matchesSearch(p, q))
+        : [...placesCache].sort((a, b) => new Date(b.created_at) - new Date(a.created_at)).slice(0, 8);
+    if (!list.length) {
+        el.innerHTML = `<div style="padding:18px;color:var(--metadata);text-align:center">Nenhum lugar encontrado.</div>`;
+        return;
+    }
+    el.innerHTML = list.map(p => {
+        const img = imgSrc(p.image_url, 100, 100);
+        const meta = [p.type === 'bar' ? 'Bar' : 'Restaurante', p.category, extractBairro(p.address)].filter(Boolean).join(' · ');
+        return `<div class="addpick-row" onclick="pickPlaceReview(${p.id})">
+            ${img ? `<img src="${escapeHtml(img)}" class="addpick-thumb" loading="lazy" alt="">` : '<div class="addpick-thumb"></div>'}
+            <div style="flex:1;min-width:0">
+                <div style="color:var(--heading);font-weight:600">${escapeHtml(p.name)}</div>
+                <div style="color:var(--metadata);font-size:.8125rem">${escapeHtml(meta)}</div>
+            </div>
+        </div>`;
+    }).join('');
+}
+function pickPlaceReview(id) {
+    closeModal('addpick');
+    openReviewModal(id); // handles the login check + opens the rating form
+}
+
 // The top tabs belong to the Início destination only. On the feed tabs they
 // show and highlight the active one; on Buscar/Amigos/Perfil they're hidden.
 const FEED_TABS = ['inicio', 'restaurantes', 'bares', 'reviews'];
@@ -350,14 +396,13 @@ function navTo(dest) {
     if (dest === 'inicio') switchTab('inicio');
     else if (dest === 'amigos') switchTab('amigos');
     else if (dest === 'buscar') {
-        switchTab('popular');
+        switchTab('busca');
         window.scrollTo({ top: 0 });
-        document.getElementById('search-input')?.focus();
+        document.getElementById('busca-input')?.focus();
     } else if (dest === 'add') {
         if (!getUser()) { openModal('account'); return; }
-        switchTab('popular');
-        document.getElementById('search-input')?.focus();
-        if (typeof showToast === 'function') showToast('Busque o lugar e toque nele para avaliar', 'info', 4000);
+        openAddPicker(); // + is an action, not a persistent destination
+        return;
     } else if (dest === 'perfil') {
         if (!getUser()) { openModal('account-login'); return; }
         openProfile(currentUser.id);
