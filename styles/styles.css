@@ -824,8 +824,8 @@ img.profile-avatar, img.user-badge-avatar, img.detail-review-avatar { object-fit
 
 @media (max-width: 700px) {
     .top-tabs {
-        display: flex; gap: 2px; overflow-x: auto; scrollbar-width: none;
-        padding: 4px 10px 0; background: var(--surface); border-bottom: 1px solid var(--divider);
+        display: flex; justify-content: space-between; gap: 2px; overflow-x: auto; scrollbar-width: none;
+        padding: 4px 6px 0; background: var(--surface); border-bottom: 1px solid var(--divider);
     }
     .top-tabs::-webkit-scrollbar { display: none; }
     .top-tab {
@@ -892,8 +892,11 @@ img.profile-avatar, img.user-badge-avatar, img.detail-review-avatar { object-fit
        search, so drop the launchpad's search box and Tudo/Restaurantes/Bares
        toggle on phones (they were duplicating the new nav). */
     #tab-inicio .hsearch, #tab-inicio .seg { display: none; }
-    /* Compact editorial headers: drop the "em alta" thumbnail strip on phones. */
+    /* Compact editorial headers: drop the "em alta" thumbnail strip on phones
+       and the tall min-height it reserved, so the title sits right above the
+       content instead of leaving a big empty band. */
     .page-header-thumbs { display: none; }
+    .page-header { padding: 20px 16px; min-height: 0; }
     .main-container { padding: 24px 16px; }
     .hide-on-mobile { display: none !important; }
 }
