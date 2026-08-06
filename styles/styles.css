@@ -843,7 +843,7 @@ img.profile-avatar, img.user-badge-avatar, img.detail-review-avatar { object-fit
 
 @media (max-width: 700px) {
     .nav-links { display: none !important; }
-    .hamburger { display: flex; }
+    .hamburger { display: none; } /* nav lives in the bottom bar + top tabs now */
     /* fixed 5-item bottom nav */
     .bottom-nav {
         display: flex; position: fixed; left: 0; right: 0; bottom: 0; z-index: 200;
@@ -883,9 +883,17 @@ img.profile-avatar, img.user-badge-avatar, img.detail-review-avatar { object-fit
     /* 16px font stops iOS from auto-zooming when the field gains focus; a bit
        more padding makes it a comfortable tap target. */
     .search-input { font-size: 16px; padding: 10px 40px; }
-    .profile-header { gap: 12px; padding: 16px; }
+    .profile-header { gap: 12px; padding: 16px; flex-wrap: wrap; row-gap: 14px; }
+    /* Give the 4 stats their own full-width row so labels stop colliding. */
+    .profile-stats { flex-basis: 100%; order: 2; }
     .profile-stat strong { font-size: 1rem; }
     .profile-stat span { font-size: .65rem; }
+    /* Home: the top tabs + the Buscar destination already cover navigation and
+       search, so drop the launchpad's search box and Tudo/Restaurantes/Bares
+       toggle on phones (they were duplicating the new nav). */
+    #tab-inicio .hsearch, #tab-inicio .seg { display: none; }
+    /* Compact editorial headers: drop the "em alta" thumbnail strip on phones. */
+    .page-header-thumbs { display: none; }
     .main-container { padding: 24px 16px; }
     .hide-on-mobile { display: none !important; }
 }
